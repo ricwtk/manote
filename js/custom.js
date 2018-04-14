@@ -162,6 +162,8 @@ Vue.component("input-datetime", {
   props: ["value"],
   data: function () {
     return {
+      removedDate: "",
+      removedTime: "",
       limits: {
         year: [1970, 2100],
         month: [1, 12],
@@ -178,10 +180,48 @@ Vue.component("input-datetime", {
       }
     }
   },
+  computed: {
+    dateDisabled: function () {
+      return this.value.substr(0,10) == "-".repeat(10);
+    },
+    timeDisabled: function () {
+      return this.value.substr(-5) == "-".repeat(5);
+    }
+  },
   methods: {
+    getCurrentDate: function () {
+      return this.$refs.year.value + "-" + this.$refs.month.value + "-" + this.$refs.day.value;
+    },
+    getCurrentTime: function () {
+      return this.$refs.hour.value + ":" + this.$refs.minute.value;
+    },
     selectThis: function (ev) {
       ev.target.selectionStart = 0;
       ev.target.selectionEnd = -1;
+    },
+    toggleDate: function () {
+      if (this.dateDisabled) {
+        if (this.removedDate !== "") {
+          this.$emit("input", this.removedDate + "T" + this.getCurrentTime());
+        } else {
+          this.$emit("input", new Date().toISOString().substr(0,10) + "T" + this.getCurrentTime());
+        }
+      } else {
+        this.removedDate = this.value.substr(0,10);
+        this.$emit("input", "-".repeat(10) + "T" + this.getCurrentTime());
+      }
+    },
+    toggleTime: function () {
+      if (this.timeDisabled) {
+        if (this.removedTime !== "") {
+          this.$emit("input", this.getCurrentDate() + "T" + this.removedTime);
+        } else {
+          this.$emit("input", this.getCurrentDate() + "T" + new Date().toISOString().substr(11,5));
+        }
+      } else {
+        this.removedTime = this.value.substr(-5);
+        this.$emit("input", this.getCurrentDate() + "T" + "-".repeat(5));
+      }
     },
     limitValue: function (val, sect) {
       val = val < this.limits[sect][0] ? this.limits[sect][0] : val;
@@ -220,18 +260,18 @@ Vue.component("input-datetime", {
   template: `
     <div class="input-datetime form-input">
       <div class="input-group col-6 col-md-12">
-        <div class="mdi mdi-calendar"></div>
-        <input type="text" ref="year" class="invisible-form-input text-center four-digits" :value="value.substr(0,4)" @keydown="updateInput($event,'year')" @click="selectThis">
+        <div :class="['mdi', 'mdi-calendar', dateDisabled ? 'text-error' : 'text-success']" @click="toggleDate"></div>
+        <input type="text" ref="year" :disabled="dateDisabled" class="invisible-form-input text-center four-digits" :value="value.substr(0,4)" @keydown="updateInput($event,'year')" @click="selectThis">
         <div>-</div>
-        <input type="text" ref="month" class="invisible-form-input text-center two-digits" :value="value.substr(5,2)" @keydown="updateInput($event,'month')" @click="selectThis">
+        <input type="text" ref="month" :disabled="dateDisabled" class="invisible-form-input text-center two-digits" :value="value.substr(5,2)" @keydown="updateInput($event,'month')" @click="selectThis">
         <div>-</div>
-        <input type="text" ref="day" class="invisible-form-input text-center two-digits" :value="value.substr(8,2)" @keydown="updateInput($event,'day')" @click="selectThis">
+        <input type="text" ref="day" :disabled="dateDisabled" class="invisible-form-input text-center two-digits" :value="value.substr(8,2)" @keydown="updateInput($event,'day')" @click="selectThis">
       </div>
       <div class="input-group col-6 col-md-12">
-        <div class="mdi mdi-clock"></div>
-        <input type="text" ref="hour" class="invisible-form-input text-center two-digits" :value="value.substr(-5,2)" @keydown="updateInput($event,'hour')" @click="selectThis">
+        <div :class="['mdi', 'mdi-clock', timeDisabled ? 'text-error' : 'text-success']" @click="toggleTime"></div>
+        <input type="text" ref="hour" :disabled="timeDisabled" class="invisible-form-input text-center two-digits" :value="value.substr(-5,2)" @keydown="updateInput($event,'hour')" @click="selectThis">
         <div>:</div>
-        <input type="text" ref="minute" class="invisible-form-input text-center two-digits" :value="value.substr(-2)" @keydown="updateInput($event,'minute')" @click="selectThis">
+        <input type="text" ref="minute" :disabled="timeDisabled" class="invisible-form-input text-center two-digits" :value="value.substr(-2)" @keydown="updateInput($event,'minute')" @click="selectThis">
       </div>
     </div>
   `
