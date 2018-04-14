@@ -218,15 +218,16 @@ Vue.component("input-datetime", {
     }
   },
   template: `
-    <div class="input-group">
-      <div class="form-input input-group">
+    <div class="input-datetime form-input">
+      <div class="input-group col-6 col-md-12">
         <div class="mdi mdi-calendar"></div>
         <input type="text" ref="year" class="invisible-form-input text-center four-digits" :value="value.substr(0,4)" @keydown="updateInput($event,'year')" @click="selectThis">
         <div>-</div>
         <input type="text" ref="month" class="invisible-form-input text-center two-digits" :value="value.substr(5,2)" @keydown="updateInput($event,'month')" @click="selectThis">
         <div>-</div>
         <input type="text" ref="day" class="invisible-form-input text-center two-digits" :value="value.substr(8,2)" @keydown="updateInput($event,'day')" @click="selectThis">
-        <div>&nbsp;</div>
+      </div>
+      <div class="input-group col-6 col-md-12">
         <div class="mdi mdi-clock"></div>
         <input type="text" ref="hour" class="invisible-form-input text-center two-digits" :value="value.substr(-5,2)" @keydown="updateInput($event,'hour')" @click="selectThis">
         <div>:</div>

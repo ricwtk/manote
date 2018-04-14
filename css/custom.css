@@ -129,3 +129,10 @@ textarea {
 .four-digits {
   width: 3em;
 }
+
+.input-datetime {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  height: auto;
+}
