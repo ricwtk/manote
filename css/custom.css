@@ -99,7 +99,33 @@ body {
 }
 
 .list-container .tile:hover,
-.note-container .tile:hover {
+.note-container .tile:hover,
+.list-container .tile.selected,
+.my-button:hover {
   background-color: rgba(248,249,250,1);
 }
 
+textarea {
+  resize: vertical;
+  min-height: 150px;
+}
+
+.form-datetime {
+  display: flex;
+}
+
+.invisible-form-input {
+  appearance: none;
+  -moz-appearance: none;
+  -webkit-appearance: none;
+  border: 0px;
+  background: rgba(255,255,255,0);
+}
+
+.two-digits {
+  width: 2em;
+}
+
+.four-digits {
+  width: 3em;
+}

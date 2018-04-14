@@ -79,7 +79,10 @@
     <div class="content columns" id="note-list-and-display">
       <div class="list-container column col-6 col-sm-12 panel">
         <div class="panel-header">
-          <div class="panel-title">sort by and group by</div>
+          <div class="panel-title navbar">
+            <div class="navbar-section"><span class="mdi mdi-sort"></span>sort by <span class="mdi mdi-group"></span> group by</div>
+            <div class="my-button c-hand mdi mdi-24px mdi-plus" @click="addNewNote"></div>
+          </div>
         </div>
         <div class="panel-body">
           <template v-if="stored.fileList.length < 1">
@@ -98,13 +101,8 @@
             ></file-item>
           </template>
           <div class="divider"></div>
-          <div class="tile tile-centered" @click="addNewNote">
-            <div class="tile-content text-center">
-              <div class="mdi mdi-24px mdi-plus"></div>
-            </div>
-          </div>
         </div>
-        <div class="panel-footer text-right navbar" v-show="tickedFiles.length > 0">
+        <div class="panel-footer navbar" v-show="tickedFiles.length > 0">
           <div class="navbar-section">
             <button class="btn" @click="discardSelection">Discard selection</button>
           </div>
@@ -124,10 +122,18 @@
           </div>
         </div>
         <div class="panel-body form-group">
-          <template v-for="(item,index) in unsaved">
-            <label class="divider" :for="'value-' + index" :data-content="item[0].toUpperCase()"></label>
-            <textarea class="form-input" v-if="item[1] == 'multiple'" :id="'value-' + index">{{item[2]}}</textarea>
-            <input class="form-input" v-else :value="item[2]" :id="'value-' + index">
+          <template v-for="(item, key, index) in unsaved" v-if="item && item.type">
+            <label class="divider" :for="'value-' + key" :data-content="key"></label>
+            <textarea class="form-input" v-if="item.type == 'multiple'" :id="'value-' + key" v-model="item.content" :placeholder="key"></textarea>
+            <input class="form-input" v-else-if="item.type == 'single'" v-model="item.content" :id="'value-' + key" :placeholder="key">
+            <div v-else-if="item.type == 'tags'" :id="'value-' + key">
+              <span class="chip" v-for="tag in item.content">
+                {{ tag }}&nbsp;
+                <span class="mdi mdi-close" aria-label="Close" role="button" @click="removeTag(key, tag)"></span>
+              </span>
+              <input class="form-input" type="text" :placeholder="key" @keydown="updateTags($event, key)">
+            </div>
+            <input-datetime v-else-if="item.type == 'datetime'" :id="'value-' + key" v-model="item.content"></input-datetime>
           </template>
           
           <div class="tile tile-centered mt-2" @click="toggleNewFieldEntry">
@@ -142,39 +148,40 @@
               <div class="modal-body form-group">
                 <label class="divider" for="newfieldname" data-content="Field name"></label>
                 <input class="form-input" id="newfieldname">
+                <div class="toast toast-error" v-if="fieldnameError">{{ fieldnameError }}</div>
                 <label class="divider" data-content="Entry type"></label>
                 <label class="form-radio">
-                  <input type="radio" name="entry-type" checked>
+                  <input type="radio" name="entry-type" checked data-type="single">
                   <i class="form-icon"></i> Single line text
                 </label>
                 <label class="form-radio">
-                  <input type="radio" name="entry-type">
+                  <input type="radio" name="entry-type" data-type="multiple">
                   <i class="form-icon"></i> Multiple line text
                 </label>
                 <label class="form-radio">
-                  <input type="radio" name="entry-type">
+                  <input type="radio" name="entry-type" data-type="datetime">
                   <i class="form-icon"></i> Date-time
                 </label>
                 <label class="form-radio">
-                  <input type="radio" name="entry-type">
+                  <input type="radio" name="entry-type" data-type="tags">
                   <i class="form-icon"></i> Tags
                 </label>
               </div>
               <div class="modal-footer">
-                <button class="btn">Save</button>
+                <button class="btn" @click="addNewField">Save</button>
                 <button class="btn" @click="toggleNewFieldEntry">Cancel</button>
               </div>
             </div>
           </div>
         </div>
         <div class="panel-footer">
-          <div class="toast toast-error">
+          <div class="toast toast-error" v-if="JSON.stringify(unsaved) != JSON.stringify(openedFile)">
             <div class="navbar">
               <div class="navbar-section">
                 Unsaved
               </div>
-              <button class="btn btn-primary ml-2">Save</button>
-              <button class="btn btn-primary ml-2">Discard</button>
+              <button class="btn btn-primary ml-2" @click="saveNote">Save</button>
+              <button class="btn btn-primary ml-2" @click="discardUnsaved">Discard</button>
             </div>
           </div>
         </div>

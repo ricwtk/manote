@@ -1,3 +1,5 @@
+const separator = "\n" + "-".repeat(10) + "0qp4BCBHLoHfkIi6N1hgeXNaZg20BB0sNZ4k8tE6eWKmTa1CkE" + "-".repeat(10) + "\n\n";
+
 var currentUser = {
   name: null,
   email: null,
@@ -5,20 +7,103 @@ var currentUser = {
 }
 
 var stored = {
-  fileList: [{
-    id: "abcdefg",
-    title: "title",
-    content: "ancdalfjsalsidjaijdsfaldjfaldsjfdicjoiadbsaflhsidoifadsfasdacwdss"
-  }]  
+  fileList: []  
 }
 
-var defaultContent = `
-[
-  ["Title", "single", ""],
-  ["Content", "multiple", ""],
-  ["Categories", "tags", ""]
-]
-`
+class Field {
+  constructor(type, content) {
+    this.type = type ? type : "single"; // single, multiple, datetime, tags
+    switch (this.type) {
+      default:
+      case "single": 
+        this.content = content ? content : "";
+        break;
+      case "multiple":
+        this.content = content ? content : "";
+        break;
+      case "datetime":
+        this.content = content ? content : (new Date()).toISOString().substr(0,16);
+        break;
+      case "tags":
+        this.content = content ? [ ...Array.isArray(content) ? content : [ content ] ] : [];
+        break;
+    }
+  }
+}
+
+class Note {
+  constructor(id, createdOn, modifiedOn, Title, Content, others) {
+    this.id = id;
+    this.createdOn = createdOn ? createdOn : new Date();
+    this.modifiedOn = modifiedOn ? modifiedOn : this.createdOn;
+    this.addNewField("Title", "single", Title ? Title : "Untitled");
+    this.addNewField("Content", "multiple", Content ? Content : "");
+    this.addNewField("Categories", "tags");
+    if (others) {
+      Object.keys(others).forEach((el) => {
+        if (others[el].type) this.addNewField(el, others[el].type, others[el].content);
+      })
+    }
+  }
+
+  addNewField(name, type, content) {
+    Vue.set(this, name, new Field(type, content));
+    // this[name] = new Field(type, content);
+  }
+
+  updateField(name, content) {
+    if (!this[name]) return null;
+    if (content == undefined) {
+      console.error("content must be specified in Note.updateField(name, content)");
+    }
+    switch (this[name].type) {
+      default:
+      case "single": 
+      case "multiple":
+        this[name].content = content;
+        break;
+      case "tags":
+        this[name].content = [ ...Array.isArray(content) ? content : [ content ] ];
+        break;
+    }
+  }
+
+  copy() {
+    return new Note(this.id, this.createdOn, this.modifiedOn, null, null, this);
+  }
+
+  updateFrom(anotherNote) {
+    let keysInAnotherNote = Object.keys(anotherNote);
+    keysInAnotherNote.map(aNkey => {
+      if (!["id", "createdOn", "modifiedOn"].includes(aNkey)) {
+        if (!this[aNkey]) {
+          console.log(aNkey);
+          this.addNewField(aNkey, anotherNote[aNkey].type, anotherNote[aNkey].content);
+        } else if (JSON.stringify(this[aNkey]) != JSON.stringify(anotherNote[aNkey])) {
+          this.updateField(aNkey, anotherNote[aNkey].content);
+        }
+      }
+    });
+    Object.keys(this).filter(key => !keysInAnotherNote.includes(key)).forEach(el => {
+      delete this[key];
+    })
+  }
+}
+
+function generateRandomId(n, except) {
+  let rand;
+  do {
+    rand = Math.random().toString(36).substr(2);
+    while (rand.length < n) {
+      rand += Math.random().toString(36).substr(2);
+    }
+  } while (except.includes(rand))
+  return rand;
+}
+
+function showErr(err) {
+  console.log(err);
+}
 
 new Vue({
   el: "#navbar",
@@ -48,7 +133,7 @@ Vue.component("file-item", {
   },
   methods: {
     openFile: function (ev) {
-      this.$emit("open-file", this.file.id);
+      this.$emit("open-file", this.file, this.$refs.root);
     },
     tickFile: function (ev) {
       if (ev.target == this.$refs.ticked) {
@@ -58,7 +143,7 @@ Vue.component("file-item", {
     }
   },
   template: `
-  <div class="tile tile-centered p-2" @click="openFile">
+  <div class="tile tile-centered p-2" @click="openFile" ref="root">
     <div class="tile-icon">
       <label class="form-checkbox" @click.stop="tickFile">
         <input type="checkbox" ref="ticked">
@@ -66,27 +151,100 @@ Vue.component("file-item", {
       </label>
     </div>
     <div class="tile-content">
-      <div class="tile-title">{{ file.title }}</div>
-      <div class="tile-subtitle text-gray text-ellipsis">{{ file.content }}</div>
+      <div class="tile-title">{{ file.Title.content }}</div>
+      <div class="tile-subtitle text-gray text-ellipsis">{{ file.Content.content }}</div>
     </div>
   </div>
   `
 })
+
+Vue.component("input-datetime", {
+  props: ["value"],
+  data: function () {
+    return {
+      limits: {
+        year: [1970, 2100],
+        month: [1, 12],
+        day: [1, 31],
+        hour: [0, 23],
+        minute: [0, 59]
+      },
+      ndig: {
+        year: 4,
+        month: 2,
+        day: 2,
+        hour: 2,
+        minute: 2
+      }
+    }
+  },
+  methods: {
+    selectThis: function (ev) {
+      ev.target.selectionStart = 0;
+      ev.target.selectionEnd = -1;
+    },
+    limitValue: function (val, sect) {
+      val = val < this.limits[sect][0] ? this.limits[sect][0] : val;
+      val = val > this.limits[sect][1] ? this.limits[sect][1] : val;
+      return val.toString().padStart(2, "0");
+    },
+    updateInput: function (ev, sect) {
+      let newVal, newLoc;
+      if (ev.keyCode > 47 && ev.keyCode < 58) { // 0-9
+        let loc = ev.target.selectionStart;
+        let val = ev.target.value.split("");
+        if (loc >= this.ndig[sect]) {
+          loc = 0;
+        }
+        val.splice(loc, 1, ev.key);
+        newLoc = loc + 1;
+        newVal = val.join("");
+      }
+      if (ev.keyCode == 38) // up
+        newVal = parseInt(ev.target.value) + 1;
+      if (ev.keyCode == 40) // down
+        newVal = parseInt(ev.target.value) - 1;
+
+      if (newVal)
+        ev.target.value = this.limitValue(newVal, sect);
+      if (newLoc) {
+        ev.target.selectionStart = newLoc;
+        ev.target.selectionEnd = newLoc;
+      }
+      if (![9,18,35,36,37,39].includes(ev.keyCode) && !(ev.altKey || ev.ctrlKey || ev.metaKey || ev.shiftKey)) { // tab, alt, end, home, left, right
+        ev.preventDefault();
+      }
+      // console.log(this.$refs.year.value + "-" + this.$refs.month.value + "-" + this.$refs.day.value + "T" + this.$refs.hour.value + ":" + this.$refs.minute.value);
+      this.$emit("input", this.$refs.year.value + "-" + this.$refs.month.value + "-" + this.$refs.day.value + "T" + this.$refs.hour.value + ":" + this.$refs.minute.value);
+    }
+  },
+  template: `
+    <div class="input-group">
+      <div class="form-input input-group">
+        <input type="text" ref="year" class="invisible-form-input text-center four-digits" :value="value.substr(0,4)" @keydown="updateInput($event,'year')" @click="selectThis">
+        <div>-</div>
+        <input type="text" ref="month" class="invisible-form-input text-center two-digits" :value="value.substr(5,2)" @keydown="updateInput($event,'month')" @click="selectThis">
+        <div>-</div>
+        <input type="text" ref="day" class="invisible-form-input text-center two-digits" :value="value.substr(8,2)" @keydown="updateInput($event,'day')" @click="selectThis">
+      </div>
+      <div class="form-input input-group text-center">
+        <input type="text" ref="hour" class="invisible-form-input text-center two-digits" :value="value.substr(-5,2)" @keydown="updateInput($event,'hour')" @click="selectThis">
+        <div>:</div>
+        <input type="text" ref="minute" class="invisible-form-input text-center two-digits" :value="value.substr(-2)" @keydown="updateInput($event,'minute')" @click="selectThis">
+      </div>
+    </div>
+  `
+});
 
 new Vue({
   el: "#note-list-and-display",
   data: {
     tickedFiles: [],
     stored: stored,
-    openedFile: {
-      id: "",
-      content: {}
-    },
-    unsaved: [
-      ["title", "single", "abc"],
-      ["content", "multiple", "abcdefghijklmn"]
-    ],
-    viewEdit: false
+    openedFile: {},
+    unsaved: {},
+    viewEdit: false,
+    fieldnameError: ""
   },
   methods: {
     addTick: function (fileId) {
@@ -97,8 +255,15 @@ new Vue({
       console.log("remove tick", fileId);
       this.tickedFiles = this.tickedFiles.filter(item => item !== fileId);
     },
-    openFile: function (fileId) {
-      console.log("opening", fileId);
+    openFile: function (file, el) {
+      console.log("opening", file.id);
+      this.openedFile = file;
+      // this.unsaved = JSON.parse(JSON.stringify(file));
+      this.unsaved = file.copy();
+      let previousselected = this.$el.querySelector(".tile.selected")
+      if (previousselected)
+        previousselected.classList.remove("selected");
+      el.classList.add("selected");
     },
     discardSelection: function () {
       document.querySelectorAll(".list-container input[type='checkbox']").forEach(el => {
@@ -107,46 +272,134 @@ new Vue({
       this.tickedFiles = [];
     },
     addNewNote: function () {
-      gd.createFile(defaultContent)
-        .then((res) => {
-          console.log(res);
-        })
-        .then(updateList);
+      this.stored.fileList.push(new Note(generateRandomId(10, this.stored.fileList.map(el => el.id))));
+      
+      // gd.createFile(defaultContent)
+      //   .then((res) => {
+      //     console.log(res);
+      //   }, showErr)
+      //   .then(updateList, showErr);
     },
     deleteNotes: function () {
-      Promise.all(this.tickedFiles.map((fid) => {
-        return gd.deleteFile(fid)
-      })).then((results) => {
-        console.log(results);
-        this.tickFiles = [];
-      }).then(updateList);
+      // Promise.all(this.tickedFiles.map((fid) => {
+      //   return gd.deleteFile(fid)
+      // }))
+      //   .then((results) => {
+      //     console.log(results);
+      //   }, showErr)
+      //   .then(this.discardSelection, showErr)
+      //   .then(() => {
+      //     this.tickFiles = [];
+      //   }, showErr)
+      //   .then(updateList, showErr);
+    },
+    updateTags(ev, name) {
+      if (ev.key == "," || ev.key == "Enter") {
+        ev.preventDefault();
+        if (ev.target.value != "") {
+          if (!this.unsaved[name].content.includes(ev.target.value)) {
+            this.unsaved[name].content.push(ev.target.value);
+          }
+          ev.target.value = "";
+        }
+      }
+    },
+    removeTag(name, tag) {
+      this.unsaved[name].content.splice(this.unsaved[name].content.findIndex(el => el == tag), 1);
+    },
+    changeDateTime(ev, name) {
+      console.log(ev.target.value, name);
     },
     addNewField: function () {
-      this.unsaved.push(["", "single", ""]);
+      let modalNewField = this.$refs.modalNewField;
+      let newName = modalNewField.querySelector("#newfieldname").value;
+      if (newName !== "") {
+        if (!this.unsaved[newName]) {
+          document.getElementsByName("entry-type").forEach(el => {
+            if (el.checked) {
+              this.unsaved.addNewField(newName, el.dataset.type);
+              console.log(JSON.stringify(this.unsaved), this.unsaved);
+              this.toggleNewFieldEntry();
+            }
+          });
+        } else {
+          this.fieldnameError = "No duplicated field name is allowed. Please provide another name.";
+        }
+      } else {
+        this.fieldnameError = "Please provide a field name";
+      }
     },
     toggleNewFieldEntry: function () {
       this.$refs.modalNewField.classList.toggle("active");
+      this.$refs.modalNewField.querySelector("#newfieldname").value = "";
+      this.fieldnameError = "";
     },
     switchView: function (ev) {
       for (let child of this.$refs.viewSwitcher.children) {
         if (child == ev.target || child.firstElementChild == ev.target) {
           child.classList.add("active");
           this.viewEdit = child == this.$refs.editView;
-          console.log(this.viewEdit);
         } else {
           child.classList.remove("active");
         }
       }
+    },
+    saveNote: function () {
+      this.openedFile.updateFrom(this.unsaved);
+      console.log(JSON.stringify(this.unsaved), JSON.stringify(this.openedFile));
+      // Object.assign(this.openedFile, JSON.parse(JSON.stringify(this.unsaved)));
+    },
+    discardUnsaved: function () {
+      this.unsaved.updateFrom(this.openedFile);
+      // Object.assign(this.unsaved, JSON.parse(JSON.stringify(this.openedFile)));
+      console.log(JSON.stringify(this.unsaved), JSON.stringify(this.openedFile));
     }
   }
 })
 
 function updateList() {
-  return gd.getFullList().then((files) => {
-    console.log(files);
-    stored.fileList = files;
-    return files;
-  })
+  // return gd.getFullData().then();
+  // return gd.getFullList().then((files) => {
+  //   if (files.length > 0) {
+  //     return files.map((f) => {
+  //       return gd.getFileContent(f.id)
+  //         .then((res) => {
+  //           return {
+  //             id: f.id,
+  //             createdTime: f.createdTime,
+  //             modifiedlTime: f.modifiedTime,
+  //             content: res.result
+  //           }
+  //         })
+  //     })
+  //   } else {
+  //     return [];
+  //   }
+  // }, showErr).then((promises) => {
+  //   return Promise.all(promises);
+  // }, showErr).then((values) => {
+  //   stored.fileList = values;
+  // }, showErr);
+}
+
+function refreshList() {
+  return gd.getFullData().then((res) => {
+    if (res.status == 200) {
+      return decodeData(res.body);
+    } else {
+      throw res.status;
+    }
+  }).then((res) => {
+    console.log(res);
+  }, showErr);
+}
+
+function decodeData(dataString) {
+  let notes = dataString
+    .split(separator)
+    .map(val => val.trim())
+    .filter(val => val != "");
+  return notes;
 }
 
 function initApis() {
@@ -156,7 +409,8 @@ function initApis() {
     currentUser.name = gUser.getName();
     currentUser.email = gUser.getEmail();
     currentUser.profilePic = gUser.getImageUrl();
-    updateList();
+    // updateList();
+    refreshList();
   }
 
   gd.signedOutFunction = () => {

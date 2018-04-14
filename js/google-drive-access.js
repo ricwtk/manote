@@ -68,6 +68,29 @@
       }
     }
 
+    this.getFullData = () => {
+      if (this.signedIn) {
+        return gapi.client.drive.files.list({
+          spaces: "appDataFolder",
+          q: "name='notes'"
+        }).then((res) => {
+          if (res.result.files.length > 0) {
+            return this.getFileContent(res.result.files[0].id);
+          } else {
+            return this.createDataFile()
+            .then(() => {
+              return {
+                status: 200,
+                body: ""
+              }
+            });
+          }
+        })
+      } else {
+        return null;
+      }
+    }
+
     this.getFullList = (files, nextPageToken) => {
       if (this.signedIn) {
         if (!files) {
@@ -103,28 +126,36 @@
       }
     }
 
-    this.createFile = (fileContent) => {
+    this.createDataFile = () => {
       if (this.signedIn) {
-        return gapi.client.request({
-          path: "/upload/drive/v3/files",
-          method: "POST",
-          params: {
-            uploadType: "multipart"
-          },
-          headers: {
-            "Content-Type": "multipart/related; boundary=bounding"
-          },
-          body: "--bounding\n"
-            + "Content-Type: application/json; charset=UTF-8\n\n"
-            + JSON.stringify({
-                mimeType: "application/json",
-                parents: ["appDataFolder"]
-              })
-            + "\n\n"
-            + "--bounding\n"
-            + "Content-Type: application/json\n\n"
-            + fileContent + "\n\n"
-            + "--bounding--"
+        // return gapi.client.request({
+        //   path: "/upload/drive/v3/files",
+        //   method: "POST",
+        //   params: {
+        //     uploadType: "multipart"
+        //   },
+        //   headers: {
+        //     "Content-Type": "multipart/related; boundary=bounding"
+        //   },
+        //   body: "--bounding\n"
+        //     + "Content-Type: application/json; charset=UTF-8\n\n"
+        //     + JSON.stringify({
+        //         mimeType: "application/json",
+        //         parents: ["appDataFolder"],
+        //         name: "notes"
+        //       })
+        //     + "\n\n"
+        //     + "--bounding\n"
+        //     + "Content-Type: application/json\n\n"
+        //     + "" + "\n\n"
+        //     + "--bounding--"
+        // })
+        return gapi.client.drive.files.create({
+          resource: {
+            name: "notes",
+            mimeType: "text/plain",
+            parents: ["appDataFolder"]
+          }
         })
       }
     }
