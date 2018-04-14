@@ -214,20 +214,20 @@ Vue.component("input-datetime", {
       if (![9,18,35,36,37,39].includes(ev.keyCode) && !(ev.altKey || ev.ctrlKey || ev.metaKey || ev.shiftKey)) { // tab, alt, end, home, left, right
         ev.preventDefault();
       }
-      // console.log(this.$refs.year.value + "-" + this.$refs.month.value + "-" + this.$refs.day.value + "T" + this.$refs.hour.value + ":" + this.$refs.minute.value);
       this.$emit("input", this.$refs.year.value + "-" + this.$refs.month.value + "-" + this.$refs.day.value + "T" + this.$refs.hour.value + ":" + this.$refs.minute.value);
     }
   },
   template: `
     <div class="input-group">
       <div class="form-input input-group">
+        <div class="mdi mdi-calendar"></div>
         <input type="text" ref="year" class="invisible-form-input text-center four-digits" :value="value.substr(0,4)" @keydown="updateInput($event,'year')" @click="selectThis">
         <div>-</div>
         <input type="text" ref="month" class="invisible-form-input text-center two-digits" :value="value.substr(5,2)" @keydown="updateInput($event,'month')" @click="selectThis">
         <div>-</div>
         <input type="text" ref="day" class="invisible-form-input text-center two-digits" :value="value.substr(8,2)" @keydown="updateInput($event,'day')" @click="selectThis">
-      </div>
-      <div class="form-input input-group text-center">
+        <div>&nbsp;</div>
+        <div class="mdi mdi-clock"></div>
         <input type="text" ref="hour" class="invisible-form-input text-center two-digits" :value="value.substr(-5,2)" @keydown="updateInput($event,'hour')" @click="selectThis">
         <div>:</div>
         <input type="text" ref="minute" class="invisible-form-input text-center two-digits" :value="value.substr(-2)" @keydown="updateInput($event,'minute')" @click="selectThis">
