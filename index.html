@@ -176,12 +176,11 @@
         </div>
         <div class="panel-body form-group" v-else>
           <template v-for="(item, key, index) in unsaved" v-if="item && item.type">
-            <label class="divider" :for="'value-' + key" :data-content="key"></label>
-            <div class="display-input" v-if="item.type == 'multiple'">{{ item.content }}</div>
-            <div class="display-input" v-else-if="item.type == 'single'">{{ item.content }}</div>
-            <div v-else-if="item.type == 'tags'" :id="'value-' + key" class="display-input">
+            <div class="divider" :data-content="key"></div>
+            <div class="display-input" v-if="item.type == 'multiple' || item.type == 'single'" v-html="mdconvert.makeHtml(item.content)"></div>
+            <div v-else-if="item.type == 'tags'" class="display-input">
               <span class="chip" v-for="tag in item.content">
-                {{ tag }}&nbsp;
+                {{ tag }}
               </span>
             </div>
             <display-datetime v-else-if="item.type == 'datetime'" :value="item.content"></display-datetime>

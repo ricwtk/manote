@@ -329,6 +329,7 @@ new Vue({
     unsaved: {},
     viewEdit: false,
     fieldnameError: "",
+    mdconvert: new showdown.Converter()
   },
   methods: {
     addTick: function (fileId) {
