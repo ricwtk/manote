@@ -121,7 +121,7 @@
             </div>
           </div>
         </div>
-        <div class="panel-body form-group">
+        <div class="panel-body form-group" v-if="viewEdit">
           <template v-for="(item, key, index) in unsaved" v-if="item && item.type">
             <label class="divider" :for="'value-' + key" :data-content="key"></label>
             <textarea class="form-input" v-if="item.type == 'multiple'" :id="'value-' + key" v-model="item.content" :placeholder="key"></textarea>
@@ -173,6 +173,19 @@
               </div>
             </div>
           </div>
+        </div>
+        <div class="panel-body form-group" v-else>
+          <template v-for="(item, key, index) in unsaved" v-if="item && item.type">
+            <label class="divider" :for="'value-' + key" :data-content="key"></label>
+            <div class="display-input" v-if="item.type == 'multiple'">{{ item.content }}</div>
+            <div class="display-input" v-else-if="item.type == 'single'">{{ item.content }}</div>
+            <div v-else-if="item.type == 'tags'" :id="'value-' + key" class="display-input">
+              <span class="chip" v-for="tag in item.content">
+                {{ tag }}&nbsp;
+              </span>
+            </div>
+            <display-datetime v-else-if="item.type == 'datetime'" :value="item.content"></display-datetime>
+          </template>
         </div>
         <div class="panel-footer">
           <div class="toast toast-error" v-if="JSON.stringify(unsaved) != JSON.stringify(openedFile)">

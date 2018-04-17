@@ -290,6 +290,36 @@ Vue.component("input-datetime", {
   `
 });
 
+Vue.component("display-datetime", {
+  props: ["value"],
+  computed: {
+    dateDisabled: function () {
+      return this.value.substr(0,10) == "-".repeat(10);
+    },
+    timeDisabled: function () {
+      return this.value.substr(-5) == "-".repeat(5);
+    }
+  },
+  template: `
+  <div class="input-datetime">
+    <div class="input-group col-6 col-md-12">
+      <div :class="['mdi', 'mdi-calendar', dateDisabled ? 'text-error' : 'text-success']"></div>
+      <div class="text-center four-digits">{{ value.substr(0,4) }}</div>
+      <div>-</div>
+      <div class="text-center two-digits">{{ value.substr(5,2) }}</div>
+      <div>-</div>
+      <div class="text-center two-digits">{{ value.substr(8,2) }}</div>
+    </div>
+    <div class="input-group col-6 col-md-12">
+      <div :class="['mdi', 'mdi-clock', timeDisabled ? 'text-error' : 'text-success']"></div>
+      <div class="text-center two-digits">{{ value.substr(-5,2) }}</div>
+      <div>:</div>
+      <div class="text-center two-digits">{{ value.substr(-2) }}</div>
+    </div>
+  </div>
+  `
+})
+
 new Vue({
   el: "#note-list-and-display",
   data: {
@@ -298,7 +328,7 @@ new Vue({
     openedFile: {},
     unsaved: {},
     viewEdit: false,
-    fieldnameError: ""
+    fieldnameError: "",
   },
   methods: {
     addTick: function (fileId) {
