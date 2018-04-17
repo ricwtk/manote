@@ -228,6 +228,14 @@ Vue.component("input-datetime", {
       val = val > this.limits[sect][1] ? this.limits[sect][1] : val;
       return val.toString().padStart(2, "0");
     },
+    updateLimits: function (changedSect) {
+      if (changedSect == "year" || changedSect == "month") {
+        let year = parseInt(this.$refs.year.value);
+        let month = parseInt(this.$refs.month.value);
+        this.limits.day[1] = new Date(year, month, 0).getDate();
+        this.$refs.day.value = this.limitValue(this.$refs.day.value, "day");
+      }
+    }, 
     updateInput: function (ev, sect) {
       let newVal, newLoc;
       if (ev.keyCode > 47 && ev.keyCode < 58) { // 0-9
@@ -245,8 +253,10 @@ Vue.component("input-datetime", {
       if (ev.keyCode == 40) // down
         newVal = parseInt(ev.target.value) - 1;
 
-      if (newVal)
+      if (newVal) {
         ev.target.value = this.limitValue(newVal, sect);
+        this.updateLimits(sect);
+      }
       if (newLoc) {
         ev.target.selectionStart = newLoc;
         ev.target.selectionEnd = newLoc;
@@ -256,6 +266,9 @@ Vue.component("input-datetime", {
       }
       this.$emit("input", this.$refs.year.value + "-" + this.$refs.month.value + "-" + this.$refs.day.value + "T" + this.$refs.hour.value + ":" + this.$refs.minute.value);
     }
+  },
+  mounted: function () {
+    this.updateLimits("year");
   },
   template: `
     <div class="input-datetime form-input">
