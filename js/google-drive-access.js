@@ -113,7 +113,7 @@
           if (res.result.files.length > 0) {
             return res.result.files[0].id;
           } else {
-            return this.createDataFile().then(file => file.id);
+            return this.createDataFile().then(res => res.result.id);
           }
         }).then(this.getFileContent);
       } else {
@@ -162,11 +162,11 @@
           if (res.result.files.length > 0) {
             return res.result.files[0].id;
           } else {
-            return this.createDataFile().then(res => res.id);
+            return this.createDataFile().then(res => res.result.id);
           }
         }).then(id => {
           return this.getFileContent(id).then(res => {  
-            return [id, res.json];
+            return [id, res.result];
           });
         })
         .then(res => {
@@ -194,11 +194,11 @@
           if (res.result.files.length > 0) {
             return res.result.files[0].id;
           } else {
-            return this.createDataFile().then(res => res.id);
+            return this.createDataFile().then(res => res.result.id);
           }
         }).then(id => {
           return this.getFileContent(id).then(res => {  
-            return [id, res.json];
+            return [id, res.result];
           });
         })
         .then(res => {

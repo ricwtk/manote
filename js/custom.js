@@ -144,6 +144,9 @@ Vue.component("file-item", {
         if (ev.target.checked) this.$emit("add-tick", this.file.id);
         else this.$emit("remove-tick", this.file.id);
       }
+    },
+    untick: function () {
+      this.$refs.ticked.checked = false;
     }
   },
   template: `
@@ -380,6 +383,10 @@ new Vue({
     },
     addNewNote: function () {
       this.stored.noteList.push(new Note(generateRandomId(10, this.stored.noteList.map(el => el.id))));
+      gd.updateNote(this.stored.noteList[this.stored.noteList.length - 1]).then(res => {
+        console.log(res);
+        updateList(res);
+      }, showErr);
     },
     deleteNotes: function () {
       gd.removeNotes(this.tickedFiles).then(res => {
@@ -387,6 +394,9 @@ new Vue({
         updateList(res);
       }, showErr).then(() => {
         this.tickedFiles = [];
+        this.$refs.fileItem.forEach(el => {
+          el.untick();
+        });
       });
     },
     updateTags(ev, name) {
