@@ -162,3 +162,10 @@ textarea {
   padding: 0 .4rem;
   background-color: white;
 }
+
+.input-header .content > *:first-child {
+  padding-left: 0;
+}
+.input-header .content > *:last-child:not(:first-child) {
+  padding-right: 0;
+}
