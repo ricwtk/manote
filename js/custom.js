@@ -7,7 +7,7 @@ var currentUser = {
 }
 
 var stored = {
-  fileList: []  
+  noteList: []  
 }
 
 class Field {
@@ -379,26 +379,15 @@ new Vue({
       this.tickedFiles = [];
     },
     addNewNote: function () {
-      this.stored.fileList.push(new Note(generateRandomId(10, this.stored.fileList.map(el => el.id))));
-      
-      // gd.createFile(defaultContent)
-      //   .then((res) => {
-      //     console.log(res);
-      //   }, showErr)
-      //   .then(updateList, showErr);
+      this.stored.noteList.push(new Note(generateRandomId(10, this.stored.noteList.map(el => el.id))));
     },
     deleteNotes: function () {
-      // Promise.all(this.tickedFiles.map((fid) => {
-      //   return gd.deleteFile(fid)
-      // }))
-      //   .then((results) => {
-      //     console.log(results);
-      //   }, showErr)
-      //   .then(this.discardSelection, showErr)
-      //   .then(() => {
-      //     this.tickFiles = [];
-      //   }, showErr)
-      //   .then(updateList, showErr);
+      gd.removeNotes(this.tickedFiles).then(res => {
+        console.log(res);
+        updateList(res);
+      }, showErr).then(() => {
+        this.tickedFiles = [];
+      });
     },
     updateTags(ev, name) {
       if (ev.key == "," || ev.key == "Enter") {
@@ -459,59 +448,35 @@ new Vue({
     saveNote: function () {
       this.openedFile.updateFrom(this.unsaved);
       console.log(JSON.stringify(this.unsaved), JSON.stringify(this.openedFile));
-      // Object.assign(this.openedFile, JSON.parse(JSON.stringify(this.unsaved)));
+      gd.updateNote(this.openedFile).then(res => {
+        console.log(res);
+        updateList(res);
+      }, showErr);
     },
     discardUnsaved: function () {
       this.unsaved.updateFrom(this.openedFile);
-      // Object.assign(this.unsaved, JSON.parse(JSON.stringify(this.openedFile)));
       console.log(JSON.stringify(this.unsaved), JSON.stringify(this.openedFile));
     }
   }
 })
 
-function updateList() {
-  // return gd.getFullData().then();
-  // return gd.getFullList().then((files) => {
-  //   if (files.length > 0) {
-  //     return files.map((f) => {
-  //       return gd.getFileContent(f.id)
-  //         .then((res) => {
-  //           return {
-  //             id: f.id,
-  //             createdTime: f.createdTime,
-  //             modifiedlTime: f.modifiedTime,
-  //             content: res.result
-  //           }
-  //         })
-  //     })
-  //   } else {
-  //     return [];
-  //   }
-  // }, showErr).then((promises) => {
-  //   return Promise.all(promises);
-  // }, showErr).then((values) => {
-  //   stored.fileList = values;
-  // }, showErr);
+function updateList(notes) {
+  stored.noteList = notes.map(el => new Note(el.id, el.createdOn, el.modifiedOn, null, null, el));
 }
 
 function refreshList() {
   return gd.getData().then((res) => {
     if (res.status == 200) {
-      return decodeData(res.body);
+      return res.result;
     } else {
       throw res.status;
     }
   }).then((res) => {
     console.log(res);
+    if (res) {
+      updateList(res);
+    }
   }, showErr);
-}
-
-function decodeData(dataString) {
-  let notes = dataString
-    .split(separator)
-    .map(val => val.trim())
-    .filter(val => val != "");
-  return notes;
 }
 
 function initApis() {
@@ -521,8 +486,7 @@ function initApis() {
     currentUser.name = gUser.getName();
     currentUser.email = gUser.getEmail();
     currentUser.profilePic = gUser.getImageUrl();
-    // updateList();
-    // refreshList();
+    refreshList();
   }
 
   gd.signedOutFunction = () => {

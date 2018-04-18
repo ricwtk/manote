@@ -85,13 +85,13 @@
           </div>
         </div>
         <div class="panel-body">
-          <template v-if="stored.fileList.length < 1">
+          <template v-if="stored.noteList.length < 1">
             <div class="divider"></div>
-            <div class="empty" v-if="stored.fileList.length < 1">
+            <div class="empty" v-if="stored.noteList.length < 1">
               Click <i class="mdi mdi-plus"></i> to add note
             </div>
           </template>
-          <template v-else v-for="f in stored.fileList">
+          <template v-else v-for="f in stored.noteList">
             <div class="divider"></div>
             <file-item
               :file="f"

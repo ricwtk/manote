@@ -70,6 +70,32 @@
       }
     }
 
+    this.getFileContent = (fileId) => { 
+      if (this.signedIn) { 
+        return gapi.client.drive.files.get({ 
+          fileId: fileId, 
+          alt: "media" 
+        }); 
+      } else { 
+        return this.notSignedIn(); 
+      }
+    }
+
+    this.updateFileContent = (fileId, newContent) => {
+      if (this.signedIn) {
+        return gapi.client.request({
+          path: "/upload/drive/v3/files/" + fileId,
+          method: "PATCH",
+          params: {
+            uploadType: "media"
+          },
+          body: newContent
+        });
+      } else {
+        return this.notSignedIn();
+      }
+    }
+
     this.getDataFile = () => {
       if (this.signedIn) {
         return gapi.client.drive.files.list({
@@ -85,17 +111,11 @@
       if (this.signedIn) {
         return this.getDataFile().then((res) => {
           if (res.result.files.length > 0) {
-            return this.getFileContent(res.result.files[0].id);
+            return res.result.files[0].id;
           } else {
-            return this.createDataFile()
-            .then(() => {
-              return {
-                status: 200,
-                body: ""
-              }
-            });
+            return this.createDataFile().then(file => file.id);
           }
-        })
+        }).then(this.getFileContent);
       } else {
         return this.notSignedIn();
       }
@@ -103,28 +123,6 @@
 
     this.createDataFile = () => {
       if (this.signedIn) {
-        // return gapi.client.request({
-        //   path: "/upload/drive/v3/files",
-        //   method: "POST",
-        //   params: {
-        //     uploadType: "multipart"
-        //   },
-        //   headers: {
-        //     "Content-Type": "multipart/related; boundary=bounding"
-        //   },
-        //   body: "--bounding\n"
-        //     + "Content-Type: application/json; charset=UTF-8\n\n"
-        //     + JSON.stringify({
-        //         mimeType: "application/json",
-        //         parents: ["appDataFolder"],
-        //         name: "notes"
-        //       })
-        //     + "\n\n"
-        //     + "--bounding\n"
-        //     + "Content-Type: application/json\n\n"
-        //     + "" + "\n\n"
-        //     + "--bounding--"
-        // })
         return gapi.client.drive.files.create({
           resource: {
             name: "notes",
@@ -142,7 +140,7 @@
         return this.getDataFile().then((res) => {
           if (res.result.files.length > 0) {
             return gapi.client.request({
-              path: "/upload/drive/v3/files/" + res.result.files[0],
+              path: "/upload/drive/v3/files/" + res.result.files[0].id,
               method: "PATCH",
               params: {
                 uploadType: "media"
@@ -153,6 +151,70 @@
             return this.createDataFile().then(() => this.updateData(newContent));
           }
         })
+      } else {
+        return this.notSignedIn();
+      }
+    }
+
+    this.updateNote = (newNote) => {
+      if (this.signedIn) {
+        return this.getDataFile().then(res => {
+          if (res.result.files.length > 0) {
+            return res.result.files[0].id;
+          } else {
+            return this.createDataFile().then(res => res.id);
+          }
+        }).then(id => {
+          return this.getFileContent(id).then(res => {  
+            return [id, res.json];
+          });
+        })
+        .then(res => {
+          content = res[1] ? res[1] : [];
+          let idx = content.findIndex(el => el.id == newNote.id);
+          if (idx > -1) {
+            content[idx] = JSON.parse(JSON.stringify(newNote));
+          } else {
+            content.push(JSON.parse(JSON.stringify(newNote)));
+          }
+          return [res[0], content];
+        }).then(res => {
+          return this.updateFileContent(res[0], res[1]).then(() => {
+            return res[1];
+          });
+        });
+      } else {
+        return this.notSignedIn();
+      }
+    }
+
+    this.removeNotes = (noteIds) => {
+      if (this.signedIn) {
+        return this.getDataFile().then(res => {
+          if (res.result.files.length > 0) {
+            return res.result.files[0].id;
+          } else {
+            return this.createDataFile().then(res => res.id);
+          }
+        }).then(id => {
+          return this.getFileContent(id).then(res => {  
+            return [id, res.json];
+          });
+        })
+        .then(res => {
+          content = res[1] ? res[1] : [];
+          noteIds.forEach(noteid => {
+            let idx = content.findIndex(el => el.id == noteid);
+            if (idx > -1) {
+              content.splice(idx, 1);
+            }
+          });
+          return [res[0], content];
+        }).then(res => {
+          return this.updateFileContent(res[0], res[1]).then(() => {
+            return res[1];
+          });
+        });
       } else {
         return this.notSignedIn();
       }
