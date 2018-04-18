@@ -145,8 +145,20 @@ textarea {
   border: 1px dashed rgba(69,77,93,.3);
 }
 
-.mdi {
+.input-datetime .mdi {
   display: flex;
   justify-content: center;
   align-items: center;
+}
+
+.input-header .content {
+  transform: translateY(-.55rem);
+  display: flex;
+  font-size: .7rem;
+  justify-content: space-between;
+}
+
+.input-header .content > * {
+  padding: 0 .4rem;
+  background-color: white;
 }

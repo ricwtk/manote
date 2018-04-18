@@ -123,7 +123,7 @@
         </div>
         <div class="panel-body form-group" v-if="viewEdit">
           <template v-for="(item, key, index) in unsaved" v-if="item && item.type">
-            <label class="divider" :for="'value-' + key" :data-content="key"></label>
+            <input-header :label-for="'value-' + key" :title="key" :removable="key != 'Title' && key != 'Content' && key != 'Categories'"></input-header>
             <textarea class="form-input" v-if="item.type == 'multiple'" :id="'value-' + key" v-model="item.content" :placeholder="key"></textarea>
             <input class="form-input" v-else-if="item.type == 'single'" v-model="item.content" :id="'value-' + key" :placeholder="key">
             <div v-else-if="item.type == 'tags'" :id="'value-' + key">
@@ -136,7 +136,7 @@
             <input-datetime v-else-if="item.type == 'datetime'" :id="'value-' + key" v-model="item.content"></input-datetime>
           </template>
           
-          <div class="tile tile-centered mt-2" @click="toggleNewFieldEntry">
+          <div class="tile tile-centered mt-2" @click="toggleNewFieldEntry" v-if="Object.keys(unsaved).length > 0">
             <div class="tile-content text-center">
               <div class="mdi mdi-24px mdi-plus"></div>
             </div>
@@ -176,7 +176,7 @@
         </div>
         <div class="panel-body form-group" v-else>
           <template v-for="(item, key, index) in unsaved" v-if="item && item.type">
-            <div class="divider" :data-content="key"></div>
+            <input-header :title="key" :removable="false"></input-header>
             <div class="display-input" v-if="item.type == 'multiple' || item.type == 'single'" v-html="mdconvert.makeHtml(item.content)"></div>
             <div v-else-if="item.type == 'tags'" class="display-input">
               <span class="chip" v-for="tag in item.content">

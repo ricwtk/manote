@@ -158,6 +158,24 @@ Vue.component("file-item", {
   `
 })
 
+Vue.component("input-header", {
+  props: ["title", "removable", "label-for"],
+  methods: {
+    remove: function (ev) {
+      console.log(ev.target);
+      this.$emit("remove");
+    }
+  },
+  template: `
+    <label class="input-header divider" :for="labelFor" data-content="">
+      <div class="content text-gray">
+        <div>{{ title }}</div>
+        <div class="mdi mdi-close" v-if="removable" @click.prevent="remove"></div>
+      </div>
+    </label>
+  `
+})
+
 Vue.component("input-datetime", {
   props: ["value"],
   data: function () {
