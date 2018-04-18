@@ -126,12 +126,12 @@
             <input-header :label-for="'value-' + key" :title="key" :removable="key != 'Title' && key != 'Content' && key != 'Categories'"></input-header>
             <textarea class="form-input" v-if="item.type == 'multiple'" :id="'value-' + key" v-model="item.content" :placeholder="key"></textarea>
             <input class="form-input" v-else-if="item.type == 'single'" v-model="item.content" :id="'value-' + key" :placeholder="key">
-            <div v-else-if="item.type == 'tags'" :id="'value-' + key">
+            <div v-else-if="item.type == 'tags'">
               <span class="chip" v-for="tag in item.content">
                 {{ tag }}&nbsp;
                 <span class="mdi mdi-close" aria-label="Close" role="button" @click="removeTag(key, tag)"></span>
               </span>
-              <input class="form-input" type="text" :placeholder="key" @keydown="updateTags($event, key)">
+              <input class="form-input" type="text" :id="'value-' + key" :placeholder="key" @keydown="updateTags($event, key)">
             </div>
             <input-datetime v-else-if="item.type == 'datetime'" :id="'value-' + key" v-model="item.content"></input-datetime>
           </template>
