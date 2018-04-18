@@ -52,12 +52,12 @@
                 <div class="tile tile-centered bg-dark p-2">
                   <div class="tile-icon">
                     <figure class="avatar avatar-lg">
-                      <img src="icons/icon.png" alt="...">
+                      <img :src="currentUser.profilePic" alt="PP">
                     </figure>
                   </div>
                   <div class="tile-content">
-                    <div class="tile-title">Name</div>
-                    <div class="title-subtitle text-gray">Email</div>
+                    <div class="tile-title">{{ currentUser.name }}</div>
+                    <div class="tile-subtitle text-gray">{{ currentUser.email }}</div>
                   </div>
                 </div>
               </div>

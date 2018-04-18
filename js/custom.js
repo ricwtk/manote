@@ -495,7 +495,7 @@ function updateList() {
 }
 
 function refreshList() {
-  return gd.getFullData().then((res) => {
+  return gd.getData().then((res) => {
     if (res.status == 200) {
       return decodeData(res.body);
     } else {
@@ -522,7 +522,7 @@ function initApis() {
     currentUser.email = gUser.getEmail();
     currentUser.profilePic = gUser.getImageUrl();
     // updateList();
-    refreshList();
+    // refreshList();
   }
 
   gd.signedOutFunction = () => {

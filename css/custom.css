@@ -84,6 +84,10 @@ body {
   border: 2px solid white;
 }
 
+.sidebar .tile-subtitle {
+  font-size: .75rem;
+}
+
 .sidebar-footer {
   font-size: 90%;
 }

@@ -60,6 +60,8 @@
       gapi.auth2.getAuthInstance().signOut();
     }
 
+    this.notSignedIn = () => Promise.reject("Not signed in");
+
     this.getUserProfile = () => {
       if (this.signedIn) {
         return gapi.auth2.getAuthInstance().currentUser.get().getBasicProfile();
@@ -68,12 +70,20 @@
       }
     }
 
-    this.getFullData = () => {
+    this.getDataFile = () => {
       if (this.signedIn) {
         return gapi.client.drive.files.list({
           spaces: "appDataFolder",
           q: "name='notes'"
-        }).then((res) => {
+        });
+      } else {
+        return this.notSignedIn();
+      }
+    }
+
+    this.getData = () => {
+      if (this.signedIn) {
+        return this.getDataFile().then((res) => {
           if (res.result.files.length > 0) {
             return this.getFileContent(res.result.files[0].id);
           } else {
@@ -87,42 +97,7 @@
           }
         })
       } else {
-        return null;
-      }
-    }
-
-    this.getFullList = (files, nextPageToken) => {
-      if (this.signedIn) {
-        if (!files) {
-          files = [];
-        }
-        let config = {
-          spaces: "appDataFolder",
-          fields: "nextPageToken, files(id, createdTime, modifiedTime)"
-        };
-        if (nextPageToken) {
-          config[pageToken] = nextPageToken;
-        }
-        return gapi.client.drive.files.list(config).then((res) => {
-          if (res.result.nextPageToken) {
-            return this.getFullList([...files, ...res.result.files], res.nextPageToken);
-          } else {
-            return [...files, ...res.result.files];
-          }
-        });
-      } else {
-        return null;
-      }
-    }
-
-    this.getFileContent = (fileId) => {
-      if (this.signedIn) {
-        return gapi.client.drive.files.get({
-          fileId: fileId,
-          alt: "media"
-        });
-      } else {
-        return null;
+        return this.notSignedIn();
       }
     }
 
@@ -157,35 +132,31 @@
             parents: ["appDataFolder"]
           }
         })
+      } else {
+        return this.notSignedIn();
       }
     }
 
-    this.updateFileContent = (fileId, newContent) => {
+    this.updateData = (newContent) => {
       if (this.signedIn) {
-        return gapi.client.request({
-          path: "/upload/drive/v3/files/" + fileId,
-          method: "PATCH",
-          params: {
-            uploadType: "media"
-          },
-          body: newContent
+        return this.getDataFile().then((res) => {
+          if (res.result.files.length > 0) {
+            return gapi.client.request({
+              path: "/upload/drive/v3/files/" + res.result.files[0],
+              method: "PATCH",
+              params: {
+                uploadType: "media"
+              },
+              body: newContent
+            })
+          } else {
+            return this.createDataFile().then(() => this.updateData(newContent));
+          }
         })
       } else {
-        return null;
+        return this.notSignedIn();
       }
     }
-
-    this.deleteFile = (fileId) => {
-      if (this.signedIn) {
-        return gapi.client.drive.files.delete({
-          fileId: fileId
-        });
-      } else {
-        return null;
-      }
-    }
-
-
 
     this.init();
   }
