@@ -67,6 +67,9 @@
                 <a @click="signOutGoogle">Sign out</a>
               </div>
               <div class="divider"></div>
+              <div class="menu-item">
+                <a @click="toggleMarkdownGuide">Markdown Guide</a>
+              </div>
             </div>
             <div class="sidebar-footer text-gray p-2 text-right">
               Powered by Spectre, Vue, and Showdown
@@ -74,6 +77,8 @@
           </template>
         </div>
       </div>
+
+      <md-guide ref="markdownguide"></md-guide>
     </div>
 
     <div class="content columns" id="note-list-and-display">
@@ -181,7 +186,7 @@
         <div class="panel-body form-group" v-else>
           <template v-for="(item, key, index) in unsaved" v-if="item && item.type">
             <input-header :title="key" :removable="false"></input-header>
-            <div class="display-input" v-if="item.type == 'multiple' || item.type == 'single'" v-html="mdconvert.makeHtml(item.content)"></div>
+            <div class="display-input" v-if="item.type == 'multiple' || item.type == 'single'" v-html="mdconverter.makeHtml(item.content)"></div>
             <div v-else-if="item.type == 'tags'" class="display-input">
               <span class="chip" v-for="tag in item.content">
                 {{ tag }}
@@ -203,6 +208,8 @@
         </div>
       </div>
     </div>
+    <script src="js/emoji.js"></script>
+    <script src="js/md.js"></script>
     <script src="js/custom.js"></script>
     <script async defer src="https://apis.google.com/js/api.js"
       onload="initApis()"

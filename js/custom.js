@@ -1,14 +1,5 @@
 const separator = "\n" + "-".repeat(10) + "0qp4BCBHLoHfkIi6N1hgeXNaZg20BB0sNZ4k8tE6eWKmTa1CkE" + "-".repeat(10) + "\n\n";
 
-const MARKDOWN_OPTIONS = {
-  tasklists: true,
-  noHeaderId: true,
-  parseImgDimensions: true,
-  strikethrough: true,
-  tables: true,
-  ghMentions: true
-}
-
 var currentUser = {
   name: null,
   email: null,
@@ -118,6 +109,47 @@ function showErr(err) {
   console.log(err);
 }
 
+Vue.component("md-guide", {
+  data: function () {
+    return {
+      mdconverter: mdconverter,
+      mdguides: mdguides,
+      display: "",
+    }
+  },
+  methods: {
+    toggle: function () {
+      this.$refs.modalmarkdownguide.classList.toggle("active");
+      if (!this.display) {
+        this.updatedisplay(this.mdguides[0].tooltip, this.mdguides[0].guide, 0);
+      }
+    },
+    updatedisplay: function (title, guide, eIdx) {
+      this.display = "#" + title + "\n" + guide;
+      this.$refs.displaycontent.scrollTop = 0;
+      this.$refs.tabItems.forEach((el,idx) => {
+        if (idx == eIdx) el.classList.add("active");
+        else el.classList.remove("active");
+      })
+    }
+  },
+  template: `
+  <div class="modal" id="modal-markdownguide" ref="modalmarkdownguide">
+    <div class="modal-overlay" aria-label="Close" @click="toggle"></div>
+    <div class="modal-container">
+      <div class="modal-header">
+        <div class="tab">
+          <div v-for="(g, index) in mdguides" class="tab-item" ref="tabItems">
+            <a :class="['mdi', 'mdi-24px', g.icon]" @click="updatedisplay(g.tooltip, g.guide, index)"></a>
+          </div>
+        </div>
+      </div>
+      <div class="modal-body" ref="displaycontent" v-html="mdconverter.makeHtml(display)"></div>
+    </div>
+  </div>
+  `
+})
+
 new Vue({
   el: "#navbar",
   data: {
@@ -134,6 +166,9 @@ new Vue({
     },
     signOutGoogle: function () {
       gd.handleSignOutClick();
+    },
+    toggleMarkdownGuide: function () {
+      this.$refs.markdownguide.toggle();
     }
   }
 })
@@ -363,7 +398,7 @@ new Vue({
     unsaved: {},
     viewEdit: false,
     fieldnameError: "",
-    mdconvert: new showdown.Converter(MARKDOWN_OPTIONS)
+    mdconverter: mdconverter
   },
   methods: {
     addTick: function (fileId) {

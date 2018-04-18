@@ -92,6 +92,15 @@ body {
   font-size: 90%;
 }
 
+#modal-markdownguide {
+  color: #50596c;
+}
+
+#modal-markdownguide .modal-header > .tab {
+  flex-wrap: nowrap;
+  overflow: auto;
+}
+
 .content {
   flex-grow: 1;
   overflow: hidden;
