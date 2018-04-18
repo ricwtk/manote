@@ -376,28 +376,21 @@ new Vue({
       el.classList.add("selected");
     },
     discardSelection: function () {
-      document.querySelectorAll(".list-container input[type='checkbox']").forEach(el => {
-        el.checked = false;
+      this.$refs.fileItem.forEach(el => {
+        el.untick();
       });
       this.tickedFiles = [];
     },
     addNewNote: function () {
       this.stored.noteList.push(new Note(generateRandomId(10, this.stored.noteList.map(el => el.id))));
-      gd.updateNote(this.stored.noteList[this.stored.noteList.length - 1]).then(res => {
-        console.log(res);
-        updateList(res);
-      }, showErr);
     },
     deleteNotes: function () {
+      this.stored.noteList = this.stored.noteList.filter(el => !this.tickedFiles.includes(el.id));
       gd.removeNotes(this.tickedFiles).then(res => {
         console.log(res);
         updateList(res);
-      }, showErr).then(() => {
-        this.tickedFiles = [];
-        this.$refs.fileItem.forEach(el => {
-          el.untick();
-        });
-      });
+      }, showErr);
+      this.discardSelection();
     },
     updateTags(ev, name) {
       if (ev.key == "," || ev.key == "Enter") {
@@ -471,7 +464,10 @@ new Vue({
 })
 
 function updateList(notes) {
-  stored.noteList = notes.map(el => new Note(el.id, el.createdOn, el.modifiedOn, null, null, el));
+  stored.noteList = 
+    notes.map(el => new Note(el.id, el.createdOn, el.modifiedOn, null, null, el)).concat(
+      stored.noteList.filter(el => !notes.map(nt => nt.id).includes(el.id)).map(el => new Note(el.id, el.createdOn, el.modifiedOn, null, null, el))
+    )
 }
 
 function refreshList() {
