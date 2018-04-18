@@ -1,5 +1,14 @@
 const separator = "\n" + "-".repeat(10) + "0qp4BCBHLoHfkIi6N1hgeXNaZg20BB0sNZ4k8tE6eWKmTa1CkE" + "-".repeat(10) + "\n\n";
 
+const MARKDOWN_OPTIONS = {
+  tasklists: true,
+  noHeaderId: true,
+  parseImgDimensions: true,
+  strikethrough: true,
+  tables: true,
+  ghMentions: true
+}
+
 var currentUser = {
   name: null,
   email: null,
@@ -354,7 +363,7 @@ new Vue({
     unsaved: {},
     viewEdit: false,
     fieldnameError: "",
-    mdconvert: new showdown.Converter()
+    mdconvert: new showdown.Converter(MARKDOWN_OPTIONS)
   },
   methods: {
     addTick: function (fileId) {
