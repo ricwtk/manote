@@ -68,6 +68,10 @@ class Note {
     }
   }
 
+  removeField(name) {
+    Vue.delete(this, name);
+  }
+
   copy() {
     return new Note(this.id, this.createdOn, this.modifiedOn, null, null, this);
   }
@@ -84,8 +88,8 @@ class Note {
         }
       }
     });
-    Object.keys(this).filter(key => !keysInAnotherNote.includes(key)).forEach(el => {
-      delete this[key];
+    Object.keys(this).filter(key => !keysInAnotherNote.includes(key)).forEach(key => {
+      this.removeField(key);
     })
   }
 }
@@ -436,6 +440,11 @@ new Vue({
       this.$refs.modalNewField.classList.toggle("active");
       this.$refs.modalNewField.querySelector("#newfieldname").value = "";
       this.fieldnameError = "";
+    },
+    removeField: function (name) {
+      console.log(name);
+      console.log(JSON.stringify(this.unsaved));
+      this.unsaved.removeField(name);
     },
     switchView: function (ev) {
       for (let child of this.$refs.viewSwitcher.children) {

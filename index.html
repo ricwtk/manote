@@ -123,7 +123,10 @@
         </div>
         <div class="panel-body form-group" v-if="viewEdit">
           <template v-for="(item, key, index) in unsaved" v-if="item && item.type">
-            <input-header :label-for="'value-' + key" :title="key" :removable="key != 'Title' && key != 'Content' && key != 'Categories'"></input-header>
+            <input-header :label-for="'value-' + key" 
+              :title="key" 
+              :removable="key != 'Title' && key != 'Content' && key != 'Categories'"
+              @remove="removeField(key)"></input-header>
             <textarea class="form-input" v-if="item.type == 'multiple'" :id="'value-' + key" v-model="item.content" :placeholder="key"></textarea>
             <input class="form-input" v-else-if="item.type == 'single'" v-model="item.content" :id="'value-' + key" :placeholder="key">
             <div v-else-if="item.type == 'tags'">
