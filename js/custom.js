@@ -36,7 +36,7 @@ class Note {
     this.id = id;
     this.createdOn = createdOn ? createdOn : new Date();
     this.modifiedOn = modifiedOn ? modifiedOn : this.createdOn;
-    this.order = others.order ? others.order : [];
+    this.order = others.order ? others.order.slice() : [];
     this.addNewField("Title", "single", Title ? Title : "Untitled");
     this.addNewField("Content", "multiple", Content ? Content : "");
     this.addNewField("Categories", "tags");
@@ -74,7 +74,7 @@ class Note {
   removeField(name) {
     if (this[name]) {
       Vue.delete(this, name);
-      this.order.slice(this.order.indexOf(name));
+      this.order.splice(this.order.indexOf(name), 1);
     }
   }
 
@@ -84,6 +84,8 @@ class Note {
 
   updateFrom(anotherNote) {
     let keysInAnotherNote = Object.keys(anotherNote);
+    this.order = anotherNote.order;
+    console.log(this.order, anotherNote.order);
     keysInAnotherNote.map(aNkey => {
       if (!["id", "createdOn", "modifiedOn", "order"].includes(aNkey)) {
         if (!this[aNkey]) {
@@ -97,7 +99,6 @@ class Note {
     Object.keys(this).filter(key => !keysInAnotherNote.includes(key)).forEach(key => {
       this.removeField(key);
     });
-    this.order = anotherNote.order;
   }
 }
 
@@ -534,7 +535,7 @@ new Vue({
     },
     removeField: function (name) {
       console.log(name);
-      console.log(JSON.stringify(this.unsaved));
+      // console.log(JSON.stringify(this.unsaved));
       this.unsaved.removeField(name);
     },
     switchView: function (ev) {
@@ -556,8 +557,8 @@ new Vue({
       }, showErr);
     },
     discardUnsaved: function () {
+      // console.log(JSON.stringify(this.unsaved), JSON.stringify(this.openedFile));
       this.unsaved.updateFrom(this.openedFile);
-      console.log(JSON.stringify(this.unsaved), JSON.stringify(this.openedFile));
     }
   }
 })
