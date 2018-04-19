@@ -88,7 +88,7 @@ class Note {
   updateFrom(anotherNote) {
     let keysInAnotherNote = Object.keys(anotherNote);
     this.order = anotherNote.order;
-    console.log(this.order, anotherNote.order);
+    this.modified = anotherNote.modified;
     keysInAnotherNote.map(aNkey => {
       if (!["id", "created", "modified", "order"].includes(aNkey)) {
         if (!this[aNkey]) {
@@ -102,6 +102,10 @@ class Note {
     Object.keys(this).filter(key => !keysInAnotherNote.includes(key)).forEach(key => {
       this.removeField(key);
     });
+  }
+
+  modifiedOn(date) {
+    Vue.set(this, "modified", date);
   }
 }
 
@@ -577,6 +581,7 @@ new Vue({
       }
     },
     saveNote: function () {
+      this.unsaved.modifiedOn(new Date());
       this.openedFile.updateFrom(this.unsaved);
       console.log(JSON.stringify(this.unsaved), JSON.stringify(this.openedFile));
       gd.updateNote(this.openedFile).then(res => {
