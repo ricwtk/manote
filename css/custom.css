@@ -101,6 +101,10 @@ body {
   overflow: auto;
 }
 
+#modal-markdownguide .modal-container {
+  max-width: 800px;
+}
+
 #modal-sortfields .sort-item {
   display: flex;
   flex-direction: row;

@@ -202,7 +202,7 @@
         <div class="panel-body form-group" v-else>
           <template v-for="key in unsaved.order">
             <input-header :title="key" :removable="false"></input-header>
-            <div class="display-input" v-if="unsaved[key].type == 'multiple' || unsaved[key].type == 'single'" v-html="mdconverter.makeHtml(unsaved[key].content)"></div>
+            <div class="display-input md-default" v-if="unsaved[key].type == 'multiple' || unsaved[key].type == 'single'" v-html="mdconverter.makeHtml(unsaved[key].content)"></div>
             <div v-else-if="unsaved[key].type == 'tags'" class="display-input">
               <span class="chip" v-for="tag in unsaved[key].content">
                 {{ tag }}

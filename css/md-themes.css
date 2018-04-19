@@ -41,12 +41,15 @@
 
 code {
   font-family: "SF Mono","Segoe UI Mono","Roboto Mono",Menlo,Courier,monospace;
-  background: #fdf4f4;
+  /* background: #fdf4f4; */
+  background: #f8f8f8;
   border-radius: .1rem;
-  color: #e06870;
+  /* color: #e06870; */
+  color: #888;
   font-size: 85%; 
   line-height: 1.2;
   padding: .1rem .15rem;
+  border: 1px solid #ddd;
 }
 
 .md-default pre > code {

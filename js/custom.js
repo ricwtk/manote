@@ -152,7 +152,7 @@ Vue.component("md-guide", {
           </div>
         </div>
       </div>
-      <div class="modal-body" ref="displaycontent" v-html="mdconverter.makeHtml(display)"></div>
+      <div class="modal-body md-default" ref="displaycontent" v-html="mdconverter.makeHtml(display)"></div>
     </div>
   </div>
   `
