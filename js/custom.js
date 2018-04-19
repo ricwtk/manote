@@ -36,6 +36,7 @@ class Note {
     this.id = id;
     this.createdOn = createdOn ? createdOn : new Date();
     this.modifiedOn = modifiedOn ? modifiedOn : this.createdOn;
+    this.order = others.order ? others.order : [];
     this.addNewField("Title", "single", Title ? Title : "Untitled");
     this.addNewField("Content", "multiple", Content ? Content : "");
     this.addNewField("Categories", "tags");
@@ -48,7 +49,9 @@ class Note {
 
   addNewField(name, type, content) {
     Vue.set(this, name, new Field(type, content));
-    // this[name] = new Field(type, content);
+    if (!this.order.includes(name)) {
+      this.order.push(name);
+    }
   }
 
   updateField(name, content) {
@@ -69,7 +72,10 @@ class Note {
   }
 
   removeField(name) {
-    Vue.delete(this, name);
+    if (this[name]) {
+      Vue.delete(this, name);
+      this.order.slice(this.order.indexOf(name));
+    }
   }
 
   copy() {
@@ -79,7 +85,7 @@ class Note {
   updateFrom(anotherNote) {
     let keysInAnotherNote = Object.keys(anotherNote);
     keysInAnotherNote.map(aNkey => {
-      if (!["id", "createdOn", "modifiedOn"].includes(aNkey)) {
+      if (!["id", "createdOn", "modifiedOn", "order"].includes(aNkey)) {
         if (!this[aNkey]) {
           console.log(aNkey);
           this.addNewField(aNkey, anotherNote[aNkey].type, anotherNote[aNkey].content);
@@ -90,7 +96,8 @@ class Note {
     });
     Object.keys(this).filter(key => !keysInAnotherNote.includes(key)).forEach(key => {
       this.removeField(key);
-    })
+    });
+    this.order = anotherNote.order;
   }
 }
 
@@ -384,6 +391,54 @@ Vue.component("display-datetime", {
       <div class="text-center two-digits">{{ value.substr(-5,2) }}</div>
       <div>:</div>
       <div class="text-center two-digits">{{ value.substr(-2) }}</div>
+    </div>
+  </div>
+  `
+})
+
+Vue.component("modal-sortfields", {
+  props: ["value"],
+  methods: {
+    toggle: function () {
+      this.$el.classList.toggle("active");
+    },
+    dragstart: function (ev) {
+      ev.dataTransfer.setData("text", ev.target.dataset.index);
+    },
+    prevent: function (ev) {
+      ev.preventDefault();
+    },
+    drop: function (ev) {
+      let shiftFrom = parseInt(ev.dataTransfer.getData("text"));
+      let shiftTo = parseInt(ev.target.dataset.index);
+      let newOrder = JSON.parse(JSON.stringify(this.value));
+      newOrder.splice(shiftTo, 0, newOrder[shiftFrom]);
+      if (shiftTo < shiftFrom) shiftFrom += 1;
+      newOrder.splice(shiftFrom, 1);
+      this.$emit("input", newOrder);
+    }
+  },
+  template: `
+  <div class="modal modal-sm" id="modal-sortfields">
+    <div class="modal-overlay" aria-label="Close" @click="toggle()"></div>
+    <div class="modal-container">
+      <div class="modal-body">
+        <div class="text-center my-2">
+          Drop onto the item to place before it
+        </div>
+        <div class="sort-item" v-for="(v,idx) in value" draggable="true"
+          @dragstart="dragstart" 
+          @dragenter.prevent
+          @dragover.prevent
+          @dragleave.prevent
+          @dragend.prevent
+          @drop.prevent="drop"
+          :data-index="idx"
+        >
+          <i class="mdi mdi-cursor-move" :data-index="idx"></i>
+          <div :data-index="idx">{{ v }}</div>
+        </div>
+      </div>
     </div>
   </div>
   `
