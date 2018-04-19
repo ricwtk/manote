@@ -34,9 +34,12 @@ class Field {
 class Note {
   constructor(id, createdOn, modifiedOn, Title, Content, others) {
     this.id = id;
-    this.createdOn = createdOn ? createdOn : new Date();
-    this.modifiedOn = modifiedOn ? modifiedOn : this.createdOn;
-    this.order = others.order ? others.order.slice() : [];
+    this.created = createdOn ? createdOn : new Date();
+    this.modified = modifiedOn ? modifiedOn : this.created;
+    if (others)
+      this.order = others.order ? others.order.slice() : [];
+    else
+      this.order = [];
     this.addNewField("Title", "single", Title ? Title : "Untitled");
     this.addNewField("Content", "multiple", Content ? Content : "");
     this.addNewField("Categories", "tags");
@@ -79,7 +82,7 @@ class Note {
   }
 
   copy() {
-    return new Note(this.id, this.createdOn, this.modifiedOn, null, null, this);
+    return new Note(this.id, this.created, this.modified, null, null, this);
   }
 
   updateFrom(anotherNote) {
@@ -87,7 +90,7 @@ class Note {
     this.order = anotherNote.order;
     console.log(this.order, anotherNote.order);
     keysInAnotherNote.map(aNkey => {
-      if (!["id", "createdOn", "modifiedOn", "order"].includes(aNkey)) {
+      if (!["id", "created", "modified", "order"].includes(aNkey)) {
         if (!this[aNkey]) {
           console.log(aNkey);
           this.addNewField(aNkey, anotherNote[aNkey].type, anotherNote[aNkey].content);
@@ -456,6 +459,31 @@ new Vue({
     fieldnameError: "",
     mdconverter: mdconverter
   },
+  computed: {
+    sortableFields: function () {
+      return Array.from(
+        new Set(
+          this.stored.noteList.map(el => 
+            Object.keys(el).filter(k =>
+              !["id", "order"].includes(k)
+              && !["tags", "multiple"].includes(el[k].type)
+            )
+          ).reduce((acc, el) => acc.concat(el), [])
+        )
+      );
+    },
+    groupableFields: function () {
+      return Array.from(
+        new Set(
+          this.stored.noteList.map(el => 
+            Object.keys(el).filter(k => 
+              el[k].type && ["datetime", "tags"].includes(el[k].type)
+            )
+          ).reduce((acc, el) => acc.concat(el), [])
+        )
+      );
+    }
+  },
   methods: {
     addTick: function (fileId) {
       console.log("ticking", fileId);
@@ -565,8 +593,8 @@ new Vue({
 
 function updateList(notes) {
   stored.noteList = 
-    notes.map(el => new Note(el.id, el.createdOn, el.modifiedOn, null, null, el)).concat(
-      stored.noteList.filter(el => !notes.map(nt => nt.id).includes(el.id)).map(el => new Note(el.id, el.createdOn, el.modifiedOn, null, null, el))
+    notes.map(el => new Note(el.id, el.created, el.modified, null, null, el)).concat(
+      stored.noteList.filter(el => !notes.map(nt => nt.id).includes(el.id)).map(el => new Note(el.id, el.created, el.modified, null, null, el))
     )
 }
 

@@ -214,3 +214,17 @@ textarea {
 .input-header .content > *:last-child:not(:first-child) {
   padding-right: 0;
 }
+
+.sort-group > * {
+  display: flex;
+  align-items: center;
+  flex-grow: 1;
+}
+
+.sort-group > * {
+  padding-right: 1em;
+}
+
+.sort-group > * > *:first-child {
+  margin-right: .5em;
+}

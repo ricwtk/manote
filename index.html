@@ -85,7 +85,22 @@
       <div class="list-container column col-6 col-sm-12 panel">
         <div class="panel-header">
           <div class="panel-title navbar">
-            <div class="navbar-section"><span class="mdi mdi-sort"></span>sort by <span class="mdi mdi-group"></span> group by</div>
+            <div class="navbar-section sort-group">
+              <div>
+                <span class="mdi mdi-sort"></span>
+                <select class="form-select select-sm">
+                  <option>-- Sort by --</option>
+                  <option v-for="f in sortableFields">{{ f }}</option>
+                </select>
+              </div>
+              <div>
+                <span class="mdi mdi-group"></span>
+                <select class="form-select select-sm">
+                  <option>-- Group by --</option>
+                  <option v-for="f in groupableFields">{{ f }}</option>
+                </select>
+              </div>
+            </div>
             <div class="my-button c-hand mdi mdi-24px mdi-plus" @click="addNewNote"></div>
           </div>
         </div>
