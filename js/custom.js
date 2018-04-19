@@ -189,11 +189,7 @@ new Vue({
 })
 
 Vue.component("file-item", {
-  props: ["file"],
-  data: function () {
-    return {
-    }
-  },
+  props: ["file", "index"],
   methods: {
     openFile: function (ev) {
       this.$emit("open-file", this.file, this.$refs.root);
@@ -206,10 +202,42 @@ Vue.component("file-item", {
     },
     untick: function () {
       this.$refs.ticked.checked = false;
+    },
+    getActual: function (x) {
+      while (!x.dataset || !x.dataset.index) {
+        x = x.parentNode;
+      }
+      return x;
+    },
+    dragstart: function (ev) {
+      ev.dataTransfer.setData("text", ev.target.dataset.index);
+    },
+    dragover: function (ev) {
+      this.getActual(ev.target).classList.add("dragover");
+    },
+    dragleave: function (ev) {
+      this.getActual(ev.target).classList.remove("dragover");
+    },
+    drop: function (ev) {
+      this.dragleave(ev);
+      let shiftFrom = parseInt(ev.dataTransfer.getData("text"));
+      let shiftTo = parseInt(this.getActual(ev.target).dataset.index);
+      stored.noteList.splice(shiftTo, 0, stored.noteList[shiftFrom]);
+      if (shiftTo < shiftFrom) shiftFrom += 1;
+      stored.noteList.splice(shiftFrom, 1);
     }
   },
   template: `
-  <div class="tile tile-centered p-2" @click="openFile" ref="root">
+  <div class="tile tile-centered p-2 file-item" @click="openFile" ref="root"
+    draggable="true"
+    @dragstart="dragstart"
+    @dragenter.prevent
+    @dragover.prevent="dragover"
+    @dragleave.prevent="dragleave"
+    @dragend.prevent="dragleave"
+    @drop.prevent="drop"
+    :data-index="index"
+  >
     <div class="tile-icon">
       <label class="form-checkbox" @click.stop="tickFile">
         <input type="checkbox" ref="ticked">
@@ -219,6 +247,9 @@ Vue.component("file-item", {
     <div class="tile-content">
       <div class="tile-title">{{ file.Title.content }}</div>
       <div class="tile-subtitle text-gray text-ellipsis">{{ file.Content.content }}</div>
+    </div>
+    <div class="tile-action handle">
+      <i class="mdi mdi-menu"></i>
     </div>
   </div>
   `

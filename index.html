@@ -111,10 +111,11 @@
               Click <i class="mdi mdi-plus"></i> to add note
             </div>
           </template>
-          <template v-else v-for="f in stored.noteList">
+          <template v-else v-for="(f,i) in stored.noteList">
             <div class="divider"></div>
             <file-item
               :file="f"
+              :index="i"
               @add-tick="addTick"
               @remove-tick="removeTick"
               @open-file="openFile"

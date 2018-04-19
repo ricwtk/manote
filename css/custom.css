@@ -228,3 +228,11 @@ textarea {
 .sort-group > * > *:first-child {
   margin-right: .5em;
 }
+
+.file-item .handle {
+  cursor: move;
+}
+
+.file-item.dragover {
+  background-color: #E0F2F1!important;
+}
