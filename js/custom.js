@@ -227,6 +227,7 @@ Vue.component("file-item", {
       this.dragleave(ev);
       let shiftFrom = parseInt(ev.dataTransfer.getData("text"));
       let shiftTo = parseInt(this.getActual(ev.target).dataset.index);
+      gd.sortNote(stored.noteList[shiftFrom].id, shiftTo).then(updateList);
       stored.noteList.splice(shiftTo, 0, stored.noteList[shiftFrom]);
       if (shiftTo < shiftFrom) shiftFrom += 1;
       stored.noteList.splice(shiftFrom, 1);

@@ -220,6 +220,38 @@
       }
     }
 
+    this.sortNote = (noteId, toId) => {
+      if (this.signedIn) {
+        return this.getDataFile().then(res => {
+          if (res.result.files.length > 0) {
+            return res.result.files[0].id;
+          } else {
+            return this.createDataFile().then(res => res.result.id);
+          }
+        }).then(id => {
+          return this.getFileContent(id).then(res => {  
+            return [id, res.result];
+          });
+        })
+        .then(res => {
+          content = res[1] ? res[1] : [];
+          let idx = content.findIndex(el => el.id == noteId);
+          if (idx > -1) {
+            content.splice(toId, 0, content[idx]);
+            if (toId < idx) idx += 1;
+            content.splice(idx, 1);
+          }
+          return [res[0], content];
+        }).then(res => {
+          return this.updateFileContent(res[0], res[1]).then(() => {
+            return res[1];
+          });
+        });
+      } else {
+        return this.notSignedIn();
+      }
+    }
+
     this.init();
   }
 
