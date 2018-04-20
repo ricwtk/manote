@@ -11,7 +11,7 @@ var stored = {
 }
 
 class Field {
-  constructor(type, content) {
+  constructor(type, content, height) {
     this.type = type ? type : "single"; // single, multiple, datetime, tags
     switch (this.type) {
       default:
@@ -20,6 +20,7 @@ class Field {
         break;
       case "multiple":
         this.content = content ? content : "";
+        this.height = height ? height : "auto";
         break;
       case "datetime":
         this.content = content ? content : (new Date()).toISOString().substr(0,16);
@@ -45,28 +46,32 @@ class Note {
     this.addNewField("Categories", "tags");
     if (others) {
       Object.keys(others).forEach((el) => {
-        if (others[el].type) this.addNewField(el, others[el].type, others[el].content);
+        if (others[el].type) this.addNewField(el, others[el].type, others[el].content, others[el].height);
       })
     }
   }
 
-  addNewField(name, type, content) {
-    Vue.set(this, name, new Field(type, content));
+  addNewField(name, type, content, height) {
+    Vue.set(this, name, new Field(type, content, height));
     if (!this.order.includes(name)) {
       this.order.push(name);
     }
   }
 
-  updateField(name, content) {
+  updateField(name, content, height) {
     if (!this[name]) return null;
     if (content == undefined) {
-      console.error("content must be specified in Note.updateField(name, content)");
+      console.error("content must be specified in Note.updateField(name, content, height)");
     }
     switch (this[name].type) {
       default:
-      case "single": 
+        this[name].content = content;
+        break;
       case "multiple":
         this[name].content = content;
+        if (height) {
+          Vue.set(this[name], "height", height);
+        }
         break;
       case "tags":
         this[name].content = [ ...Array.isArray(content) ? content : [ content ] ];
@@ -93,9 +98,9 @@ class Note {
       if (!["id", "created", "modified", "order"].includes(aNkey)) {
         if (!this[aNkey]) {
           console.log(aNkey);
-          this.addNewField(aNkey, anotherNote[aNkey].type, anotherNote[aNkey].content);
+          this.addNewField(aNkey, anotherNote[aNkey].type, anotherNote[aNkey].content, anotherNote[aNkey].height);
         } else if (JSON.stringify(this[aNkey]) != JSON.stringify(anotherNote[aNkey])) {
-          this.updateField(aNkey, anotherNote[aNkey].content);
+          this.updateField(aNkey, anotherNote[aNkey].content, anotherNote[aNkey].height);
         }
       }
     });
@@ -610,6 +615,9 @@ new Vue({
     discardUnsaved: function () {
       // console.log(JSON.stringify(this.unsaved), JSON.stringify(this.openedFile));
       this.unsaved.updateFrom(this.openedFile);
+    },
+    resizeTA: function (ev, name) {
+      Vue.set(this.unsaved[name], "height", window.getComputedStyle(ev.target).height);
     }
   }
 })

@@ -141,7 +141,13 @@
               :title="key" 
               :removable="key != 'Title' && key != 'Content' && key != 'Categories'"
               @remove="removeField(key)"></input-header>
-            <textarea class="form-input" v-if="unsaved[key].type == 'multiple'" :id="'value-' + key" v-model="unsaved[key].content" :placeholder="key"></textarea>
+            <textarea class="form-input" v-if="unsaved[key].type == 'multiple'" 
+              :id="'value-' + key" 
+              v-model="unsaved[key].content" 
+              :placeholder="key" 
+              :style="{ height: unsaved[key].height ? unsaved[key].height : 'auto' }"
+              @mouseup="resizeTA($event, key)"
+            ></textarea>
             <input class="form-input" v-else-if="unsaved[key].type == 'single'" v-model="unsaved[key].content" :id="'value-' + key" :placeholder="key">
             <div v-else-if="unsaved[key].type == 'tags'">
               <span class="chip" v-for="tag in unsaved[key].content">
