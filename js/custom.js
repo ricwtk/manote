@@ -494,31 +494,6 @@ new Vue({
     fieldnameError: "",
     mdconverter: mdconverter
   },
-  computed: {
-    sortableFields: function () {
-      return Array.from(
-        new Set(
-          this.stored.noteList.map(el => 
-            Object.keys(el).filter(k =>
-              !["id", "order"].includes(k)
-              && !["tags", "multiple"].includes(el[k].type)
-            )
-          ).reduce((acc, el) => acc.concat(el), [])
-        )
-      );
-    },
-    groupableFields: function () {
-      return Array.from(
-        new Set(
-          this.stored.noteList.map(el => 
-            Object.keys(el).filter(k => 
-              el[k].type && ["datetime", "tags"].includes(el[k].type)
-            )
-          ).reduce((acc, el) => acc.concat(el), [])
-        )
-      );
-    }
-  },
   methods: {
     addTick: function (fileId) {
       console.log("ticking", fileId);

@@ -215,18 +215,26 @@ textarea {
   padding-right: 0;
 }
 
-.sort-group > * {
+.search-bar {
   display: flex;
-  align-items: center;
+  flex-direction: row;
+  margin-right: .2rem;
+}
+
+.search-bar .form-icon {
+  color: #999;
+}
+
+.search-bar .form-icon:not(:first-child) {
+  margin-left: .2rem;
+}
+
+.search-bar .form-icon:not(:last-child) {
+  margin-right: .2rem;
+}
+
+.search-bar input {
   flex-grow: 1;
-}
-
-.sort-group > * {
-  padding-right: 1em;
-}
-
-.sort-group > * > *:first-child {
-  margin-right: .5em;
 }
 
 .file-item .handle {
