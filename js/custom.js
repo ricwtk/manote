@@ -231,7 +231,7 @@ Vue.component("file-item", {
   <div class="tile tile-centered p-2 file-item" @click="openFile" ref="root"
     draggable="true"
     @dragstart="dragstart"
-    @dragenter.prevent
+    @dragenter.prevent="dragover"
     @dragover.prevent="dragover"
     @dragleave.prevent="dragleave"
     @dragend.prevent="dragleave"
@@ -441,21 +441,31 @@ Vue.component("modal-sortfields", {
     toggle: function () {
       this.$el.classList.toggle("active");
     },
+    getActual: function (x) {
+      while (!x.dataset || !x.dataset.index) {
+        x = x.parentNode;
+      }
+      return x;
+    },
     dragstart: function (ev) {
       ev.dataTransfer.setData("text", ev.target.dataset.index);
     },
-    prevent: function (ev) {
-      ev.preventDefault();
+    dragover: function (ev) {
+      this.getActual(ev.target).classList.add("dragover");
+    }, 
+    dragleave: function (ev) {
+      this.getActual(ev.target).classList.remove("dragover");
     },
     drop: function (ev) {
+      this.dragleave(ev);
       let shiftFrom = parseInt(ev.dataTransfer.getData("text"));
-      let shiftTo = parseInt(ev.target.dataset.index);
+      let shiftTo = parseInt(this.getActual(ev.target).dataset.index);
       let newOrder = JSON.parse(JSON.stringify(this.value));
       newOrder.splice(shiftTo, 0, newOrder[shiftFrom]);
       if (shiftTo < shiftFrom) shiftFrom += 1;
       newOrder.splice(shiftFrom, 1);
       this.$emit("input", newOrder);
-    }
+    },
   },
   template: `
   <div class="modal modal-sm" id="modal-sortfields">
@@ -467,15 +477,15 @@ Vue.component("modal-sortfields", {
         </div>
         <div class="sort-item" v-for="(v,idx) in value" draggable="true"
           @dragstart="dragstart" 
-          @dragenter.prevent
-          @dragover.prevent
-          @dragleave.prevent
-          @dragend.prevent
+          @dragenter.prevent="dragover"
+          @dragover.prevent="dragover"
+          @dragleave.prevent="dragleave"
+          @dragend.prevent="dragleave"
           @drop.prevent="drop"
           :data-index="idx"
         >
-          <i class="mdi mdi-cursor-move" :data-index="idx"></i>
-          <div :data-index="idx">{{ v }}</div>
+          <i class="mdi mdi-cursor-move"></i>
+          <div>{{ v }}</div>
         </div>
       </div>
     </div>

@@ -111,6 +111,7 @@ body {
   border: 1px solid #ddd;
   margin-bottom: -1px;
   padding: 1em;
+  cursor: move;
 }
 
 #modal-sortfields .sort-item:nth-child(2) {
@@ -241,6 +242,6 @@ textarea {
   cursor: move;
 }
 
-.file-item.dragover {
+.dragover {
   background-color: #E0F2F1!important;
 }
