@@ -92,6 +92,13 @@ body {
   font-size: 90%;
 }
 
+#modal-loading .modal-overlay {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 800%;
+}
+
 #modal-markdownguide {
   color: #50596c;
 }

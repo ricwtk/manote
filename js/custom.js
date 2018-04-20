@@ -10,6 +10,11 @@ var stored = {
   noteList: []  
 }
 
+var stat = {
+  atInit: true,
+  running: false
+}
+
 class Field {
   constructor(type, content, height) {
     this.type = type ? type : "single"; // single, multiple, datetime, tags
@@ -173,7 +178,8 @@ Vue.component("md-guide", {
 new Vue({
   el: "#navbar",
   data: {
-    currentUser: currentUser
+    currentUser: currentUser,
+    stat: stat
   },
   methods: {
     toggleSidebar: function () {
@@ -536,6 +542,7 @@ Vue.component("modal-unsavedprompt", {
 new Vue({
   el: "#note-list-and-display",
   data: {
+    stat: stat,
     tickedFiles: [],
     stored: stored,
     openedFile: {},
@@ -603,10 +610,11 @@ new Vue({
     },
     deleteNotes: function () {
       this.stored.noteList = this.stored.noteList.filter(el => !this.tickedFiles.includes(el.id));
+      this.stat.running = true;
       gd.removeNotes(this.tickedFiles).then(res => {
         console.log(res);
         updateList(res);
-      }, showErr);
+      }, showErr).then(res => { this.stat.running = false });
       this.discardSelection();
     },
     updateTags(ev, name) {
@@ -669,17 +677,19 @@ new Vue({
       this.unsaved.modifiedOn(new Date());
       this.openedFile.updateFrom(this.unsaved);
       console.log(JSON.stringify(this.unsaved), JSON.stringify(this.openedFile));
+      this.stat.running = true;
       gd.updateNote(this.openedFile).then(res => {
         console.log(res);
         updateList(res);
-      }, showErr);
+      }, showErr).then(res => { this.stat.running = false });
     },
     discardUnsaved: function () {
       // console.log(JSON.stringify(this.unsaved), JSON.stringify(this.openedFile));
       this.unsaved.updateFrom(this.openedFile);
     },
     sortNotes: function (shiftFrom, shiftTo) {
-      gd.sortNote(stored.noteList[shiftFrom].id, shiftTo).then(updateList);
+      this.stat.running = true;
+      gd.sortNote(stored.noteList[shiftFrom].id, shiftTo).then(updateList).then(res => { this.stat.running = false });
       stored.noteList.splice(shiftTo, 0, stored.noteList[shiftFrom]);
       if (shiftTo < shiftFrom) shiftFrom += 1;
       stored.noteList.splice(shiftFrom, 1);
@@ -698,6 +708,7 @@ function updateList(notes) {
 }
 
 function refreshList() {
+  stat.running = true;
   return gd.getData().then((res) => {
     if (res.status == 200) {
       return res.result;
@@ -709,7 +720,10 @@ function refreshList() {
     if (res) {
       updateList(res);
     }
-  }, showErr);
+  }, showErr).then(res => { 
+    stat.running = false;
+    stat.atInit = false;
+  });
 }
 
 function initApis() {

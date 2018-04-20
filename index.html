@@ -23,14 +23,7 @@
     <div class="navbar p-1 bg-dark" id="navbar">
       <div class="navbar-section">
         <div class="c-hand mdi mdi-24px mdi-menu px-2" @click="toggleSidebar"></div>
-      </div>
-      <div class="navbar-center">
-        <img src="icons/icon.png?v=1.0" style="max-height: 1rem">&nbsp;
-        <strong>MaNote</strong>
-      </div>
-      <div class="navbar-section">
-
-      </div>
+      </div>     
       
       <div class="sidebar active" ref="sidebar">
         <div class="sidebar-overlay" aria-label="Close" @click="toggleSidebar"></div>
@@ -79,6 +72,19 @@
       </div>
 
       <md-guide ref="markdownguide"></md-guide>
+
+      <div :class="['modal', 'text-primary', stat.running && stat.atInit ? 'active' : '']" id="modal-loading">
+        <div class="modal-overlay mdi mdi-spin mdi-loading"></div>
+      </div>
+
+      <div class="navbar-center">
+        <img src="icons/icon.png?v=1.0" style="max-height: 1rem">&nbsp;
+        <strong>MaNote</strong>
+      </div>
+
+      <div class="navbar-section mx-2">
+        <span class="mdi mdi-24px mdi-spin mdi-loading text-warning" v-show="stat.running"></span>
+      </div>
     </div>
 
     <div class="content columns" id="note-list-and-display">
