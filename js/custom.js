@@ -227,10 +227,7 @@ Vue.component("file-item", {
       this.dragleave(ev);
       let shiftFrom = parseInt(ev.dataTransfer.getData("text"));
       let shiftTo = parseInt(this.getActual(ev.target).dataset.index);
-      gd.sortNote(stored.noteList[shiftFrom].id, shiftTo).then(updateList);
-      stored.noteList.splice(shiftTo, 0, stored.noteList[shiftFrom]);
-      if (shiftTo < shiftFrom) shiftFrom += 1;
-      stored.noteList.splice(shiftFrom, 1);
+      this.$emit("drag-and-drop", shiftFrom, shiftTo);
     }
   },
   template: `
@@ -495,6 +492,15 @@ Vue.component("modal-sortfields", {
           <i class="mdi mdi-cursor-move"></i>
           <div>{{ v }}</div>
         </div>
+        <div class="sort-item-holder"
+          @dragenter.prevent="dragover"
+          @dragover.prevent="dragover"
+          @dragleave.prevent="dragleave"
+          @dragend.prevent="dragleave"
+          @drop.prevent="drop"
+          :data-index="value.length"
+        >
+        </div>
       </div>
     </div>
   </div>
@@ -616,6 +622,12 @@ new Vue({
     discardUnsaved: function () {
       // console.log(JSON.stringify(this.unsaved), JSON.stringify(this.openedFile));
       this.unsaved.updateFrom(this.openedFile);
+    },
+    sortNotes: function (shiftFrom, shiftTo) {
+      gd.sortNote(stored.noteList[shiftFrom].id, shiftTo).then(updateList);
+      stored.noteList.splice(shiftTo, 0, stored.noteList[shiftFrom]);
+      if (shiftTo < shiftFrom) shiftFrom += 1;
+      stored.noteList.splice(shiftFrom, 1);
     },
     resizeTA: function (ev, name) {
       Vue.set(this.unsaved[name], "height", window.getComputedStyle(ev.target).height);

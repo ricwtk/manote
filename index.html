@@ -110,11 +110,15 @@
               @add-tick="addTick"
               @remove-tick="removeTick"
               @open-file="openFile"
+              @drag-and-drop="sortNotes"
               ref="fileItem"
             ></file-item>
           </template>
           <div class="divider"></div>
-          <file-item :index="stored.noteList.length"></file-item>
+          <file-item 
+            :index="stored.noteList.length"
+            @drag-and-drop="sortNotes"
+          ></file-item>
         </div>
         <div class="panel-footer navbar" v-show="tickedFiles.length > 0">
           <div class="navbar-section">
