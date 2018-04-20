@@ -144,11 +144,15 @@ body {
   height: 100%;
 }
 
-.list-container .tile:hover,
+.list-container .tile:hover:not(:last-child),
 .note-container .tile:hover,
 .list-container .tile.selected,
 .my-button:hover {
   background-color: rgba(248,249,250,1);
+}
+
+.list-container .tile:last-child {
+  height: 3em;
 }
 
 textarea {

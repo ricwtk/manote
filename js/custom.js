@@ -229,7 +229,7 @@ Vue.component("file-item", {
   },
   template: `
   <div class="tile tile-centered p-2 file-item" @click="openFile" ref="root"
-    draggable="true"
+    :draggable="file ? 'true' : 'false'"
     @dragstart="dragstart"
     @dragenter.prevent="dragover"
     @dragover.prevent="dragover"
@@ -238,19 +238,21 @@ Vue.component("file-item", {
     @drop.prevent="drop"
     :data-index="index"
   >
-    <div class="tile-icon">
-      <label class="form-checkbox" @click.stop="tickFile">
-        <input type="checkbox" ref="ticked">
-        <i class="form-icon"></i>
-      </label>
-    </div>
-    <div class="tile-content">
-      <div class="tile-title">{{ file.Title.content }}</div>
-      <div class="tile-subtitle text-gray text-ellipsis">{{ file.Content.content }}</div>
-    </div>
-    <div class="tile-action handle">
-      <i class="mdi mdi-menu"></i>
-    </div>
+    <template v-if="file">
+      <div class="tile-icon">
+        <label class="form-checkbox" @click.stop="tickFile">
+          <input type="checkbox" ref="ticked">
+          <i class="form-icon"></i>
+        </label>
+      </div>
+      <div class="tile-content">
+        <div class="tile-title">{{ file.Title.content }}</div>
+        <div class="tile-subtitle text-gray text-ellipsis">{{ file.Content.content }}</div>
+      </div>
+      <div class="tile-action handle">
+        <i class="mdi mdi-menu"></i>
+      </div>
+    </template>
   </div>
   `
 })
