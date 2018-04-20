@@ -230,7 +230,7 @@
           </template>
         </div>
         <div class="panel-footer">
-          <div class="toast toast-error" v-if="JSON.stringify(unsaved) != JSON.stringify(openedFile)">
+          <div class="toast toast-error" v-if="hasUnsaved">
             <div class="navbar">
               <div class="navbar-section">
                 Unsaved
@@ -241,6 +241,11 @@
           </div>
         </div>
       </div>
+
+      <modal-unsavedprompt
+        :show="showUnsavedPrompt"
+        @to-save="saveOrNot"
+      ></modal-unsavedprompt>
     </div>
     <script src="js/emoji.js"></script>
     <script src="js/md.js"></script>

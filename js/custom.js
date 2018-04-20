@@ -507,16 +507,50 @@ Vue.component("modal-sortfields", {
   `
 })
 
+Vue.component("modal-unsavedprompt", {
+  props: ["show"],
+  methods: {
+    save: function () {
+      this.$emit("to-save", true);
+    },
+    notsave: function () {
+      this.$emit("to-save", false);
+    }
+  },
+  template: `
+  <div :class="['modal', 'modal-sm', show ? 'active' : '']">
+    <div class="modal-overlay"></div>
+    <div class="modal-container">
+      <div class="modal-body">
+        There are unsaved changes in current note. <span class="text-bold">Save before switch?</span>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-primary" @click="save">Yes</button>
+        <button class="btn" @click="notsave">No</button>
+      </div>
+    </div>
+  </div>
+  `
+})
+
 new Vue({
   el: "#note-list-and-display",
   data: {
     tickedFiles: [],
     stored: stored,
     openedFile: {},
+    fileToOpen: {},
+    elToOpen: null,
     unsaved: {},
+    showUnsavedPrompt: false,
     viewEdit: false,
     fieldnameError: "",
     mdconverter: mdconverter
+  },
+  computed: {
+    hasUnsaved: function () {
+      return JSON.stringify(this.unsaved) != JSON.stringify(this.openedFile);
+    }
   },
   methods: {
     addTick: function (fileId) {
@@ -528,6 +562,27 @@ new Vue({
       this.tickedFiles = this.tickedFiles.filter(item => item !== fileId);
     },
     openFile: function (file, el) {
+      if (file.id == this.openedFile.id) {
+        return;
+      }
+      if (Object.keys(this.unsaved).length > 0) {
+        if (this.hasUnsaved) {
+          this.showUnsavedPrompt = true;
+          this.fileToOpen = file;
+          this.elToOpen = el;
+          return;
+        }
+      }
+      this.openFileAction(file, el);
+    },
+    saveOrNot: function (toSave) {
+      if (toSave) {
+        this.saveNote();
+      }
+      this.showUnsavedPrompt = false;
+      this.openFileAction(this.fileToOpen, this.elToOpen);
+    },
+    openFileAction: function (file, el) {
       console.log("opening", file.id);
       this.openedFile = file;
       // this.unsaved = JSON.parse(JSON.stringify(file));
