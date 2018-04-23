@@ -92,7 +92,7 @@
         <div class="panel-header">
           <div class="panel-title navbar">
             <div class="navbar-section">
-              <div class="mdi mdi-24px mdi-filter-outline"></div>
+              <div class="mdi mdi-24px mdi-filter-outline" @click="showFilter=true"></div>
               <search-bar></search-bar>
             </div>
             <div class="my-button c-hand mdi mdi-24px mdi-plus" @click="addNewNote"></div>
@@ -131,6 +131,15 @@
           <button class="btn ml-1">Export</button>
         </div>
       </div>
+
+      <modal-sortnote 
+        :show="showFilter"
+        v-model="filter"
+        :sortable-fields="sortableFields"
+        :groupable-fields="groupableFields"
+        :available-groups="availableGroups"
+        @hide="showFilter=false"
+      ></modal-sortnote>
 
       <div class="note-container column col-8 col-md-12 panel">
         <div class="panel-nav">
