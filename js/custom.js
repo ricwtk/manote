@@ -227,6 +227,9 @@ Vue.component("modal-sortnote", {
     selectAllGroups: function () {
       this.$refs.groupList.childNodes.forEach(g => g.selected = true);
     },
+    deselectAllGroups: function () {
+      this.$refs.groupList.childNodes.forEach(g => g.selected = false);
+    },
     updateFilter: function () {
       this.$emit("input", {
         sort: this.$refs.sortbyList.selectedOptions[0].textContent,
@@ -256,8 +259,11 @@ Vue.component("modal-sortnote", {
           <option v-for="gf in groupableFields">{{ gf }}</option>
         </select>
         <input-header title="Show group(s)" :removable="false" label-for=""></input-header>
-        <button class="btn col-12 my-1" :disabled="groupList.length<1" @click="selectAllGroups">Select all</button>
-        <select class="form-select" size="5" multiple :disabled="groupList.length<1" ref="groupList" v-model="filter.show">
+        <div class="col-12">
+          <button class="btn" :disabled="groupList.length<1" @click="selectAllGroups">Select all</button>
+          <button class="btn" :disabled="groupList.length<1" @click="deselectAllGroups">Deselect all</button>
+        </div>
+        <select class="form-select my-1" size="5" multiple :disabled="groupList.length<1" ref="groupList" v-model="filter.show">
           <option v-for="ag in groupList">{{ ag }}</option>
         </select>
       </div>
