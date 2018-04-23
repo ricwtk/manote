@@ -199,6 +199,29 @@ new Vue({
   }
 })
 
+Vue.component("search-bar", {
+  data: function () {
+    return {
+      hide: true
+    }
+  },
+  methods: {
+    toggle: function () {
+      this.hide = !this.hide;
+    },
+    show: function () {
+      this.hide = true;
+    }
+  },
+  template: `
+  <div :class="{ 'form-input': !hide, 'search-bar': true }" @click="toggle">
+    <span :class="{ 'mdi': true, 'mdi-magnify': true, 'form-icon': !hide, 'mdi-24px': true }" @click="show"></span>
+    <input v-show="!hide" type="text" class="invisible-form-input" @click.stop>
+    <span v-show="!hide" class="form-icon mdi mdi-close tooltip tooltip-bottom" data-tooltip="clear search entry"></span>
+  </div>
+  `
+})
+
 Vue.component("file-item", {
   props: ["file", "index"],
   methods: {

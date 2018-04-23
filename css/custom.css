@@ -238,6 +238,16 @@ textarea {
   display: flex;
   flex-direction: row;
   margin-right: .2rem;
+  margin-left: .2rem;
+  transition: flex-grow .2s;
+}
+
+.search-bar {
+  flex-grow: 0;
+  width: 0;
+}
+.search-bar.form-input {
+  flex-grow: 1;
 }
 
 .search-bar .form-icon {
@@ -253,8 +263,13 @@ textarea {
 }
 
 .search-bar input {
-  flex-grow: 1;
+  flex-grow: 0;
   width: 0;
+  transition: flex-grow .2s;
+}
+
+.search-bar.form-input input {
+  flex-grow: 1;
 }
 
 .file-item .handle {
