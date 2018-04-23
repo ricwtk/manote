@@ -254,6 +254,7 @@ textarea {
 
 .search-bar input {
   flex-grow: 1;
+  width: 0;
 }
 
 .file-item .handle {
