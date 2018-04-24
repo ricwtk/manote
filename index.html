@@ -98,11 +98,11 @@
             <div class="my-button c-hand mdi mdi-24px mdi-plus" @click="addNewNote"></div>
           </div>
           <div class="bg-primary my-1 sort-group-display" v-if="filter.sort || filter.group">
-            <span v-if="filter.sort">
+            <span v-if="filter.sort" class="text-center">
               <span class="mdi mdi-sort mx-1"></span>
               {{ filter.sort }}
             </span>
-            <span v-if="filter.group">
+            <span v-if="filter.group" class="text-center">
               <span class="mdi mdi-group mx-1"></span>
               {{ filter.group }}
             </span>
