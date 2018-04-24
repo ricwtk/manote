@@ -850,7 +850,8 @@ new Vue({
     saveNote: function () {
       this.unsaved.modifiedOn(new Date());
       this.openedFile.updateFrom(this.unsaved);
-      console.log(JSON.stringify(this.unsaved), JSON.stringify(this.openedFile));
+      // console.log(JSON.stringify(this.unsaved), JSON.stringify(this.openedFile));
+      console.log("saving note");
       this.stat.running = true;
       gd.updateNote(this.openedFile).then(res => {
         console.log(res);
