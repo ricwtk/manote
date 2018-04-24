@@ -87,7 +87,7 @@ class Note {
   removeField(name) {
     if (this[name]) {
       Vue.delete(this, name);
-      this.order.splice(this.order.indexOf(name), 1);
+      if (this.order.indexOf(name) > -1) this.order.splice(this.order.indexOf(name), 1);
     }
   }
 
@@ -99,10 +99,9 @@ class Note {
     let keysInAnotherNote = Object.keys(anotherNote);
     this.order = anotherNote.order;
     this.modified = anotherNote.modified;
-    keysInAnotherNote.map(aNkey => {
+    keysInAnotherNote.forEach(aNkey => {
       if (!["id", "created", "modified", "order"].includes(aNkey)) {
         if (!this[aNkey]) {
-          console.log(aNkey);
           this.addNewField(aNkey, anotherNote[aNkey].type, anotherNote[aNkey].content, anotherNote[aNkey].height);
         } else if (JSON.stringify(this[aNkey]) != JSON.stringify(anotherNote[aNkey])) {
           this.updateField(aNkey, anotherNote[aNkey].content, anotherNote[aNkey].height);
@@ -381,7 +380,6 @@ Vue.component("input-header", {
   props: ["title", "removable", "label-for"],
   methods: {
     remove: function (ev) {
-      console.log(ev.target);
       this.$emit("remove");
     }
   },
@@ -827,7 +825,6 @@ new Vue({
           document.getElementsByName("entry-type").forEach(el => {
             if (el.checked) {
               this.unsaved.addNewField(newName, el.dataset.type);
-              console.log(JSON.stringify(this.unsaved), this.unsaved);
               this.toggleNewFieldEntry();
             }
           });
@@ -844,8 +841,6 @@ new Vue({
       this.fieldnameError = "";
     },
     removeField: function (name) {
-      console.log(name);
-      // console.log(JSON.stringify(this.unsaved));
       this.unsaved.removeField(name);
     },
     switchView: function (ev) {
@@ -860,8 +855,9 @@ new Vue({
     },
     saveNote: function () {
       this.unsaved.modifiedOn(new Date());
+      // console.log("unsaved", JSON.stringify(this.unsaved, null, 2));
       this.openedFile.updateFrom(this.unsaved);
-      // console.log(JSON.stringify(this.unsaved), JSON.stringify(this.openedFile));
+      // console.log("openedFile", JSON.stringify(this.openedFile, null, 2));
       console.log("saving note");
       this.stat.running = true;
       gd.updateNote(this.openedFile).then(res => {
