@@ -277,6 +277,7 @@ Vue.component("modal-sortnote", {
 })
 
 Vue.component("search-bar", {
+  props: ['value'],
   data: function () {
     return {
       hidden: true
@@ -288,15 +289,20 @@ Vue.component("search-bar", {
     },
     show: function () {
       this.hidden = false;
+      this.$nextTick(() => this.$refs.searchBox.focus());
     },
     hide: function () {
+      this.$emit("input", "");
       this.hidden = true;
+    },
+    update: function (ev) {
+      this.$emit("input", ev.target.value);
     }
   },
   template: `
   <div :class="{ 'form-input': !hidden, 'search-bar': true }">
     <span :class="{ 'mdi': true, 'mdi-magnify': true, 'form-icon': !hidden, 'mdi-24px': true }" @click="show"></span>
-    <input v-show="!hidden" type="text" class="invisible-form-input" @click.stop>
+    <input ref="searchBox" v-show="!hidden" type="text" class="invisible-form-input" @click.stop :value="value" @input="update">
     <span v-show="!hidden" class="form-icon mdi mdi-close tooltip tooltip-bottom" data-tooltip="clear search entry" @click="hide"></span>
   </div>
   `
@@ -663,7 +669,8 @@ new Vue({
     showUnsavedPrompt: false,
     viewEdit: false,
     fieldnameError: "",
-    mdconverter: mdconverter
+    mdconverter: mdconverter,
+    searchQuery: ""
   },
   computed: {
     hasUnsaved: function () {
@@ -861,9 +868,12 @@ new Vue({
       if (shiftTo < shiftFrom) shiftFrom += 1;
       stored.noteList.splice(shiftFrom, 1);
     },
+    matchSearch: function (note) {
+      return this.searchQuery.split().some(el => Object.keys(note).filter(k => note[k].type).map(k => k + " " + note[k].content).join(" ").toLowerCase().indexOf(el.toLowerCase()) > -1);
+    },
     resizeTA: function (ev, name) {
       Vue.set(this.unsaved[name], "height", window.getComputedStyle(ev.target).height);
-    }
+    },
   }
 })
 

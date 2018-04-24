@@ -93,7 +93,7 @@
           <div class="panel-title navbar">
             <div class="navbar-section">
               <div :class="['mdi', 'mdi-24px', ...(filter.sort || filter.group) ? ['mdi-filter', 'text-primary'] : ['mdi-filter-outline']]" @click="showFilter=true"></div>
-              <search-bar></search-bar>
+              <search-bar v-model="searchQuery"></search-bar>
             </div>
             <div class="my-button c-hand mdi mdi-24px mdi-plus" @click="addNewNote"></div>
           </div>
@@ -115,7 +115,22 @@
               Click <i class="mdi mdi-plus"></i> to add note
             </div>
           </template>
-          <template v-else-if="filter.group!=''">
+          <template v-else-if="searchQuery">
+            <template v-for="i in sortedNoteIdx" v-if="matchSearch(stored.noteList[i])">
+              <div class="divider"></div>
+              <file-item
+                :file="stored.noteList[i]"
+                :index="i"
+                @add-tick="addTick"
+                @remove-tick="removeTick"
+                @open-file="openFile"
+                ref="fileItem"
+                :draggable="false"
+                :droppable="false"
+              ></file-item>
+            </template>
+          </template>
+          <template v-else-if="filter.group != ''">
             <template v-for="s in filter.show" v-if="s != '-- No field or no group'">
               <div class="divider"></div>
               <div class="text-gray">{{ s }}</div>
