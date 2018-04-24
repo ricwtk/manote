@@ -106,13 +106,13 @@
             </div>
           </template>
           <template v-else-if="filter.group!=''">
-            <template v-for="s in filter.show">
+            <template v-for="s in filter.show" v-if="s != '-- No field or no group'">
               <div class="divider"></div>
               <div>{{ s }}</div>
-              <template v-for="(f,i) in stored.noteList" v-if="f[filter.group] && f[filter.group].content.includes(s)">
+              <template v-for="i in sortedNoteIdx" v-if="stored.noteList[i][filter.group] && stored.noteList[i][filter.group].content.includes(s)">
                 <div class="divider"></div>
                 <file-item
-                  :file="f"
+                  :file="stored.noteList[i]"
                   :index="i"
                   @add-tick="addTick"
                   @remove-tick="removeTick"
@@ -120,13 +120,27 @@
                   ref="fileItem"
                 ></file-item>
               </template>
-
+            </template>
+            <template v-if="filter.show.includes('-- No field or no group')">
+              <div class="divider"></div>
+              <div>-- No field or no group</div>
+              <template v-for="i in sortedNoteIdx" v-if="!stored.noteList[i][filter.group] || stored.noteList[i][filter.group].content.length == 0">
+                <div class="divider"></div>
+                <file-item
+                  :file="stored.noteList[i]"
+                  :index="i"
+                  @add-tick="addTick"
+                  @remove-tick="removeTick"
+                  @open-file="openFile"
+                  ref="fileItem"
+                ></file-item>
+              </template>
             </template>
           </template>
-          <template v-else v-for="(f,i) in stored.noteList">
+          <template v-else v-for="i in sortedNoteIdx">
             <div class="divider"></div>
             <file-item
-              :file="f"
+              :file="stored.noteList[i]"
               :index="i"
               @add-tick="addTick"
               @remove-tick="removeTick"

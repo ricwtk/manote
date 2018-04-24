@@ -669,13 +669,13 @@ new Vue({
     },
     sortableFields: function () { 
       return Array.from( 
-        new Set( 
+        new Set(
           this.stored.noteList.map(el =>  
             Object.keys(el).filter(k => 
               ['created', 'modified'].includes(k) || 
               ( el[k].type && ["single", "datetime"].includes(el[k].type) )
             ) 
-          ).reduce((acc, el) => acc.concat(el), []) 
+          ).reduce((acc, el) => acc.concat(el), [])
         ) 
       ); 
     }, 
@@ -692,9 +692,33 @@ new Vue({
     },
     availableGroups: function () {
       return this.groupableFields.map(field => 
-        this.stored.noteList.map(el => el[field] ? el[field].content : [])
-        .reduce((acc, el) => acc.concat(el), [])
+        [...Array.from(
+          new Set (
+            this.stored.noteList.map(el => 
+              el[field] ? el[field].content : []
+            ).reduce((acc, el) => acc.concat(el), [])
+          )
+        ), "-- No field or no group"]
       );
+    },
+    sortedNoteIdx: function () {
+      let indices = [...this.stored.noteList.keys()];
+      if (this.filter.sort) {
+        let sortable = indices.filter((v) => this.stored.noteList[v].hasOwnProperty(this.filter.sort));
+        let unsortable = indices.filter((v) => !this.stored.noteList[v].hasOwnProperty(this.filter.sort));
+        sortable.sort((a,b) => {
+          let itemA = this.stored.noteList[a][this.filter.sort];
+          let itemB = this.stored.noteList[b][this.filter.sort];
+          itemA = itemA.type ? itemA.content : itemA;
+          itemB = itemB.type ? itemB.content : itemB;
+          if (itemA < itemB) return -1;
+          else if (itemA > itemB) return 1;
+          else return 0;
+        });
+        return [...sortable, ...unsortable];
+      } else {
+        return indices;
+      }
     }
   },
   methods: {
