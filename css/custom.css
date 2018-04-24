@@ -169,6 +169,13 @@ body {
   height: 3em;
 }
 
+.nav-to-list {
+  height: 2em;
+  width: 2em;
+  justify-content: center;
+  align-items: center;
+}
+
 textarea {
   resize: vertical;
   min-height: 150px;

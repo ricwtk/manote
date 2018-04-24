@@ -88,7 +88,7 @@
     </div>
 
     <div class="content columns" id="note-list-and-display">
-      <div class="list-container column col-4 col-md-12 panel">
+      <div class="list-container column col-4 col-md-12 panel" ref="listContainer">
         <div class="panel-header">
           <div class="panel-title navbar">
             <div class="navbar-section">
@@ -208,9 +208,10 @@
         @hide="showFilter=false"
       ></modal-sortnote>
 
-      <div class="note-container column col-8 col-md-12 panel">
-        <div class="panel-nav">
-          <div class="tab tab-block" ref="viewSwitcher">
+      <div class="note-container column col-8 col-md-12 panel hide-md" ref="noteContainer">
+        <div class="panel-nav tab tab-block">
+          <div class="mdi mdi-chevron-left show-md nav-to-list c-hand text-center" @click="navToList"></div>
+          <div class="tab tab-block tab-item" ref="viewSwitcher">
             <div class="tab-item active" @click="switchView" ref="viewView">
               <a class="mdi mdi-24px mdi-eye"></a>
             </div>

@@ -744,9 +744,7 @@ new Vue({
     },
     openFile: function (file, el) {
       if (file.id == this.openedFile.id) {
-        let previousselected = this.$el.querySelector(".tile.selected")
-        if (previousselected) previousselected.classList.remove("selected");
-        el.classList.add("selected");
+        this.openFileUpdateUi(file, el);
         return;
       }
       if (Object.keys(this.unsaved).length > 0) {
@@ -770,11 +768,21 @@ new Vue({
       console.log("opening", file.id);
       this.openedFile = file;
       // this.unsaved = JSON.parse(JSON.stringify(file));
+      this.openFileUpdateUi(file, el);
+    },
+    openFileUpdateUi: function (file, el) {
       this.unsaved = file.copy();
       let previousselected = this.$el.querySelector(".tile.selected")
       if (previousselected)
         previousselected.classList.remove("selected");
       el.classList.add("selected");
+
+      this.$refs.listContainer.classList.add("hide-md");
+      this.$refs.noteContainer.classList.remove("hide-md");
+    },
+    navToList: function () {
+      this.$refs.listContainer.classList.remove("hide-md");
+      this.$refs.noteContainer.classList.add("hide-md");
     },
     discardSelection: function () {
       this.$refs.fileItem.forEach(el => {
