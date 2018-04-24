@@ -169,6 +169,10 @@ body {
   height: 3em;
 }
 
+.note-container > .tab {
+  border-bottom: 0;
+}
+
 .nav-to-list {
   width: 2em;
   justify-content: center;
