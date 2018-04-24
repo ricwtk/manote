@@ -8,6 +8,10 @@ body {
   height: 100vh;
 }
 
+#navbar {
+  flex-shrink: 0;
+}
+
 .sidebar {
   align-items: center;
   justify-content: flex-start;
@@ -148,14 +152,15 @@ body {
   height: 2em;
 }
 
-.content {
+#note-list-and-display.content {
   flex-grow: 1;
   overflow: hidden;
+  display: flex;
 }
 
 .list-container, .note-container {
   overflow: hidden;
-  height: 100%;
+  /* height: 100%; */
 }
 
 .list-container .tile:hover:not(:last-child),

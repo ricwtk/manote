@@ -87,7 +87,7 @@
       </div>
     </div>
 
-    <div class="content columns" id="note-list-and-display">
+    <div class="content" id="note-list-and-display">
       <div class="list-container column col-4 col-md-12 panel" ref="listContainer">
         <div class="panel-header">
           <div class="panel-title navbar">
@@ -310,8 +310,8 @@
             <display-datetime v-else-if="unsaved[key].type == 'datetime'" :value="unsaved[key].content"></display-datetime>
           </template>
         </div>
-        <div class="panel-footer">
-          <div class="toast toast-error" v-if="hasUnsaved">
+        <div class="panel-footer" v-show="hasUnsaved">
+          <div class="toast toast-error">
             <div class="navbar">
               <div class="navbar-section">
                 Unsaved
