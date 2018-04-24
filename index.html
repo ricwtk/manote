@@ -118,6 +118,8 @@
                   @remove-tick="removeTick"
                   @open-file="openFile"
                   ref="fileItem"
+                  :draggable="false"
+                  :droppable="false"
                 ></file-item>
               </template>
             </template>
@@ -133,27 +135,35 @@
                   @remove-tick="removeTick"
                   @open-file="openFile"
                   ref="fileItem"
+                  :draggable="false"
+                  :droppable="false"
                 ></file-item>
               </template>
             </template>
           </template>
-          <template v-else v-for="i in sortedNoteIdx">
+          <template v-else>
+            <template v-for="i in sortedNoteIdx">
+              <div class="divider"></div>
+              <file-item
+                :file="stored.noteList[i]"
+                :index="i"
+                @add-tick="addTick"
+                @remove-tick="removeTick"
+                @open-file="openFile"
+                @drag-and-drop="sortNotes"
+                ref="fileItem"
+                :draggable="filter.sort == ''"
+                :droppable="filter.sort == ''"
+              ></file-item>
+            </template>
             <div class="divider"></div>
-            <file-item
-              :file="stored.noteList[i]"
-              :index="i"
-              @add-tick="addTick"
-              @remove-tick="removeTick"
-              @open-file="openFile"
+            <file-item 
+              :index="stored.noteList.length"
               @drag-and-drop="sortNotes"
-              ref="fileItem"
+              :draggable="false"
+              :droppable="filter.sort == ''"
             ></file-item>
           </template>
-          <div class="divider"></div>
-          <file-item 
-            :index="stored.noteList.length"
-            @drag-and-drop="sortNotes"
-          ></file-item>
         </div>
         <div class="panel-footer navbar" v-show="tickedFiles.length > 0">
           <div class="navbar-section">

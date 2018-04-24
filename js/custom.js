@@ -303,7 +303,7 @@ Vue.component("search-bar", {
 })
 
 Vue.component("file-item", {
-  props: ["file", "index"],
+  props: ["file", "index", "draggable", "droppable"],
   methods: {
     openFile: function (ev) {
       this.$emit("open-file", this.file, this.$refs.root);
@@ -324,24 +324,26 @@ Vue.component("file-item", {
       return x;
     },
     dragstart: function (ev) {
-      ev.dataTransfer.setData("text", ev.target.dataset.index);
+      if (this.draggable) ev.dataTransfer.setData("text", ev.target.dataset.index);
     },
     dragover: function (ev) {
-      this.getActual(ev.target).classList.add("dragover");
+      if (this.droppable) this.getActual(ev.target).classList.add("dragover");
     },
     dragleave: function (ev) {
-      this.getActual(ev.target).classList.remove("dragover");
+      if (this.droppable) this.getActual(ev.target).classList.remove("dragover");
     },
     drop: function (ev) {
-      this.dragleave(ev);
-      let shiftFrom = parseInt(ev.dataTransfer.getData("text"));
-      let shiftTo = parseInt(this.getActual(ev.target).dataset.index);
-      this.$emit("drag-and-drop", shiftFrom, shiftTo);
+      if (this.droppable) {
+        this.dragleave(ev);
+        let shiftFrom = parseInt(ev.dataTransfer.getData("text"));
+        let shiftTo = parseInt(this.getActual(ev.target).dataset.index);
+        this.$emit("drag-and-drop", shiftFrom, shiftTo);
+      }
     }
   },
   template: `
   <div class="tile tile-centered p-2 file-item" @click="openFile" ref="root"
-    :draggable="file ? 'true' : 'false'"
+    :draggable="draggable"
     @dragstart="dragstart"
     @dragenter.prevent="dragover"
     @dragover.prevent="dragover"
@@ -361,7 +363,7 @@ Vue.component("file-item", {
         <div class="tile-title">{{ file.Title.content }}</div>
         <div class="tile-subtitle text-gray text-ellipsis">{{ file.Content.content }}</div>
       </div>
-      <div class="tile-action handle">
+      <div class="tile-action handle" v-if="draggable">
         <i class="mdi mdi-menu"></i>
       </div>
     </template>
