@@ -108,7 +108,7 @@
           <template v-else-if="filter.group!=''">
             <template v-for="s in filter.show" v-if="s != '-- No field or no group'">
               <div class="divider"></div>
-              <div>{{ s }}</div>
+              <div class="text-gray">{{ s }}</div>
               <template v-for="i in sortedNoteIdx" v-if="stored.noteList[i][filter.group] && stored.noteList[i][filter.group].content.includes(s)">
                 <div class="divider"></div>
                 <file-item
@@ -123,7 +123,7 @@
             </template>
             <template v-if="filter.show.includes('-- No field or no group')">
               <div class="divider"></div>
-              <div>-- No field or no group</div>
+              <div class="text-gray">-- No field or no group</div>
               <template v-for="i in sortedNoteIdx" v-if="!stored.noteList[i][filter.group] || stored.noteList[i][filter.group].content.length == 0">
                 <div class="divider"></div>
                 <file-item
