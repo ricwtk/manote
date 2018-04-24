@@ -272,6 +272,14 @@ textarea {
   flex-grow: 1;
 }
 
+.sort-group-display {
+  display: flex;
+}
+
+.sort-group-display > * {
+  flex-grow: 1;
+}
+
 .file-item .handle {
   cursor: move;
 }

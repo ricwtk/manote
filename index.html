@@ -92,10 +92,20 @@
         <div class="panel-header">
           <div class="panel-title navbar">
             <div class="navbar-section">
-              <div class="mdi mdi-24px mdi-filter-outline" @click="showFilter=true"></div>
+              <div :class="['mdi', 'mdi-24px', ...(filter.sort || filter.group) ? ['mdi-filter', 'text-primary'] : ['mdi-filter-outline']]" @click="showFilter=true"></div>
               <search-bar></search-bar>
             </div>
             <div class="my-button c-hand mdi mdi-24px mdi-plus" @click="addNewNote"></div>
+          </div>
+          <div class="bg-primary my-1 sort-group-display" v-if="filter.sort || filter.group">
+            <span v-if="filter.sort">
+              <span class="mdi mdi-sort mx-1"></span>
+              {{ filter.sort }}
+            </span>
+            <span v-if="filter.group">
+              <span class="mdi mdi-group mx-1"></span>
+              {{ filter.group }}
+            </span>
           </div>
         </div>
         <div class="panel-body">
