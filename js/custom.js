@@ -254,7 +254,7 @@ Vue.component("modal-sortnote", {
           <option v-for="sf in sortableFields">{{ sf }}</option>
         </select>
         <input-header title="Group by" :removable="false" label-for=""></input-header>
-        <select class="form-select" ref="groupbyList" v-model="filter.group">
+        <select class="form-select" ref="groupbyList" v-model="filter.group" @change="$nextTick(() => selectAllGroups())">
           <option></option>
           <option v-for="gf in groupableFields">{{ gf }}</option>
         </select>
@@ -744,6 +744,9 @@ new Vue({
     },
     openFile: function (file, el) {
       if (file.id == this.openedFile.id) {
+        let previousselected = this.$el.querySelector(".tile.selected")
+        if (previousselected) previousselected.classList.remove("selected");
+        el.classList.add("selected");
         return;
       }
       if (Object.keys(this.unsaved).length > 0) {
