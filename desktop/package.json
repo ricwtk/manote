@@ -1,0 +1,15 @@
+{
+  "name": "manote-desktop",
+  "version": "1.0.0",
+  "description": "Desktop app for MaNote",
+  "main": "index.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "author": "Richard Wong",
+  "license": "ISC",
+  "devDependencies": {
+    "electron": "^1.8.4",
+    "electron-tooltip": "^1.1.5"
+  }
+}

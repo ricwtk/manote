@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script src="http://localhost:8098"></script>
+    <title>MaNote</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta property="og:url" content="https://ricwtk.github.io/manote">
+    <meta property="og:title" content="MaNote">
+    <meta property="og:description" content="Markdown supported note keeper">
+    <meta name="description" content="Mardown supported note keeper">
+    <meta name="keywords" content="manote, markdown note, markdown, note, keeping note">
+    <link rel="icon" type="image/png" href="icons/icon.png?v=1.0">
+    <link rel="stylesheet" href="css/spectre.min.css">
+    <link rel="stylesheet" href="css/materialdesignicons.min.css">
+    <link rel="stylesheet" href="css/md-themes.css">
+    <link rel="stylesheet" href="css/custom.css">
+    <!-- <script src="js/showdown.min.js"></script> -->
+    <!-- <script src="js/vue.min.js"></script> -->
+    <!-- <script src="js/google-drive-access.js"></script> -->
+  </head>
+
+  <body>
+    <div class="navbar p-1 bg-dark" id="navbar">
+      <div class="navbar-section">
+        <div class="c-hand mdi mdi-24px mdi-menu px-2" @click="toggleSidebar"></div>
+      </div>     
+      
+      <sidebar :current-user="currentUser" ref="sidebar"></sidebar>
+      
+      <!-- <md-guide ref="markdownguide"></md-guide> -->
+
+      <div :class="['modal', 'text-primary', stat.running && stat.atInit ? 'active' : '']" id="modal-loading">
+        <div class="modal-overlay mdi mdi-spin mdi-loading"></div>
+      </div>
+
+      <div class="navbar-center">
+        <img src="icons/icon.png?v=1.0" style="max-height: 1rem">&nbsp;
+        <strong>MaNote</strong>
+      </div>
+
+      <div class="navbar-section mx-2">
+        <span class="mdi mdi-24px mdi-spin mdi-loading text-warning" v-show="stat.running"></span>
+      </div>
+    </div>
+
+    <div class="content" id="note-list-and-display">
+      <div class="list-container column col-4 col-md-12 panel" ref="listContainer">
+        <div class="panel-header">
+          <div class="panel-title navbar">
+            <div class="navbar-section">
+              <div :class="['mdi', 'mdi-24px', ...(filter.sort || filter.group) ? ['mdi-filter', 'text-primary'] : ['mdi-filter-outline']]" @click="showFilter=true"></div>
+              <search-bar v-model="searchQuery"></search-bar>
+            </div>
+            <div class="my-button c-hand mdi mdi-24px mdi-plus" @click="addNewNote"></div>
+          </div>
+          <div class="bg-primary my-1 sort-group-display" v-if="filter.sort || filter.group">
+            <span v-if="filter.sort" class="text-center">
+              <span class="mdi mdi-sort mx-1"></span>
+              {{ filter.sort }}
+            </span>
+            <span v-if="filter.group" class="text-center">
+              <span class="mdi mdi-group mx-1"></span>
+              {{ filter.group }}
+            </span>
+          </div>
+        </div>
+        <div class="panel-body">
+          <template v-if="stored.noteList.length < 1">
+            <div class="divider"></div>
+            <div class="empty" v-if="stored.noteList.length < 1">
+              Click <i class="mdi mdi-plus"></i> to add note
+            </div>
+          </template>
+          <template v-else-if="searchQuery">
+            <template v-for="i in sortedNoteIdx" v-if="matchSearch(stored.noteList[i])">
+              <div class="divider"></div>
+              <file-item
+                :file="stored.noteList[i]"
+                :index="i"
+                @add-tick="addTick"
+                @remove-tick="removeTick"
+                @open-file="openFile"
+                ref="fileItem"
+                :draggable="false"
+                :droppable="false"
+              ></file-item>
+            </template>
+          </template>
+          <template v-else-if="filter.group != ''">
+            <template v-for="s in filter.show" v-if="s != '-- No field or no group'">
+              <div class="divider"></div>
+              <div class="text-gray">{{ s }}</div>
+              <template v-for="i in sortedNoteIdx" v-if="stored.noteList[i][filter.group] && stored.noteList[i][filter.group].content.includes(s)">
+                <div class="divider"></div>
+                <file-item
+                  :file="stored.noteList[i]"
+                  :index="i"
+                  @add-tick="addTick"
+                  @remove-tick="removeTick"
+                  @open-file="openFile"
+                  ref="fileItem"
+                  :draggable="false"
+                  :droppable="false"
+                ></file-item>
+              </template>
+            </template>
+            <template v-if="filter.show.includes('-- No field or no group')">
+              <div class="divider"></div>
+              <div class="text-gray">-- No field or no group</div>
+              <template v-for="i in sortedNoteIdx" v-if="!stored.noteList[i][filter.group] || stored.noteList[i][filter.group].content.length == 0">
+                <div class="divider"></div>
+                <file-item
+                  :file="stored.noteList[i]"
+                  :index="i"
+                  @add-tick="addTick"
+                  @remove-tick="removeTick"
+                  @open-file="openFile"
+                  ref="fileItem"
+                  :draggable="false"
+                  :droppable="false"
+                ></file-item>
+              </template>
+            </template>
+          </template>
+          <template v-else>
+            <template v-for="i in sortedNoteIdx">
+              <div class="divider"></div>
+              <file-item
+                :file="stored.noteList[i]"
+                :index="i"
+                @add-tick="addTick"
+                @remove-tick="removeTick"
+                @open-file="openFile"
+                @drag-and-drop="sortNotes"
+                ref="fileItem"
+                :draggable="filter.sort == ''"
+                :droppable="filter.sort == ''"
+              ></file-item>
+            </template>
+            <div class="divider"></div>
+            <file-item 
+              :index="stored.noteList.length"
+              @drag-and-drop="sortNotes"
+              :draggable="false"
+              :droppable="filter.sort == ''"
+            ></file-item>
+          </template>
+        </div>
+        <div class="panel-footer navbar" v-show="tickedFiles.length > 0">
+          <div class="navbar-section">
+            <button class="btn" @click="discardSelection">Discard selection</button>
+          </div>
+          <button class="btn ml-1" @click="deleteNotes">Delete</button>
+          <!-- <button class="btn ml-1">Export</button> -->
+        </div>
+      </div>
+
+      <modal-sortnote 
+        :show="showFilter"
+        v-model="filter"
+        :sortable-fields="sortableFields"
+        :groupable-fields="groupableFields"
+        :available-groups="availableGroups"
+        @hide="showFilter=false"
+      ></modal-sortnote>
+
+      <div class="note-container column col-8 col-md-12 panel hide-md" ref="noteContainer">
+        <div class="panel-nav tab tab-block">
+          <div class="mdi mdi-chevron-left show-md nav-to-list c-hand text-center" @click="navToList"></div>
+          <div class="tab tab-block tab-item" ref="viewSwitcher">
+            <div class="tab-item active" @click="switchView" ref="viewView">
+              <a class="mdi mdi-24px mdi-eye"></a>
+            </div>
+            <div class="tab-item" @click="switchView" ref="editView">
+              <a class="mdi mdi-24px mdi-pencil"></a>
+            </div>
+          </div>
+        </div>
+        <div class="panel-body form-group" v-if="viewEdit">
+          <template v-for="key in unsaved.order">
+            <input-header :label-for="'value-' + key" 
+              :title="key" 
+              :removable="key != 'Title' && key != 'Content' && key != 'Categories'"
+              @remove="removeField(key)"></input-header>
+            <textarea class="form-input" v-if="unsaved[key].type == 'multiple'" 
+              :id="'value-' + key" 
+              v-model="unsaved[key].content" 
+              :placeholder="key" 
+              :style="{ height: unsaved[key].height ? unsaved[key].height : 'auto' }"
+              @mouseup="resizeTA($event, key)"
+            ></textarea>
+            <input class="form-input" v-else-if="unsaved[key].type == 'single'" v-model="unsaved[key].content" :id="'value-' + key" :placeholder="key">
+            <div v-else-if="unsaved[key].type == 'tags'">
+              <span class="chip" v-for="tag in unsaved[key].content">
+                {{ tag }}&nbsp;
+                <span class="mdi mdi-close" aria-label="Close" role="button" @click="removeTag(key, tag)"></span>
+              </span>
+              <input class="form-input" type="text" :id="'value-' + key" :placeholder="key" @keydown="updateTags($event, key)">
+            </div>
+            <input-datetime v-else-if="unsaved[key].type == 'datetime'" :id="'value-' + key" v-model="unsaved[key].content"></input-datetime>
+          </template>
+          
+          <div class="navbar">
+            <div class="navbar-section tile tile-centered mt-2 tooltip tooltip-top" 
+              data-tooltip="Add new field"
+              @click="toggleNewFieldEntry" 
+              v-if="Object.keys(unsaved).length > 0">
+              <div class="tile-content text-center">
+                <div class="mdi mdi-24px mdi-plus"></div>
+              </div>
+            </div>
+            <div class="navbar-section tile tile-centered mt-2 tooltip tooltip-top" 
+              data-tooltip="Sort fields"
+              @click="$refs.modalSortFields.toggle()" 
+              v-if="Object.keys(unsaved).length > 0">
+              <div class="tile-content text-center">
+                <div class="mdi mdi-24px mdi-sort"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="modal" ref="modalNewField">
+            <div class="modal-overlay" aria-label="Close" @click="toggleNewFieldEntry"></div>
+            <div class="modal-container">
+              <div class="modal-body form-group">
+                <label class="divider" for="newfieldname" data-content="Field name"></label>
+                <input class="form-input" id="newfieldname">
+                <div class="toast toast-error" v-if="fieldnameError">{{ fieldnameError }}</div>
+                <label class="divider" data-content="Entry type"></label>
+                <label class="form-radio">
+                  <input type="radio" name="entry-type" checked data-type="single">
+                  <i class="form-icon"></i> Single line text
+                </label>
+                <label class="form-radio">
+                  <input type="radio" name="entry-type" data-type="multiple">
+                  <i class="form-icon"></i> Multiple line text
+                </label>
+                <label class="form-radio">
+                  <input type="radio" name="entry-type" data-type="datetime">
+                  <i class="form-icon"></i> Date-time
+                </label>
+                <label class="form-radio">
+                  <input type="radio" name="entry-type" data-type="tags">
+                  <i class="form-icon"></i> Tags
+                </label>
+              </div>
+              <div class="modal-footer">
+                <button class="btn" @click="addNewField">Save</button>
+                <button class="btn" @click="toggleNewFieldEntry">Cancel</button>
+              </div>
+            </div>
+          </div>
+
+          <modal-sortfields ref="modalSortFields" v-model="unsaved.order"></modal-sortfields>
+
+        </div>
+        <div class="panel-body form-group" v-else>
+          <template v-for="key in unsaved.order">
+            <input-header :title="key" :removable="false"></input-header>
+            <div class="display-input md-default" v-if="unsaved[key].type == 'multiple' || unsaved[key].type == 'single'" v-html="mdconverter.makeHtml(unsaved[key].content)"></div>
+            <div v-else-if="unsaved[key].type == 'tags'" class="display-input">
+              <span class="chip" v-for="tag in unsaved[key].content">
+                {{ tag }}
+              </span>
+            </div>
+            <display-datetime v-else-if="unsaved[key].type == 'datetime'" :value="unsaved[key].content"></display-datetime>
+          </template>
+          <div v-if="unsaved.order" class="text-gray created-modified-display">Created on: {{ unsaved.created.toString() }}
+            <br> Last modified: {{ unsaved.modified.toString() }}</div>
+        </div>
+        <div class="panel-footer" v-show="hasUnsaved">
+          <div class="toast toast-error">
+            <div class="navbar">
+              <div class="navbar-section">
+                Unsaved
+              </div>
+              <button class="btn btn-primary ml-2" @click="saveNote">Save</button>
+              <button class="btn btn-primary ml-2" @click="discardUnsaved">Discard</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <modal-unsavedprompt
+        :show="showUnsavedPrompt"
+        @to-save="saveOrNot"
+      ></modal-unsavedprompt>
+    </div>
+    <!-- <script src="js/emoji.js"></script> -->
+    <!-- <script src="js/md.js"></script> -->
+    <script src="js/custom.js"></script>
+    <script async defer src="https://apis.google.com/js/api.js"
+      onload="initApis()"
+      onreadystatechange="if (this.readyState === 'complete') this.onload()">
+    </script>
+  </body>
+</html>
