@@ -309,6 +309,8 @@
             </div>
             <display-datetime v-else-if="unsaved[key].type == 'datetime'" :value="unsaved[key].content"></display-datetime>
           </template>
+          <div v-if="unsaved.order" class="text-gray created-modified-display">Created on: {{ unsaved.created.toString() }}
+            <br> Last modified: {{ unsaved.modified.toString() }}</div>
         </div>
         <div class="panel-footer" v-show="hasUnsaved">
           <div class="toast toast-error">

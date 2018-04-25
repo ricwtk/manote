@@ -40,8 +40,8 @@ class Field {
 class Note {
   constructor(id, createdOn, modifiedOn, Title, Content, others) {
     this.id = id;
-    this.created = createdOn ? createdOn : new Date();
-    this.modified = modifiedOn ? modifiedOn : this.created;
+    this.created = createdOn ? new Date(createdOn) : new Date();
+    this.modified = modifiedOn ? new Date(modifiedOn) : this.created;
     if (others)
       this.order = others.order ? others.order.slice() : [];
     else

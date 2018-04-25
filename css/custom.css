@@ -249,6 +249,11 @@ textarea {
   padding-right: 0;
 }
 
+.created-modified-display {
+  margin-top: 3em;
+  font-size: 80%;
+}
+
 .search-bar {
   display: flex;
   flex-direction: row;
