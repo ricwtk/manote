@@ -325,6 +325,7 @@ textarea {
   display: flex;
   align-items: center;
   border: 1px solid white;
+  user-select: none;
 }
 
 .dir-chooser .modal-body > div > i {
@@ -342,4 +343,5 @@ textarea {
 
 .dir-chooser .modal-header .label {
   margin: 0 .2em;
+  padding: .5em;
 }

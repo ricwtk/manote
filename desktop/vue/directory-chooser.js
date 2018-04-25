@@ -10,8 +10,17 @@ module.exports = {
     }
   },
   computed: {
+    pathArray: function () {
+      return this.cPath.split(path.sep).slice(1);
+    },
     dirList: function () {
-      return fs.readdirSync(this.cPath).filter(file => fs.statSync(path.join(this.cPath, file)).isDirectory());
+      return fs.readdirSync(this.cPath).filter(file => {
+        try {
+          return fs.statSync(path.join(this.cPath, file)).isDirectory();
+        } catch (e) {
+          return false;
+        }
+      });
     }
   },
   methods: {
@@ -19,7 +28,7 @@ module.exports = {
       this.$el.classList.toggle("active");
     },
     upDir: function () {
-      this.cPath = path.dirname(this.cPath);
+      this.setNewPath(path.dirname(this.cPath));
     },
     getTopDiv: function (target) {
       while (target.tagName.toLowerCase() != "div") {
@@ -27,10 +36,30 @@ module.exports = {
       }
       return target;
     },
+    removeAndSetPath: function (nToRemove) {
+      console.log(nToRemove);
+      if (nToRemove > 0) {
+        let removePath = this.pathArray.slice(-nToRemove);
+        console.log(removePath, this.cPath.replace(path.join(...removePath), ""));
+        let newPath = this.cPath.replace(path.join(...removePath), "");
+        if (newPath.endsWith(path.sep)) newPath = newPath.slice(0,-1);
+        this.setNewPath(newPath);
+      }
+    },
+    setNewPath: function (newPath) {
+      fs.stat(newPath, (err, fsStats) => {
+        if (err) {
+          console.log(err);
+          return;
+        }
+        if (fsStats.isDirectory()) {
+          this.cPath = newPath;
+        }
+      });
+    },
     clickItem: function (ev) {
       if (this.clickedItem && ev.target == this.clickedItem) {
-        console.log(this.getTopDiv(ev.target).textContent.trim());
-        this.cPath = path.join(this.cPath, this.getTopDiv(ev.target).textContent.trim());
+        this.setNewPath(path.join(this.cPath, this.getTopDiv(ev.target).textContent.trim()));
       } else {
         this.clickedItem = ev.target;
       }
@@ -48,10 +77,10 @@ module.exports = {
       <div class="modal-header" style="display: flex; border-bottom: 1px solid">
         <span class="mdi mdi-24px mdi-arrow-up-bold c-hand" data-tooltip="Go up one directory" data-tooltip-position="bottom" @click="upDir"></span>
         <div class="modal-title" style="display: flex; align-items: center; margin-left: 1em">
-          <span class="label" v-if="cPath.split(path.sep).slice(1).length > 3">
+          <span class="label c-hand" v-if="pathArray.length > 3" @click="removeAndSetPath(3)">
             ...
           </span>
-          <span class="label" v-for="p in cPath.split(path.sep).slice(1).slice(-3)">
+          <span class="label c-hand" v-for="(p,i) in pathArray.slice(-3)" @click="removeAndSetPath(pathArray.slice(-3).length - i - 1)">
             {{ p }}
           </span>
         </div>
