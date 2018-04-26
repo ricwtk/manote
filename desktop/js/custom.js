@@ -36,6 +36,23 @@ var openedDir = {
   }
 }
 
+var noteLocation = {
+  local: true,
+  remote: false,
+  setLocal: function () {
+    this.local = true;
+    this.remote = false;
+  },
+  setRemote: function () {
+    this.remote = true;
+    this.local = false;
+  },
+  toggle: function () {
+    this.local = !this.local;
+    this.remote = !this.remote;
+  }
+}
+
 class Field {
   constructor(type, content, height) {
     this.type = type ? type : "single"; // single, multiple, datetime, tags
@@ -159,13 +176,12 @@ new Vue({
   data: {
     currentUser: currentUser,
     stat: stat,
-    openedDir: openedDir
+    openedDir: openedDir,
+    noteLocation: noteLocation
   },
   methods: {
     toggleSidebar: function () {
-      if (currentUser.name) {
-        this.$refs.sidebar.classList.toggle("active");
-      }
+      this.$refs.sidebar.toggle();
     },
     signInGoogle: function () {
       gd.handleSignInClick();
@@ -181,6 +197,12 @@ new Vue({
     },
     removeDirectory: function (oldDir) {
       this.openedDir.removeFromList(oldDir);
+    },
+    setLocal: function () {
+      this.noteLocation.setLocal();
+    },
+    setRemote: function () {
+      this.noteLocation.setRemote();
     }
   }
 })

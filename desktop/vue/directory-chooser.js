@@ -76,10 +76,11 @@ module.exports = {
         selected = this.cPath;
       }
       this.$emit("select-dir", selected);
+      this.toggle();
     }
   },
   template: `
-  <div class="dir-chooser modal active">
+  <div class="dir-chooser modal">
     <div class="modal-overlay" @click="toggle"></div>
     <div class="modal-container bg-dark">
       <div class="modal-header" style="display: flex; border-bottom: 1px solid">

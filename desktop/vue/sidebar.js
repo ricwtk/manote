@@ -1,7 +1,7 @@
 const path = require("path");
 
 module.exports = {
-  props: ["currentUser", "openedDir"],
+  props: ["currentUser", "openedDir", "noteLocation"],
   components: {
     "md-guide": require(path.join(__dirname, "md-guide.js")),
     "directory-chooser": require(path.join(__dirname, "directory-chooser.js"))
@@ -11,7 +11,7 @@ module.exports = {
   },
   methods: {
     toggle: function () {
-      this.$emit("toggle");
+      this.$el.classList.toggle("active");
     },
     signOutGoogle: function () {
       this.$emit("signOutGoogle");
@@ -30,6 +30,12 @@ module.exports = {
     },
     removeDir: function (oldDir) {
       this.$emit("remove-dir", oldDir);
+    },
+    switchToLocal: function () {
+      this.$emit("set-local");
+    },
+    switchToRemote: function () {
+      this.$emit("set-remote");
     }
   },
   template: `
@@ -63,12 +69,12 @@ module.exports = {
         <div class="divider"></div>
         <template v-if="currentUser.name">
           <div class="menu-item c-hand">
-            <a @click="">Notes on <i class="mdi mdi-google-drive"></i> Google Drive</a>
+            <a @click="switchToRemote">Notes on <i class="mdi mdi-google-drive"></i> Google Drive</a>
           </div>
           <div class="divider"></div>
         </template>
         <div class="menu-item">
-          <a class="c-hand">Local notes</a>
+          <a class="c-hand" @click="switchToLocal">Local notes</a>
           <div class="menu-item dir-name" v-for="od in openedDir.list">
             <i class="mdi mdi-folder"></i>
             <span class="text-left" :title="od"> {{ od }}</span>

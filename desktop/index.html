@@ -28,8 +28,11 @@
       
       <sidebar :current-user="currentUser" ref="sidebar"
         :opened-dir="openedDir"
+        :note-location="noteLocation"
         @add-dir="addDirectory"
         @remove-dir="removeDirectory"
+        @set-local="setLocal"
+        @set-remote="setRemote"
       ></sidebar>
       
       <!-- <md-guide ref="markdownguide"></md-guide> -->
@@ -40,7 +43,7 @@
 
       <div class="navbar-center">
         <img src="icons/icon.png?v=1.0" style="max-height: 1rem">&nbsp;
-        <strong>MaNote</strong>
+        <strong>MaNote</strong><i class="mdi mdi-laptop mx-1" v-if="noteLocation.local"></i><i class="mdi mdi-google-drive mx-1" v-if="noteLocation.remote"></i>
       </div>
 
       <div class="navbar-section mx-2">
