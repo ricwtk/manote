@@ -26,7 +26,11 @@
         <div class="c-hand mdi mdi-24px mdi-menu px-2" @click="toggleSidebar"></div>
       </div>     
       
-      <sidebar :current-user="currentUser" ref="sidebar"></sidebar>
+      <sidebar :current-user="currentUser" ref="sidebar"
+        :opened-dir="openedDir"
+        @add-dir="addDirectory"
+        @remove-dir="removeDirectory"
+      ></sidebar>
       
       <!-- <md-guide ref="markdownguide"></md-guide> -->
 

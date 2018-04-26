@@ -1,7 +1,7 @@
 const path = require("path");
 
 module.exports = {
-  props: ["currentUser"],
+  props: ["currentUser", "openedDir"],
   components: {
     "md-guide": require(path.join(__dirname, "md-guide.js")),
     "directory-chooser": require(path.join(__dirname, "directory-chooser.js"))
@@ -24,6 +24,12 @@ module.exports = {
     },
     toggleMarkdownGuide: function () {
       this.$refs.MDGUIDE.toggle();
+    },
+    addDir: function (newDir) {
+      this.$emit("add-dir", newDir);
+    },
+    removeDir: function (oldDir) {
+      this.$emit("remove-dir", oldDir);
     }
   },
   template: `
@@ -50,25 +56,30 @@ module.exports = {
         </div>
       </div>
       <div class="menu">
-        <div class="menu-item">
+        <div class="menu-item c-hand">
           <a v-if="currentUser.name" @click="signOutGoogle">Sign out</a>
           <a v-else @click="signInGoogle">Sign in to Google</a>
         </div>
         <div class="divider"></div>
         <template v-if="currentUser.name">
-          <div class="menu-item">
+          <div class="menu-item c-hand">
             <a @click="">Notes on <i class="mdi mdi-google-drive"></i> Google Drive</a>
           </div>
           <div class="divider"></div>
         </template>
         <div class="menu-item">
-          <a>Local notes</a>
-          <div class="menu-item">
+          <a class="c-hand">Local notes</a>
+          <div class="menu-item dir-name" v-for="od in openedDir.list">
+            <i class="mdi mdi-folder"></i>
+            <span class="text-left" :title="od"> {{ od }}</span>
+            <span class="mdi mdi-close c-hand" @click="removeDir(od)"></span>
+          </div>
+          <div class="menu-item c-hand">
             <a class="text-center" @click="$refs.DIRCHOOSER.toggle()"><i class="mdi mdi-plus"></i> Add directory</a>
           </div>
         </div>
         <div class="divider"></div>
-        <div class="menu-item">
+        <div class="menu-item c-hand">
           <a @click="toggleMarkdownGuide">Markdown Guide</a>
         </div>
       </div>
@@ -78,7 +89,9 @@ module.exports = {
     </div>
 
     <md-guide ref="MDGUIDE"></md-guide>
-    <directory-chooser ref="DIRCHOOSER"></directory-chooser>
+    <directory-chooser ref="DIRCHOOSER"
+      @select-dir="addDir"
+    ></directory-chooser>
 
   </div>
   `

@@ -22,6 +22,20 @@ var stat = {
   running: false
 }
 
+var openedDir = {
+  list: [],
+  addToList: function(x) {
+    if (!this.list.includes(x)) {
+      this.list.push(x);
+    }
+  },
+  removeFromList: function (x) {
+    if (this.list.includes(x)) {
+      this.list.splice(this.list.indexOf(x), 1);
+    }
+  }
+}
+
 class Field {
   constructor(type, content, height) {
     this.type = type ? type : "single"; // single, multiple, datetime, tags
@@ -144,7 +158,8 @@ new Vue({
   el: "#navbar",
   data: {
     currentUser: currentUser,
-    stat: stat
+    stat: stat,
+    openedDir: openedDir
   },
   methods: {
     toggleSidebar: function () {
@@ -160,6 +175,12 @@ new Vue({
     },
     toggleMarkdownGuide: function () {
       this.$refs.markdownguide.toggle();
+    },
+    addDirectory: function (newDir) {
+      this.openedDir.addToList(newDir);
+    },
+    removeDirectory: function (oldDir) {
+      this.openedDir.removeFromList(oldDir);
     }
   }
 })

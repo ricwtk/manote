@@ -37,10 +37,8 @@ module.exports = {
       return target;
     },
     removeAndSetPath: function (nToRemove) {
-      console.log(nToRemove);
       if (nToRemove > 0) {
         let removePath = this.pathArray.slice(-nToRemove);
-        console.log(removePath, this.cPath.replace(path.join(...removePath), ""));
         let newPath = this.cPath.replace(path.join(...removePath), "");
         if (newPath.endsWith(path.sep)) newPath = newPath.slice(0,-1);
         this.setNewPath(newPath);
@@ -54,6 +52,7 @@ module.exports = {
         }
         if (fsStats.isDirectory()) {
           this.cPath = newPath;
+          this.$el.querySelectorAll(".selected").forEach(el => el.classList.remove("selected"));
         }
       });
     },
@@ -68,6 +67,15 @@ module.exports = {
       setTimeout(() => {
         this.clickedItem = null
       }, 300);
+    },
+    selectDir: function () {
+      let selected = this.$el.querySelector(".selected");
+      if (selected) {
+        selected = path.join(this.cPath, selected.textContent.trim());
+      } else {
+        selected = this.cPath;
+      }
+      this.$emit("select-dir", selected);
     }
   },
   template: `
@@ -92,8 +100,8 @@ module.exports = {
         </div>
       </div>
       <div class="modal-footer">
-        <button class="btn btn-primary">Select</button> 
-        <button class="btn">Cancel</button> 
+        <button class="btn btn-primary" @click="selectDir">Select</button> 
+        <button class="btn" @click="toggle">Cancel</button> 
       </div>
     </div>
   </div>

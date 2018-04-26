@@ -96,6 +96,30 @@ body {
   background-color: rgba(69,77,93,.1);
 }
 
+.sidebar .menu-item > .menu-item:first-of-type {
+  margin-top: .2em;
+}
+
+.sidebar .dir-name {
+  display: flex;
+  flex-direction: row;
+  padding: .2em .4em!important;
+  font-size: 90%;
+}
+
+.sidebar .dir-name > *:nth-child(2) {
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+  display: block;
+  direction: rtl;
+  padding: 0 .2em;
+}
+
+.sidebar .dir-name > *:last-child:hover {
+  color: #009688;
+}
+
 .sidebar-footer {
   font-size: 90%;
 }
