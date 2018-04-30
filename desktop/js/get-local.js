@@ -49,7 +49,17 @@ function setGlobalDefault(defaultFormat) {
 }
 
 function getDefault(folderPath) {
-
+  let localDefault = path.join(folderPath, defaultFileName);
+  let globalDefault = path.join(getAppFolder(), defaultFileName);
+  let defaultFormat;
+  if (fs.existsSync(localDefault)) {
+    defaultFormat = fs.readFileSync(localDefault);
+  } else if (fs.existsSync(globalDefault)) {
+    defaultFormat = fs.readFileSync(globalDefault);
+  } else {
+    defaultFormat = "{}";
+  }
+  return JSON.parse(defaultFormat);
 }
 
 

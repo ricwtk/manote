@@ -365,7 +365,8 @@ new Vue({
       while (fs.existsSync(newFile + i + ".manote")) {
         i += 1;
       }
-      (new Note(generateRandomId(20))).saveToFile(newFile + i + ".manote");
+      newFile = newFile + i + ".manote";
+      (new Note(newFile, null, null, null, null, localSetting.getDefault(dirOfNew))).saveToFile(newFile);
       noteList.updateLocal();
     },
     deleteNotes: function () {
