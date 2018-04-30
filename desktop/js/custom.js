@@ -478,15 +478,23 @@ new Vue({
           throw err;
         })
       });
-      // if (!fs.statSync(archiveFolder).isDirectory()) {
-      //   fs.mkdirSync(archiveFolder);
-      // }
-      // fs.copyFile(filepath, path.join(archiveFolder, path.basename(filepath)), 
-      //   (err) => {
-      //     if (err) throw err;
-      //     fs.unlink(filepath, (err) => { if (err) throw err; });
-      //   }
-      // );
+    },
+    getFormat: function () {
+      let defaultFormat = this.openedFile.copy();
+      for (let k in defaultFormat) {
+        if (defaultFormat[k].type) {
+          defaultFormat[k].content = "";
+        } else if (k !== "order") {
+          defaultFormat[k] = "";
+        }
+      }
+      return defaultFormat;
+    },
+    setDefault: function () {
+      localSetting.setDefault(path.dirname(this.openedFile.id), this.getFormat());
+    },
+    setGlobalDefault: function () {
+      localSetting.setGlobalDefault(this.getFormat());
     }
   }
 })

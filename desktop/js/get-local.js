@@ -4,6 +4,7 @@ const fs = require("fs");
 
 appFolderName = "manote";
 recentFileName = "recent";
+defaultFileName = ".manote.default";
 
 function getAppFolder() {
   let settingFolder = "";
@@ -35,9 +36,28 @@ function getRecent() {
   return []
 }
 
+function setDefault(folderPath, defaultFormat) {
+  fs.writeFile(
+    path.join(folderPath, defaultFileName),
+    JSON.stringify(defaultFormat, null, 2),
+    (err) => { if (err) throw err; }
+  );
+}
+
+function setGlobalDefault(defaultFormat) {
+  setDefault(getAppFolder(), defaultFormat);
+}
+
+function getDefault(folderPath) {
+
+}
+
 
 module.exports = {
   getAppFolder: getAppFolder,
   updateRecent: updateRecent,
-  getRecent: getRecent
+  getRecent: getRecent,
+  setDefault: setDefault,
+  setGlobalDefault: setGlobalDefault,
+  getDefault: getDefault
 }
