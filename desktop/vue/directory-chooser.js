@@ -1,11 +1,12 @@
 const fs = require("fs");
 const path = require("path");
+const os = require("os");
 
 module.exports = {
   data: function () {
     return {
       clickedItem: null,
-      cPath: __dirname,
+      cPath: os.homedir(),
       path: path
     }
   },
@@ -53,6 +54,7 @@ module.exports = {
         if (fsStats.isDirectory()) {
           this.cPath = newPath;
           this.$el.querySelectorAll(".selected").forEach(el => el.classList.remove("selected"));
+          this.$el.querySelector(".modal-body").scrollTop = 0;
         }
       });
     },

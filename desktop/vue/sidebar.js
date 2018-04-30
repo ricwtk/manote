@@ -2,10 +2,6 @@ const path = require("path");
 
 module.exports = {
   props: ["currentUser", "openedDir", "noteLocation"],
-  components: {
-    "md-guide": require(path.join(__dirname, "md-guide.js")),
-    "directory-chooser": require(path.join(__dirname, "directory-chooser.js"))
-  },
   data: function () {
     return { }
   },
@@ -23,10 +19,10 @@ module.exports = {
       console.log(ev.target.value)
     },
     toggleMarkdownGuide: function () {
-      this.$refs.MDGUIDE.toggle();
+      this.$emit("toggle-markdownguide");
     },
-    addDir: function (newDir) {
-      this.$emit("add-dir", newDir);
+    toggleDirChooser: function () {
+      this.$emit("toggle-dirchooser");
     },
     removeDir: function (oldDir) {
       this.$emit("remove-dir", oldDir);
@@ -81,7 +77,7 @@ module.exports = {
             <span class="mdi mdi-close c-hand" @click="removeDir(od)"></span>
           </div>
           <div class="menu-item c-hand">
-            <a class="text-center" @click="$refs.DIRCHOOSER.toggle()"><i class="mdi mdi-plus"></i> Add directory</a>
+            <a class="text-center" @click="toggleDirChooser"><i class="mdi mdi-plus"></i> Add directory</a>
           </div>
         </div>
         <div class="divider"></div>
@@ -93,12 +89,6 @@ module.exports = {
         Powered by Spectre, Vue, and Showdown
       </div>
     </div>
-
-    <md-guide ref="MDGUIDE"></md-guide>
-    <directory-chooser ref="DIRCHOOSER"
-      @select-dir="addDir"
-    ></directory-chooser>
-
   </div>
   `
 }

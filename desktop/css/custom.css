@@ -2,7 +2,7 @@ html {
   height: 100vh;
 }
 
-body {
+body, .body {
   display: flex;
   flex-direction: column;
   height: 100vh;
@@ -112,8 +112,8 @@ body {
   overflow: hidden;
   white-space: nowrap;
   display: block;
-  direction: rtl;
   padding: 0 .2em;
+  flex-grow: 1;
 }
 
 .sidebar .dir-name > *:last-child:hover {
@@ -124,11 +124,18 @@ body {
   font-size: 90%;
 }
 
-#modal-loading .modal-overlay {
+.grow {
+  flex-grow: 1;
+}
+
+.v-center {
   display: flex;
-  justify-content: center;
   align-items: center;
-  font-size: 800%;
+}
+
+.h-box {
+  display: flex;
+  flex-direction: row;
 }
 
 #modal-markdownguide {
@@ -202,8 +209,8 @@ body {
   height: 3em;
 }
 
-.note-container > .tab {
-  border-bottom: 0;
+.note-container > .panel-nav {
+  display: flex;
 }
 
 .nav-to-list {
@@ -338,12 +345,17 @@ textarea {
 
 .dir-chooser .modal-body {
   margin-top: 1em;
+}
+
+.dir-chooser .modal-body,
+.list-selection .modal-body {
   color: #454d5d;
   background-color: #fff;
   height: 20em;
 }
 
-.dir-chooser .modal-body > div {
+.dir-chooser .modal-body > div,
+.list-selection .modal-body > div {
   height: 3em;
   padding: 0 .5em;
   display: flex;
@@ -356,11 +368,13 @@ textarea {
   margin-right: .5em;
 }
 
-.dir-chooser .modal-body > div:hover {
+.dir-chooser .modal-body > div:hover,
+.list-selection .modal-body > div:hover {
   background-color: rgba(69,77,93,.1);
 }
 
-.dir-chooser .modal-body > div.selected {
+.dir-chooser .modal-body > div.selected,
+.list-selection .modal-body > div.selected {
   background-color: rgba(69,77,93,.1);
   border: 1px solid rgba(69,77,93,.2);
 }
@@ -368,4 +382,25 @@ textarea {
 .dir-chooser .modal-header .label {
   margin: 0 .2em;
   padding: .5em;
+}
+
+.list-selection .modal-body > div.text-center {
+  justify-content: center;
+}
+
+.gutter {
+  background-color: #454d5d;
+
+  background-repeat: no-repeat;
+  background-position: 50%;
+}
+
+.gutter.gutter-horizontal {
+  background-image: url('../node_modules/split.js/grips/vertical.png');
+  cursor: ew-resize;
+}
+
+.gutter.gutter-vertical {
+  background-image: url('../node_modules/split.js/grips/horizontal.png');
+  cursor: ns-resize;
 }
