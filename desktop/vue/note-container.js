@@ -29,6 +29,9 @@ module.exports = {
     "modal-rename": require(path.join(__dirname, "modal-rename.js"))
   },
   methods: {
+    toggleMore: function () {
+      this.$refs.moreActions.classList.toggle("hide");
+    },
     navToList: function () {
 
     },
@@ -44,22 +47,40 @@ module.exports = {
     addNewField: function (newName, fieldType) {
       this.$emit("add-new-field", newName, fieldType);
     },
+    setDefault: function () {
+      this.$emit("set-default");
+    },
+    setGlobalDefault: function () {
+      this.$emit("set-global-default");
+    },
+    archive: function () {
+      this.$emit("archive", this.unsaved.id);
+    }
   },
   template: `
   <div class="note-container column col-8 col-md-12 panel hide-md" :id="id" v-show="unsaved.id">
-    <div class="panel-nav v-center">
-      <div class="mdi mdi-chevron-left show-md nav-to-list c-hand text-center" @click="navToList"></div>
-      <div v-if="noteLocation.local" class="text-gray grow" :title="unsaved.id" style="overflow: auto">
-        <i class="mdi mdi-pencil c-hand" @click="$refs.modalRename.toggle()"></i> {{ unsaved.id }}
-      </div>
-      <div class="text-right">
-        <div class="form-group">
-          <label class="form-switch">
-            <input type="checkbox" v-model="viewEdit">
-            <i class="form-icon"></i>
-            <i class="mdi mdi-pencil"></i>
-          </label>
+    <div class="panel-nav v-box">
+      <div class="h-box grow v-center">
+        <div class="mdi mdi-chevron-left show-md nav-to-list c-hand text-center" @click="navToList"></div>
+        <div v-if="noteLocation.local" class="text-gray grow" :title="unsaved.id" style="overflow: auto; white-space: nowrap">
+          <i class="mdi mdi-pencil c-hand" @click="$refs.modalRename.toggle()"></i> {{ unsaved.id }}
         </div>
+        <div class="text-right h-box v-center">
+          <div class="mdi mdi-dots-horizontal c-hand" title="More actions" @click="toggleMore"></div>
+          <div class="mx-1"></div>
+          <div class="form-group v-center">
+            <label class="form-switch">
+              <input type="checkbox" v-model="viewEdit">
+              <i class="form-icon"></i>
+              <i class="mdi mdi-pencil"></i>
+            </label>
+          </div>
+        </div>
+      </div>
+      <div class="h-box grow v-center wrap flex-right hide" ref="moreActions">
+        <button class="btn btn-primary mx-1 my-1" @click="setDefault">Set as default</button>
+        <button class="btn btn-primary mx-1 my-1" @click="setGlobalDefault">Set as global default</button>
+        <button class="btn btn-primary mx-1 my-1" @click="archive">Archive</button>
       </div>
     </div>
 

@@ -138,6 +138,23 @@ body, .body {
   flex-direction: row;
 }
 
+.v-box {
+  display: flex;
+  flex-direction: column;
+}
+
+.wrap {
+  flex-wrap: wrap;
+}
+
+.flex-right {
+  justify-content: flex-end;
+}
+
+.hide {
+  display: none;
+}
+
 #modal-markdownguide {
   color: #50596c;
 }

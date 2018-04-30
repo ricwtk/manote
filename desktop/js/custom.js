@@ -447,6 +447,46 @@ new Vue({
         this.$set(this.unsaved, "id", newName);
       });
 
+    },
+    archive: function (filepath) {
+      let archiveFolder = path.join(path.dirname(filepath), ".manote.archive");
+      fs.mkdir(archiveFolder, (err) => {
+        if (err && err.code != "EEXIST") {
+          throw err;
+        }
+        let rs = fs.createReadStream(filepath);
+        let ws = fs.createWriteStream(path.join(archiveFolder, path.basename(filepath)));
+        new Promise((resolve, reject) => {
+          rs.on("error", reject);
+          ws.on("error", reject);
+          ws.on("finish", resolve);
+          rs.pipe(ws);
+        }).then(() => {
+          return new Promise((resolve, reject) => {
+            fs.unlink(filepath, (err) => { 
+              if (err) reject(err);
+              resolve();
+            });
+          })
+        }).then(() => {
+          this.noteList.local.splice(this.noteList.local.indexOf(filepath), 1);
+          this.$set(this, "unsaved", {});
+          this.$set(this, "openedFile", {});
+        }).catch(err => {
+          rs.destroy();
+          ws.end();
+          throw err;
+        })
+      });
+      // if (!fs.statSync(archiveFolder).isDirectory()) {
+      //   fs.mkdirSync(archiveFolder);
+      // }
+      // fs.copyFile(filepath, path.join(archiveFolder, path.basename(filepath)), 
+      //   (err) => {
+      //     if (err) throw err;
+      //     fs.unlink(filepath, (err) => { if (err) throw err; });
+      //   }
+      // );
     }
   }
 })
