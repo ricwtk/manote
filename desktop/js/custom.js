@@ -7,6 +7,7 @@ const {Note} = require("./js/note.js");
 const {generateRandomId,showErr} = require("./js/misc.js");
 const fs = require("fs");
 const path = require("path");
+const localSetting = require("./js/get-local.js");
 
 // const field = require("./vue/field.js");
 // Vue.component("field-single", field.single);
@@ -266,10 +267,12 @@ new Vue({
     addDirectory: function (newDir) {
       this.openedDir.addToList(newDir);
       noteList.updateLocal();
+      localSetting.updateRecent(this.openedDir.list);
     },
     removeDirectory: function (oldDir) {
       this.openedDir.removeFromList(oldDir);
       noteList.updateLocal();
+      localSetting.updateRecent(this.openedDir.list);
     },
     setLocal: function () {
       this.noteLocation.setLocal();
@@ -504,4 +507,6 @@ Split(["#list-container", "#note-container"], {
   sizes: [35,65],
   minSize: 230,
   gutterSize: 7
-})
+});
+Vue.set(openedDir, "list", localSetting.getRecent());
+noteList.updateLocal();
