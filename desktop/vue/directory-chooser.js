@@ -1,13 +1,15 @@
 const fs = require("fs");
 const path = require("path");
 const os = require("os");
+const {shell} = require("electron");
 
 module.exports = {
   data: function () {
     return {
       clickedItem: null,
       cPath: os.homedir(),
-      path: path
+      path: path,
+      searchQuery: ""
     }
   },
   computed: {
@@ -17,7 +19,7 @@ module.exports = {
     dirList: function () {
       return fs.readdirSync(this.cPath).filter(file => {
         try {
-          return fs.statSync(path.join(this.cPath, file)).isDirectory();
+          return fs.statSync(path.join(this.cPath, file)).isDirectory() && file.toLowerCase().includes(this.searchQuery.toLowerCase());
         } catch (e) {
           return false;
         }
@@ -55,6 +57,7 @@ module.exports = {
           this.cPath = newPath;
           this.$el.querySelectorAll(".selected").forEach(el => el.classList.remove("selected"));
           this.$el.querySelector(".modal-body").scrollTop = 0;
+          this.searchQuery = "";
         }
       });
     },
@@ -79,6 +82,9 @@ module.exports = {
       }
       this.$emit("select-dir", selected);
       this.toggle();
+    },
+    openExternal: function () {
+      shell.openItem(this.cPath);
     }
   },
   template: `
@@ -87,7 +93,7 @@ module.exports = {
     <div class="modal-container bg-dark">
       <div class="modal-header" style="display: flex; border-bottom: 1px solid">
         <span class="mdi mdi-24px mdi-arrow-up-bold c-hand" data-tooltip="Go up one directory" data-tooltip-position="bottom" @click="upDir"></span>
-        <div class="modal-title" style="display: flex; align-items: center; margin-left: 1em">
+        <div class="modal-title grow" style="display: flex; align-items: center; margin-left: 1em">
           <span class="label c-hand" v-if="pathArray.length > 3" @click="removeAndSetPath(3)">
             ...
           </span>
@@ -95,6 +101,7 @@ module.exports = {
             {{ p }}
           </span>
         </div>
+        <span class="mdi mdi-24px mdi-open-in-new c-hand" title="Open in file manager" @click="openExternal"></span>
       </div>
       <div class="modal-body">
         <div v-for="n in dirList" @click="clickItem">
@@ -102,8 +109,15 @@ module.exports = {
           {{ n }}
         </div>
       </div>
-      <div class="modal-footer">
+      <div class="modal-footer h-box">
+        <div class="form-input h-box v-center grow">
+          <i class="mdi mdi-magnify"></i>
+          <div class="mx-1"></div>
+          <input class="invisible-form-input grow" v-model="searchQuery">
+        </div>
+        <div class="mx-1"></div>
         <button class="btn btn-primary" @click="selectDir">Select</button> 
+        <div class="mx-1"></div>
         <button class="btn" @click="toggle">Cancel</button> 
       </div>
     </div>
