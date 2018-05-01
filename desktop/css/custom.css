@@ -218,7 +218,8 @@ body, .body {
 .list-container .tile:hover:not(:last-child),
 .note-container .tile:hover,
 .list-container .tile.selected,
-.my-button:hover {
+.my-button:hover,
+.default-display .tile-content:hover {
   background-color: rgba(248,249,250,1);
 }
 
@@ -420,4 +421,25 @@ textarea {
 .gutter.gutter-vertical {
   background-image: url('../node_modules/split.js/grips/horizontal.png');
   cursor: ns-resize;
+}
+
+.default-list > * {
+  border: 1px solid #ddd;
+  padding: .5em;
+}
+
+.default-list > *:not(:last-child) {
+  border-right-width: 0px;
+}
+
+.default-list > *:first-child {
+  border-radius: .2rem 0 0 .2rem;
+}
+
+.default-list > *:last-child {
+  border-radius: 0 .2rem .2rem 0;
+}
+
+.default-list > *.mdi-cursor-move {
+  cursor: move;
 }

@@ -32,6 +32,12 @@ module.exports = {
     },
     switchToRemote: function () {
       this.$emit("set-remote");
+    },
+    showDirDefault: function () {
+      this.$emit("show-dir-default");
+    },
+    showGlobalDefault: function () {
+      this.$emit("show-global-default");
     }
   },
   template: `
@@ -62,15 +68,14 @@ module.exports = {
           <a v-if="currentUser.name" @click="signOutGoogle">Sign out</a>
           <a v-else @click="signInGoogle">Sign in to Google</a>
         </div>
-        <div class="divider"></div>
         <template v-if="currentUser.name">
+          <div class="divider"></div>
           <div class="menu-item c-hand">
             <a @click="switchToRemote">Notes on <i class="mdi mdi-google-drive"></i> Google Drive</a>
           </div>
-          <div class="divider"></div>
         </template>
+        <div class="divider" data-content="Local notes"></div>
         <div class="menu-item">
-          <a class="c-hand" @click="switchToLocal">Local notes</a>
           <div class="menu-item dir-name" v-for="od in openedDir.list">
             <i class="mdi mdi-folder"></i>
             <span class="text-left" :title="od"> {{ od }}</span>
@@ -80,6 +85,9 @@ module.exports = {
             <a class="text-center" @click="toggleDirChooser"><i class="mdi mdi-plus"></i> Add directory</a>
           </div>
         </div>
+        <div class="menu-item c-hand"><a @click="switchToLocal">Show local notes</a></div>
+        <div class="menu-item"><a>Directory default</a></div>
+        <div class="menu-item c-hand"><a @click="showGlobalDefault">Global default</a></div>
         <div class="divider"></div>
         <div class="menu-item c-hand">
           <a @click="toggleMarkdownGuide">Markdown Guide</a>

@@ -85,10 +85,10 @@ module.exports = {
     </div>
 
     <div class="panel-body form-group">
-      
+    
       <component v-for="key in unsaved.order" :key="key" :is="'field-' + unsaved[key].type"
         :title="key"
-        :removable="!['Title', 'Content', 'Categories'].includes(key)"
+        :removable="true"
         v-model="unsaved[key].content"
         :editable="viewEdit"
         :displayValue="['single', 'multiple'].includes(unsaved[key].type) ? mdconverter.makeHtml(unsaved[key].content) : unsaved[key].content"

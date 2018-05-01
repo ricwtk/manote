@@ -48,9 +48,17 @@ function setGlobalDefault(defaultFormat) {
   setDefault(getAppFolder(), defaultFormat);
 }
 
+function getGlobalDefaultLocation() {
+  return path.join(getAppFolder(), defaultFileName);
+}
+
+function getGlobalDefault() {
+  return JSON.parse(fs.readFileSync(getGlobalDefaultLocation()));
+}
+
 function getDefault(folderPath) {
   let localDefault = path.join(folderPath, defaultFileName);
-  let globalDefault = path.join(getAppFolder(), defaultFileName);
+  let globalDefault = getGlobalDefaultLocation();
   let defaultFormat;
   if (fs.existsSync(localDefault)) {
     defaultFormat = fs.readFileSync(localDefault);
@@ -69,5 +77,7 @@ module.exports = {
   getRecent: getRecent,
   setDefault: setDefault,
   setGlobalDefault: setGlobalDefault,
+  getGlobalDefaultLocation: getGlobalDefaultLocation,
+  getGlobalDefault: getGlobalDefault,
   getDefault: getDefault
 }

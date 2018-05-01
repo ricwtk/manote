@@ -33,6 +33,7 @@ Vue.component("modal-loading", require("./vue/modal-loading.js"));
 Vue.component("modal-unsavedprompt", require("./vue/modal-unsavedprompt.js"));
 Vue.component("md-guide", require("./vue/md-guide.js"));
 Vue.component("directory-chooser", require("./vue/directory-chooser.js"));
+Vue.component("default-display", require("./vue/default-display.js"));
 
 const separator = "\n" + "-".repeat(10) + "0qp4BCBHLoHfkIi6N1hgeXNaZg20BB0sNZ4k8tE6eWKmTa1CkE" + "-".repeat(10) + "\n\n";
 var currentUser = {
@@ -199,7 +200,10 @@ new Vue({
     searchQuery: "",
     noteList: noteList,
     noteLocation: noteLocation,
-    openedDir: openedDir
+    openedDir: openedDir,
+    ddTitle: "",
+    ddLocation: "",
+    ddFormat: {}
   },
   computed: {
     displayNoteList: function () {
@@ -496,7 +500,23 @@ new Vue({
     },
     setGlobalDefault: function () {
       localSetting.setGlobalDefault(this.getFormat());
-    }
+    },
+    showDirDefault: function () {
+      
+    },
+    showGlobalDefault: function () {
+      if (!fs.existsSync(localSetting.getGlobalDefaultLocation())) {
+        localSetting.setGlobalDefault(new Note("discard"));
+        console.log("create global default");
+        this.showGlobalDefault();
+      } else {
+        console.log(localSetting.getGlobalDefault());
+        this.ddTitle = "Global Default";
+        this.ddLocation = localSetting.getGlobalDefaultLocation();
+        this.ddFormat = localSetting.getGlobalDefault();
+        this.$nextTick(() => this.$refs.defaultDisplay.toggle());
+      }
+    },
   }
 })
 

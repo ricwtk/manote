@@ -64,10 +64,17 @@
         @remove-dir="removeDirectory"
         @set-local="setLocal"
         @set-remote="setRemote"
+        @show-global-default="showGlobalDefault"
+        @show-dir-default="showDirDefault"
       ></sidebar>
 
           
 
+      <default-display ref="defaultDisplay"
+        :value="ddFormat"
+        :title="ddTitle"
+        :location="ddLocation"
+      ></default-display>
         
       <md-guide ref="markdownGuide"></md-guide>
       
