@@ -1,7 +1,7 @@
 const path = require("path");
 
 module.exports = {
-  props: ["file", "index", "draggable", "droppable"],
+  props: ["file", "index", "draggable", "droppable", "title", "subtitle"],
   data: function () {
     return {
       path: path,
@@ -62,8 +62,8 @@ module.exports = {
       </div>
       <div class="tile-content">
         <template v-if="typeof(file)=='string'">
-          <div class="tile-title" :title="path.parse(file).name">{{ path.parse(file).name }}</div>
-          <div class="tile-subtitle text-gray" :title="path.dirname(file)">{{ path.dirname(file) }}</div>          
+          <div class="tile-title" :title="title">{{ title }}</div>
+          <div class="tile-subtitle text-gray" :title="subtitle">{{ subtitle }}</div>
         </template>
         <template v-else>
           <div class="tile-title">{{ file.Title.content }}</div>

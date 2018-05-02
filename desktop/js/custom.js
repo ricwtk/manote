@@ -8,6 +8,7 @@ const {generateRandomId,showErr} = require("./js/misc.js");
 const fs = require("fs");
 const path = require("path");
 const localSetting = require("./js/get-local.js");
+const {shell} = require("electron");
 
 // const field = require("./vue/field.js");
 // Vue.component("field-single", field.single);
@@ -53,14 +54,35 @@ var stat = {
 
 var openedDir = {
   list: [],
+  shortened: [],
   addToList: function(x) {
     if (!this.list.includes(x)) {
       this.list.push(x);
+      this._genShortened();
     }
+  },
+  _genShortened: function () {
+    let listArray = this.list.map(d => d.split(path.sep));
+    this.shortened = listArray.map(d => {
+      let level = 0;
+      while (listArray.filter(el => el.slice(-1-level).join(path.sep) == d.slice(-1-level).join(path.sep)).length > 1) {
+        level += 1;
+      }
+      return d.slice(-1-level).join(path.sep);
+    });
   },
   removeFromList: function (x) {
     if (this.list.includes(x)) {
-      this.list.splice(this.list.indexOf(x), 1);
+      let xidx = this.list.indexOf(x);
+      this.list.splice(xidx, 1);
+      this._genShortened();
+    }
+  },
+  getShortened: function (x) {
+    if (this.list.includes(x)) {
+      return this.shortened[this.list.indexOf(x)];
+    } else {
+      return -1;
     }
   }
 }
@@ -273,6 +295,9 @@ new Vue({
       this.openedDir.addToList(newDir);
       noteList.updateLocal();
       localSetting.updateRecent(this.openedDir.list);
+    },
+    openDirectory: function (dir) {
+      shell.openItem(dir);
     },
     removeDirectory: function (oldDir) {
       this.openedDir.removeFromList(oldDir);
@@ -617,5 +642,7 @@ Split(["#list-container", "#note-container"], {
   minSize: 230,
   gutterSize: 7
 });
-Vue.set(openedDir, "list", localSetting.getRecent());
+localSetting.getRecent().forEach(d => {
+  openedDir.addToList(d);
+});
 noteList.updateLocal();

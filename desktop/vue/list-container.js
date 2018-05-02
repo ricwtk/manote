@@ -69,6 +69,12 @@ module.exports = {
       this.$nextTick(() => {
         this.hasTick = this.$refs.fileItems ? this.$refs.fileItems.some(fi => fi.isTicked) : false;
       });
+    },
+    getFileItemTitle: function (filepath) {
+      return path.parse(filepath).name;
+    },
+    getFileItemSubtitle: function (filepath) {
+      return this.openedDir.getShortened(path.dirname(filepath));
     }
   },
   template: `
@@ -105,6 +111,8 @@ module.exports = {
         <div class="divider"></div>
         <file-item ref="fileItems"
           :file="displayNoteList[i]"
+          :title="getFileItemTitle(displayNoteList[i])"
+          :subtitle="getFileItemSubtitle(displayNoteList[i])"
           @click="openLocalFile"
           @tick="checkTick"
         >

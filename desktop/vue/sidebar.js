@@ -24,6 +24,9 @@ module.exports = {
     toggleDirChooser: function () {
       this.$emit("toggle-dirchooser");
     },
+    openDir: function (dir) {
+      this.$emit("open-dir", dir);
+    },
     removeDir: function (oldDir) {
       this.$emit("remove-dir", oldDir);
     },
@@ -79,6 +82,7 @@ module.exports = {
           <div class="menu-item dir-name" v-for="od in openedDir.list">
             <i class="mdi mdi-folder"></i>
             <span class="text-left" :title="od"> {{ od }}</span>
+            <span class="mdi mdi-open-in-new c-hand" @click="openDir(od)"></span>
             <span class="mdi mdi-close c-hand" @click="removeDir(od)"></span>
           </div>
           <div class="menu-item c-hand">

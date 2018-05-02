@@ -116,7 +116,7 @@ body, .body {
   flex-grow: 1;
 }
 
-.sidebar .dir-name > *:last-child:hover {
+.sidebar .dir-name > .mdi.c-hand:hover {
   color: #009688;
 }
 
@@ -355,6 +355,10 @@ textarea {
 
 .file-item .handle {
   cursor: move;
+}
+
+.file-item .tile-subtitle {
+  font-size: 85%;
 }
 
 .dragover {
