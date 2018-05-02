@@ -86,7 +86,7 @@ module.exports = {
           </div>
         </div>
         <div class="menu-item c-hand"><a @click="switchToLocal">Show local notes</a></div>
-        <div class="menu-item"><a>Directory default</a></div>
+        <div class="menu-item c-hand"><a @click="showDirDefault">Directory default</a></div>
         <div class="menu-item c-hand"><a @click="showGlobalDefault">Global default</a></div>
         <div class="divider"></div>
         <div class="menu-item c-hand">

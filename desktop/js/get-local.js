@@ -56,18 +56,25 @@ function getGlobalDefault() {
   return JSON.parse(fs.readFileSync(getGlobalDefaultLocation()));
 }
 
+function getDirDefaultLocation(dir) {
+  return path.join(dir, defaultFileName);
+}
+
+function getDirDefault(dir) {
+  return JSON.parse(fs.readFileSync(getDirDefaultLocation(dir)));
+}
+
 function getDefault(folderPath) {
-  let localDefault = path.join(folderPath, defaultFileName);
+  let localDefault = getDirDefaultLocation(folderPath);
   let globalDefault = getGlobalDefaultLocation();
   let defaultFormat;
   if (fs.existsSync(localDefault)) {
-    defaultFormat = fs.readFileSync(localDefault);
+    return getDirDefault(folderPath);
   } else if (fs.existsSync(globalDefault)) {
-    defaultFormat = fs.readFileSync(globalDefault);
+    return getGlobalDefault();
   } else {
-    defaultFormat = "{}";
+    return {};
   }
-  return JSON.parse(defaultFormat);
 }
 
 
@@ -79,5 +86,7 @@ module.exports = {
   setGlobalDefault: setGlobalDefault,
   getGlobalDefaultLocation: getGlobalDefaultLocation,
   getGlobalDefault: getGlobalDefault,
+  getDirDefaultLocation: getDirDefaultLocation,
+  getDirDefault: getDirDefault,
   getDefault: getDefault
 }

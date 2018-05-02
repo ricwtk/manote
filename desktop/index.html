@@ -68,6 +68,13 @@
         @show-dir-default="showDirDefault"
       ></sidebar>
 
+    
+      <list-selection ref="selectDirForDefault"
+        header-text="Select directory to view default"
+        :list="openedDir.list"
+        :allow-new="false"
+        @selected="showThisDirDefault"
+      ></list-selection>
           
 
       <default-display ref="defaultDisplay"

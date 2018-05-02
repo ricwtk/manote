@@ -21,7 +21,7 @@ Vue.component("note-container", require("./vue/note-container.js"));
 Vue.component("navbar", require("./vue/navbar.js"));
 Vue.component("sidebar", require("./vue/sidebar.js"));
 // Vue.component("file-item", require("./vue/file-item.js"));
-// Vue.component("list-selection", require("./vue/list-selection.js"));
+Vue.component("list-selection", require("./vue/list-selection.js"));
 Vue.component("modal-sortnote", require("./vue/modal-sortnote.js"));
 // Vue.component("search-bar", require("./vue/search-bar.js"));
 // Vue.component("input-header", require("./vue/input-header.js"));
@@ -502,7 +502,20 @@ new Vue({
       localSetting.setGlobalDefault(this.getFormat());
     },
     showDirDefault: function () {
-      
+      this.$refs.selectDirForDefault.toggle();
+    },
+    showThisDirDefault: function (selectedDir) {
+      if (!fs.existsSync(localSetting.getDirDefaultLocation(selectedDir))) {
+        localSetting.setDefault(selectedDir, new Note("discard"));
+        console.log("create directory default in " + selectedDir);
+        this.showThisDirDefault(selectedDir);
+      } else {
+        console.log(localSetting.getDirDefault(selectedDir));
+        this.ddTitle = "Directory Default";
+        this.ddLocation = localSetting.getDirDefaultLocation(selectedDir);
+        this.ddFormat = localSetting.getDirDefault(selectedDir);
+        this.$nextTick(() => this.$refs.defaultDisplay.toggle());
+      }
     },
     showGlobalDefault: function () {
       if (!fs.existsSync(localSetting.getGlobalDefaultLocation())) {
