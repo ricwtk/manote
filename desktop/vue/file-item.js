@@ -4,7 +4,8 @@ module.exports = {
   props: ["file", "index", "draggable", "droppable"],
   data: function () {
     return {
-      path: path
+      path: path,
+      isTicked: false
     }
   },
   methods: {
@@ -13,15 +14,6 @@ module.exports = {
     },
     clearSelect: function () {
       this.$el.classList.remove("selected");
-    },
-    tickFile: function (ev) {
-      if (ev.target == this.$refs.ticked) {
-        if (ev.target.checked) this.$emit("add-tick", this.file.id);
-        else this.$emit("remove-tick", this.file.id);
-      }
-    },
-    untick: function () {
-      this.$refs.ticked.checked = false;
     },
     getActual: function (x) {
       while (!x.dataset || !x.dataset.index) {
@@ -63,8 +55,8 @@ module.exports = {
   >
     <template v-if="file">
       <div class="tile-icon">
-        <label class="form-checkbox" @click.stop="tickFile">
-          <input type="checkbox" ref="ticked">
+        <label class="form-checkbox" @click.stop="$emit('tick')">
+          <input type="checkbox" ref="ticked" v-model="isTicked">
           <i class="form-icon"></i>
         </label>
       </div>

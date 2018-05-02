@@ -1,12 +1,12 @@
 module.exports = {
-  props: ["noteLocation", "stat"],
+  props: ["noteLocation", "stat", "id"],
   methods: {
     toggleSidebar: function () {
       this.$emit("toggle-sidebar");
     }
   },
   template: `
-  <div class="navbar p-1 bg-dark">
+  <div class="navbar p-1 bg-dark" :id="id">
     <div class="navbar-section">
       <div class="c-hand mdi mdi-24px mdi-menu px-2" @click="toggleSidebar"></div>
     </div>

@@ -9,7 +9,8 @@ module.exports = {
         group: "",
         show: ""
       },
-      searchQuery: ""
+      searchQuery: "",
+      hasTick: false,
     }
   },
   computed: {
@@ -20,7 +21,7 @@ module.exports = {
     sortedNoteIdx: function () {
       let indices = [...this.displayNoteList.keys()];
       return indices;
-    }
+    },
   },
   components: {
     "search-bar": require(path.join(__dirname, "search-bar.js")),
@@ -55,6 +56,19 @@ module.exports = {
     },
     addOpenedDir: function () {
       this.$emit("add-opened-dir");
+    },
+    discardSelection: function () {
+      this.$refs.fileItems.forEach(fi => { fi.isTicked = false; });
+    },
+    deleteNotes: function () {
+      if (this.noteLocation.local) {
+        this.$emit("delete-local-notes", this.$refs.fileItems.filter(fi => fi.isTicked).map(fi => fi.file));
+      }
+    },
+    checkTick: function () {
+      this.$nextTick(() => {
+        this.hasTick = this.$refs.fileItems ? this.$refs.fileItems.some(fi => fi.isTicked) : false;
+      });
     }
   },
   template: `
@@ -92,9 +106,17 @@ module.exports = {
         <file-item ref="fileItems"
           :file="displayNoteList[i]"
           @click="openLocalFile"
+          @tick="checkTick"
         >
         </file-item>
       </template>
+    </div>
+
+    <div class="panel-footer navbar" v-if="hasTick">
+      <div class="navbar-section">
+        <button class="btn" @click="discardSelection">Discard selection</button>
+      </div>
+      <button class="btn ml-1" @click="deleteNotes">Delete</button>
     </div>
 
     <list-selection ref="dirOfNew"

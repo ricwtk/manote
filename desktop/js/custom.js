@@ -86,6 +86,7 @@ var noteList = {
   local: [],
   remote: [],
   updateLocal: function () {
+    this.local = [];
     openedDir.list.forEach(d => {
       fs.readdir(d, (err, files) => {
         if (err) {
@@ -373,6 +374,19 @@ new Vue({
         this.$nextTick(() => {
           this.$refs.listContainer.selectFile(newFile);
         })
+      });
+    },
+    deleteLocalNotes: function (notes) {
+      Promise.all(notes.map(note => {
+        return new Promise((resolve, reject) => {
+          fs.unlink(note, err => { 
+            if (err) reject(err); 
+            resolve();
+          });
+        });
+      })).then(() => {
+        noteList.updateLocal();
+        this.$refs.listContainer.discardSelection();
       });
     },
     deleteNotes: function () {

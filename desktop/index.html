@@ -24,6 +24,7 @@
     <div class="body" id="body">
 
       <navbar ref="navbar"
+        id="navbar"
         :note-location="noteLocation"
         :stat="stat"
         @toggle-sidebar="$refs.sidebar.toggle()"
@@ -38,6 +39,7 @@
           @open-local-file="openLocalFile"
           @add-opened-dir="$refs.dirChooser.toggle()"
           @create-local-note="createLocalNote"
+          @delete-local-notes="deleteLocalNotes"
         ></list-container>
         
         <note-container ref="noteContainer"
