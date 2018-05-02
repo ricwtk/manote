@@ -438,10 +438,18 @@ new Vue({
       // console.log("openedFile", JSON.stringify(this.openedFile, null, 2));
       console.log("saving note");
       this.stat.running = true;
-      gd.updateNote(this.openedFile).then(res => {
-        console.log(res);
-        updateList(res);
-      }, showErr).then(res => { this.stat.running = false });
+      if (this.noteLocation.local) {
+        fs.writeFile(this.openedFile.id, JSON.stringify(this.openedFile, null, 2), (err) => {
+          if (err) throw err;
+          console.log("note saved");
+          this.stat.running = false;
+        });
+      } else {
+        gd.updateNote(this.openedFile).then(res => {
+          console.log(res);
+          updateList(res);
+        }, showErr).then(res => { this.stat.running = false });
+      }
     },
     discardUnsaved: function () {
       // console.log(JSON.stringify(this.unsaved), JSON.stringify(this.openedFile));
@@ -458,7 +466,7 @@ new Vue({
       return this.searchQuery.split().some(el => Object.keys(note).filter(k => note[k].type).map(k => k + " " + note[k].content).join(" ").toLowerCase().indexOf(el.toLowerCase()) > -1);
     },
     resizeTA: function (ev, name) {
-      Vue.set(this.unsaved[name], "height", window.getComputedStyle(ev.target).height);
+      this.$set(this.unsaved[name], "height", window.getComputedStyle(ev.target).height);
     },
     renameOpenedFile: function (newName) {
       fs.rename(this.openedFile.id, newName, (err) => {
