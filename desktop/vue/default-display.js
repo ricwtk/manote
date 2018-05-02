@@ -1,3 +1,5 @@
+const {Note} = require("../js/note.js");
+
 module.exports = {
   props: ["value", "title", "location"],
   data: function () {
@@ -21,6 +23,10 @@ module.exports = {
     },
     isEmpty: function (name) {
       return name == "";
+    },
+    update: function () {
+      this.$emit("input", Note.createWithFields(this.fieldList.filter(el => el.name !== "")));
+      this.toggle();
     }
   },
   template: `
@@ -59,7 +65,7 @@ module.exports = {
         </div>
       </div>
       <div class="modal-footer">
-        <button class="btn btn-primary">Save</button>
+        <button class="btn btn-primary" @click="update">Save</button>
         <button class="btn" @click="toggle">Cancel</button>
       </div>
     </div>

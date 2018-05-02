@@ -517,6 +517,9 @@ new Vue({
         this.$nextTick(() => this.$refs.defaultDisplay.toggle());
       }
     },
+    saveDefault: function(x) {
+      localSetting.setDefault(path.dirname(this.ddLocation), this.ddFormat);
+    }
   }
 })
 

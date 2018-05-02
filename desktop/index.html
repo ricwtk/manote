@@ -71,9 +71,10 @@
           
 
       <default-display ref="defaultDisplay"
-        :value="ddFormat"
+        v-model="ddFormat"
         :title="ddTitle"
         :location="ddLocation"
+        @input="saveDefault"
       ></default-display>
         
       <md-guide ref="markdownGuide"></md-guide>

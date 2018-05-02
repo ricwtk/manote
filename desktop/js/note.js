@@ -108,6 +108,20 @@ class Note {
       if (err) console.log(err);
     })
   }
+
+  static createWithFields(fields) {
+    let note = new Note("default");
+    ["id", "created", "modified"].forEach(key => {
+      note[key] = "";
+    });
+    ["Title", "Content", "Categories"].forEach(key => {
+      note.removeField(key);
+    });
+    fields.forEach(f => {
+      note.addNewField(f.name, f.type);
+    })
+    return note;
+  }
 }
 
 module.exports = {
