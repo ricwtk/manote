@@ -24,6 +24,29 @@ module.exports = {
     isEmpty: function (name) {
       return name == "";
     },
+    getActual: function (x) {
+      while (!x.dataset || !x.dataset.index) {
+        x = x.parentNode;
+      }
+      return x;
+    },
+    dragstart: function (ev) {
+      ev.dataTransfer.setData("text", ev.target.dataset.index);
+    },
+    dragover: function (ev) {
+      this.getActual(ev.target).classList.add("dragover");
+    }, 
+    dragleave: function (ev) {
+      this.getActual(ev.target).classList.remove("dragover");
+    },
+    drop: function (ev) {
+      this.dragleave(ev);
+      let shiftFrom = parseInt(ev.dataTransfer.getData("text"));
+      let shiftTo = parseInt(this.getActual(ev.target).dataset.index);
+      this.fieldList.splice(shiftTo, 0, this.fieldList[shiftFrom]);
+      if (shiftTo < shiftFrom) shiftFrom += 1;
+      this.fieldList.splice(shiftFrom, 1);
+    },
     update: function () {
       this.$emit("input", Note.createWithFields(this.fieldList.filter(el => el.name !== "")));
       this.toggle();
@@ -38,7 +61,15 @@ module.exports = {
         <div class="modal-subtitle text-gray">{{ location }}</div>
       </div>
       <div class="modal-body">
-        <div class="h-box default-list my-2" v-for="f,i in fieldList">
+        <div class="h-box default-list my-2" v-for="f,i in fieldList" :data-index="i"
+          draggable="true"
+          @dragstart="dragstart"
+          @dragenter.prevent="dragover"
+          @dragover.prevent="dragover"
+          @dragleave.prevent="dragleave"
+          @dragend.prevent="dragleave"
+          @drop.prevent="drop"
+        >
           <div class="mdi mdi-cursor-move v-center"></div>
           <div class="v-box grow">
             <div class="h-box v-center">
@@ -60,6 +91,15 @@ module.exports = {
           </div>
           <div class="mdi mdi-close c-hand v-center" title="remove" @click="removeField(i)"></div>
         </div>
+        <div class="my-2" :data-index="fieldList.length" style="height: 1em"
+          draggable="false"
+          @dragstart="dragstart"
+          @dragenter.prevent="dragover"
+          @dragover.prevent="dragover"
+          @dragleave.prevent="dragleave"
+          @dragend.prevent="dragleave"
+          @drop.prevent="drop"
+        ></div>
         <div class="tile-content text-center c-hand" @click="addNewField">
           <div class="mdi mdi-24px mdi-plus"></div>
         </div>

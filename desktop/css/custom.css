@@ -443,3 +443,7 @@ textarea {
 .default-list > *.mdi-cursor-move {
   cursor: move;
 }
+
+.default-display .modal-body {
+  user-select: none;
+}
