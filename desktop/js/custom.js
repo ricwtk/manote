@@ -360,9 +360,6 @@ new Vue({
         this.$refs.dirOfNew.toggle();
       }
     },
-    selectDirOfNew: function (dirOfNew) {
-      console.log(dirOfNew);
-    },
     createLocalNote: function (dirOfNew) {
       let newFile = path.join(dirOfNew, "Untitled_");
       let i = 0;
@@ -372,6 +369,11 @@ new Vue({
       newFile = newFile + i + ".manote";
       (new Note(newFile, null, null, null, null, localSetting.getDefault(dirOfNew))).saveToFile(newFile);
       noteList.updateLocal();
+      this.$nextTick(() => {
+        this.$nextTick(() => {
+          this.$refs.listContainer.selectFile(newFile);
+        })
+      });
     },
     deleteNotes: function () {
       this.stored.noteList = this.stored.noteList.filter(el => !this.tickedFiles.includes(el.id));

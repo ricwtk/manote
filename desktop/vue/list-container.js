@@ -29,7 +29,6 @@ module.exports = {
   },
   methods: {
     addNewNote: function () {
-      // this.$emit("add-new-note");
       if (this.noteLocation.local) {
         this.$refs.dirOfNew.toggle();
       }
@@ -39,6 +38,13 @@ module.exports = {
         if (fi.$el == el) fi.setSelect();
         else fi.clearSelect();
       });
+    },
+    selectFile: function (f) {
+      this.$refs.fileItems.forEach(fi => {
+        if (fi.file == f) fi.setSelect();
+        else fi.clearSelect();
+      });
+      this.$emit("open-local-file", f);
     },
     openLocalFile: function (el, f) {
       this.selectFileItem(el);
