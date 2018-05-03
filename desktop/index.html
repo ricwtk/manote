@@ -89,15 +89,6 @@
         
       <md-guide ref="markdownGuide"></md-guide>
       
-      <modal-sortnote ref="modalSortnote"
-        :show="showFilter"
-        v-model="filter"
-        :sortable-fields="sortableFields"
-        :groupable-fields="groupableFields"
-        :available-groups="availableGroups"
-        @hide="showFilter=false"
-      ></modal-sortnote>
-      
       <directory-chooser ref="dirChooser"
         @select-dir="addDirectory"
       ></directory-chooser>

@@ -7,7 +7,7 @@ module.exports = {
       filter: {
         sort: "",
         group: "",
-        show: ""
+        show: []
       },
       searchQuery: "",
       hasTick: false,
@@ -20,23 +20,81 @@ module.exports = {
     },
     sortedNoteIdx: function () {
       let indices = [...this.displayNoteList.keys()];
-      let strForSearch = indices.map(i => 
+      // filter search
+      let strForSearch = this.displayNoteList.map(note => 
         [
-          this.displayNoteList[i].id, 
-          ...Object.keys(this.displayNoteList[i])
-            .filter(k => this.displayNoteList[i][k].type)
-            .map(k => k + " " + this.displayNoteList[i][k].content)
+          note.id, 
+          ...Object.keys(note)
+            .filter(k => note[k].type)
+            .map(k => k + " " + note[k].content)
         ].join(" ").toLowerCase()
       );
-      return indices.filter(i => this.searchQuery.split(" ").some(el => strForSearch[i].indexOf(el.toLowerCase()) > -1));
+      indices = indices.filter(i => this.searchQuery.split(" ").some(el => strForSearch[i].indexOf(el.toLowerCase()) > -1));
+      // arrange sort
+      if (this.filter.sort) {
+        let sortable = indices.filter(v => this.displayNoteList[v].hasOwnProperty(this.filter.sort));
+        let unsortable = indices.filter(v => !this.displayNoteList[v].hasOwnProperty(this.filter.sort));
+        sortable.sort((a,b) => {
+          let itemA = this.displayNoteList[a][this.filter.sort];
+          let itemB = this.displayNoteList[b][this.filter.sort];
+          itemA = itemA.type ? itemA.content : itemA;
+          itemB = itemB.type ? itemB.content : itemB;
+          if (itemA < itemB) return -1;
+          else if (itemA > itemB) return 1;
+          else return 0;
+        });
+        indices = [...sortable, ...unsortable];
+      }
+
+      return indices;
+    },
+    sortableFields: function () { 
+      return Array.from( 
+        new Set(
+          this.displayNoteList.map(el =>  
+            Object.keys(el).filter(k => 
+              ['created', 'modified'].includes(k) || 
+              ( el[k].type && ["single", "datetime"].includes(el[k].type) )
+            ) 
+          ).reduce((acc, el) => acc.concat(el), [])
+        ) 
+      ); 
+    }, 
+    groupableFields: function () { 
+      return Array.from( 
+        new Set( 
+          this.displayNoteList.map(el =>  
+            Object.keys(el).filter(k =>  
+              el[k].type && ["tags"].includes(el[k].type) 
+            ) 
+          ).reduce((acc, el) => acc.concat(el), []) 
+        ) 
+      ); 
+    },
+    availableGroups: function () {
+      return this.groupableFields.map(field => 
+        [...Array.from(
+          new Set (
+            this.displayNoteList.map(el => 
+              el[field] ? el[field].content : []
+            ).reduce((acc, el) => acc.concat(el), [])
+          )
+        ), "-- No field or no group"]
+      );
     },
   },
   components: {
     "search-bar": require(path.join(__dirname, "search-bar.js")),
     "file-item": require(path.join(__dirname, "file-item.js")),
-    "list-selection": require(path.join(__dirname, "list-selection.js"))
+    "list-selection": require(path.join(__dirname, "list-selection.js")),
+    "modal-sortnote": require(path.join(__dirname, "modal-sortnote.js"))
   },
   methods: {
+    resetFilter: function () {
+      this.filter.sort = "";
+      this.filter.group = "";
+      this.filter.show = [];
+    },
     addNewNote: function () {
       if (this.noteLocation.local) {
         this.$refs.dirOfNew.toggle();
@@ -91,7 +149,10 @@ module.exports = {
     <div class="panel-header">
       <div class="panel-title navbar">
         <div class="navbar-section">
-          <div :class="['mdi', 'mdi-24px', ...(filter.sort || filter.group) ? ['mdi-filter', 'text-primary'] : ['mdi-filter-outline']]" @click=""></div>
+          <div :class="['mdi', 'mdi-24px', ...(filter.sort || filter.group) ? ['mdi-filter', 'text-primary'] : ['mdi-filter-outline']]" 
+            @click="$refs.sortNoteUi.toggle()"
+          ></div>
+          <div v-if="filter.sort || filter.group" class="mdi mdi-24px mdi-filter-remove-outline" @click="resetFilter"></div>
           <search-bar v-model="searchQuery"></search-bar>
         </div>
         <div class="my-button c-hand mdi mdi-24px mdi-plus" @click="addNewNote"></div>
@@ -142,6 +203,13 @@ module.exports = {
       @selected="selectDirOfNew"
       @add-new="addOpenedDir"
     ></list-selection>
+
+    <modal-sortnote ref="sortNoteUi"
+      v-model="filter"
+      :sortable-fields="sortableFields"
+      :groupable-fields="groupableFields"
+      :available-groups="availableGroups"
+    ></modal-sortnote>
 
   </div>
   `

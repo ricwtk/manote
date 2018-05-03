@@ -1,5 +1,5 @@
 module.exports = {
-  props: ["show", "value", "sortableFields", "groupableFields", "availableGroups"],
+  props: ["value", "sortableFields", "groupableFields", "availableGroups"],
   data: function () {
     return {
       filter: {
@@ -17,11 +17,9 @@ module.exports = {
     }
   },
   methods: {
-    hideMe: function () {
-      this.$emit("hide");
-      this.$nextTick(() => {
-        this.filter = JSON.parse(JSON.stringify(this.value));
-      })
+    toggle: function () {
+      this.$el.classList.toggle("active");
+      this.filter = JSON.parse(JSON.stringify(this.value));
     },
     selectAllGroups: function () {
       this.$refs.groupList.childNodes.forEach(g => g.selected = true);
@@ -35,15 +33,15 @@ module.exports = {
         group: this.$refs.groupbyList.selectedOptions[0].textContent,
         show: Array.from(this.$refs.groupList.selectedOptions).map(el => el.textContent)
       });
-      this.hideMe();
+      this.toggle();
     }
   },
   mounted: function () {
     this.filter = JSON.parse(JSON.stringify(this.value));
   },
   template:`
-  <div :class="{ 'modal': true, 'active': show }">
-    <div class="modal-overlay"></div>
+  <div class="modal">
+    <div class="modal-overlay" @click="toggle"></div>
     <div class="modal-container">
       <div class="modal-header">Sort notes</div>
       <div class="modal-body">
@@ -68,7 +66,7 @@ module.exports = {
       </div>
       <div class="modal-footer">
         <button class="btn btn-primary" @click="updateFilter">Filter</button>
-        <button class="btn" @click="hideMe">Cancel</button>
+        <button class="btn" @click="toggle">Cancel</button>
       </div>
     </div>
   </div>

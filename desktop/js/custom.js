@@ -23,7 +23,7 @@ Vue.component("navbar", require("./vue/navbar.js"));
 Vue.component("sidebar", require("./vue/sidebar.js"));
 // Vue.component("file-item", require("./vue/file-item.js"));
 Vue.component("list-selection", require("./vue/list-selection.js"));
-Vue.component("modal-sortnote", require("./vue/modal-sortnote.js"));
+// Vue.component("modal-sortnote", require("./vue/modal-sortnote.js"));
 // Vue.component("search-bar", require("./vue/search-bar.js"));
 // Vue.component("input-header", require("./vue/input-header.js"));
 // Vue.component("input-datetime", require("./vue/input-datetime.js"));
@@ -250,40 +250,40 @@ new Vue({
     hasUnsaved: function () {
       return JSON.stringify(this.unsaved) != JSON.stringify(this.openedFile);
     },
-    sortableFields: function () { 
-      return Array.from( 
-        new Set(
-          this.stored.noteList.map(el =>  
-            Object.keys(el).filter(k => 
-              ['created', 'modified'].includes(k) || 
-              ( el[k].type && ["single", "datetime"].includes(el[k].type) )
-            ) 
-          ).reduce((acc, el) => acc.concat(el), [])
-        ) 
-      ); 
-    }, 
-    groupableFields: function () { 
-      return Array.from( 
-        new Set( 
-          this.stored.noteList.map(el =>  
-            Object.keys(el).filter(k =>  
-              el[k].type && ["tags"].includes(el[k].type) 
-            ) 
-          ).reduce((acc, el) => acc.concat(el), []) 
-        ) 
-      ); 
-    },
-    availableGroups: function () {
-      return this.groupableFields.map(field => 
-        [...Array.from(
-          new Set (
-            this.stored.noteList.map(el => 
-              el[field] ? el[field].content : []
-            ).reduce((acc, el) => acc.concat(el), [])
-          )
-        ), "-- No field or no group"]
-      );
-    },
+    // sortableFields: function () { 
+    //   return Array.from( 
+    //     new Set(
+    //       this.stored.noteList.map(el =>  
+    //         Object.keys(el).filter(k => 
+    //           ['created', 'modified'].includes(k) || 
+    //           ( el[k].type && ["single", "datetime"].includes(el[k].type) )
+    //         ) 
+    //       ).reduce((acc, el) => acc.concat(el), [])
+    //     ) 
+    //   ); 
+    // }, 
+    // groupableFields: function () { 
+    //   return Array.from( 
+    //     new Set( 
+    //       this.stored.noteList.map(el =>  
+    //         Object.keys(el).filter(k =>  
+    //           el[k].type && ["tags"].includes(el[k].type) 
+    //         ) 
+    //       ).reduce((acc, el) => acc.concat(el), []) 
+    //     ) 
+    //   ); 
+    // },
+    // availableGroups: function () {
+    //   return this.groupableFields.map(field => 
+    //     [...Array.from(
+    //       new Set (
+    //         this.stored.noteList.map(el => 
+    //           el[field] ? el[field].content : []
+    //         ).reduce((acc, el) => acc.concat(el), [])
+    //       )
+    //     ), "-- No field or no group"]
+    //   );
+    // },
     sortedNoteIdx: function () {
       let indices = [...this.stored.noteList.keys()];
       if (this.filter.sort) {
