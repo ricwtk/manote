@@ -186,7 +186,7 @@ module.exports = {
     }
   },
   template: `
-  <div class="list-container column col-4 col-md-12 panel" :id="id">
+  <div class="list-container column col-md-12 panel" :id="id">
 
     <div class="panel-header">
       <div class="panel-title navbar">

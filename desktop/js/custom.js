@@ -9,6 +9,7 @@ const fs = require("fs");
 const path = require("path");
 const localSetting = require("./js/get-local.js");
 const {shell} = require("electron");
+const Split = require("split.js");
 
 // const field = require("./vue/field.js");
 // Vue.component("field-single", field.single);
@@ -332,6 +333,8 @@ new Vue({
       this.tickedFiles = this.tickedFiles.filter(item => item !== fileId);
     },
     openFile: function (file) {
+      let initSplit = false;
+      if (!this.openedFile.id) initSplit = true;
       if (file.id == this.openedFile.id) {
         return;
       }
@@ -344,6 +347,13 @@ new Vue({
       }
       this.openedFile = file;
       this.unsaved = file.copy();
+      if (initSplit) 
+        this.$nextTick(() => Split(["#list-container", "#note-container"], {
+          sizes: [35,65],
+          minSize: [230,230],
+          gutterSize: 7,
+          snapOffset: 0
+        }));
     },
     saveOrNot: function (toSave) {
       if (toSave) {
@@ -619,12 +629,6 @@ function initApis() {
   }
 }
 
-const Split = require("split.js");
-Split(["#list-container", "#note-container"], {
-  sizes: [35,65],
-  minSize: 230,
-  gutterSize: 7
-});
 localSetting.getRecent().forEach(d => {
   openedDir.addToList(d);
 });

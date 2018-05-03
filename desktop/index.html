@@ -44,6 +44,7 @@
         
         <note-container ref="noteContainer"
           id="note-container"
+          v-if="unsaved.id"
           :opened-file="openedFile"
           :unsaved="unsaved"
           :note-location="noteLocation"
