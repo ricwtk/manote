@@ -47,9 +47,9 @@ module.exports = {
       });
       this.$emit("open-local-file", f);
     },
-    openLocalFile: function (el, f) {
+    openFile: function (el, f) {
       this.selectFileItem(el);
-      this.$emit("open-local-file", f);
+      this.$emit("open-file", f);
     },
     selectDirOfNew: function (dirOfNew) {
       this.$emit("create-local-note", dirOfNew);
@@ -71,6 +71,7 @@ module.exports = {
       });
     },
     getFileItemTitle: function (filepath) {
+      console.log(path.parse(filepath).name);
       return path.parse(filepath).name;
     },
     getFileItemSubtitle: function (filepath) {
@@ -111,9 +112,9 @@ module.exports = {
         <div class="divider"></div>
         <file-item ref="fileItems"
           :file="displayNoteList[i]"
-          :title="getFileItemTitle(displayNoteList[i])"
-          :subtitle="getFileItemSubtitle(displayNoteList[i])"
-          @click="openLocalFile"
+          :title="getFileItemTitle(displayNoteList[i].id)"
+          :subtitle="getFileItemSubtitle(displayNoteList[i].id)"
+          @click="openFile"
           @tick="checkTick"
         >
         </file-item>

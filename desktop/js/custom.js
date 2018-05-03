@@ -115,7 +115,21 @@ var noteList = {
           console.log(err);
           return;
         }
-        this.local = [...this.local, ...files.filter(f => f.endsWith(".manote")).map(f => path.join(d, f)).filter(f => !this.local.includes(f))]
+        let notes = 
+          files
+            .filter(f => f.endsWith(".manote"))
+            .map(f => path.join(d, f))
+            .filter(f => !this.local.map(el => el.id).includes(f))
+            .map(file => {
+              try {
+                let noteData = JSON.parse(fs.readFileSync(file).toString());
+                return new Note(file, noteData.created, noteData.modified, null, null, noteData);
+              } catch (e) {
+                console.log(e);
+                return [];
+              }
+            });
+        this.local = [...this.local, ...notes.filter(note => note !== [])];
       })
     });
   }
@@ -321,9 +335,8 @@ new Vue({
       console.log("remove tick", fileId);
       this.tickedFiles = this.tickedFiles.filter(item => item !== fileId);
     },
-    openFile: function (file, el) {
+    openFile: function (file) {
       if (file.id == this.openedFile.id) {
-        this.openFileUpdateUi(file, el);
         return;
       }
       if (Object.keys(this.unsaved).length > 0) {
@@ -334,41 +347,16 @@ new Vue({
           return;
         }
       }
-      this.openFileAction(file, el);
-    },
-    openLocalFile: function (file) {
-      fs.readFile(file, (err, data) => {
-        if (err) {
-          console.log(err);
-          return;
-        }
-        let noteData = JSON.parse(data.toString());
-        this.openedFile = new Note(file, noteData.created, noteData.modified, null, null, noteData);
-        this.unsaved = this.openedFile.copy();
-      })
+      this.openedFile = file;
+      this.unsaved = file.copy();
     },
     saveOrNot: function (toSave) {
       if (toSave) {
         this.saveNote();
       }
       this.showUnsavedPrompt = false;
-      this.openFileAction(this.fileToOpen, this.elToOpen);
-    },
-    openFileAction: function (file, el) {
-      console.log("opening", file.id);
       this.openedFile = file;
-      // this.unsaved = JSON.parse(JSON.stringify(file));
-      this.openFileUpdateUi(file, el);
-    },
-    openFileUpdateUi: function (file, el) {
       this.unsaved = file.copy();
-      let previousselected = this.$el.querySelector(".tile.selected")
-      if (previousselected)
-        previousselected.classList.remove("selected");
-      el.classList.add("selected");
-
-      this.$refs.listContainer.classList.add("hide-md");
-      this.$refs.noteContainer.classList.remove("hide-md");
     },
     navToList: function () {
       this.$refs.listContainer.classList.remove("hide-md");

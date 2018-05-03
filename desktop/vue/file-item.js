@@ -61,14 +61,12 @@ module.exports = {
         </label>
       </div>
       <div class="tile-content">
-        <template v-if="typeof(file)=='string'">
-          <div class="tile-title" :title="title">{{ title }}</div>
-          <div class="tile-subtitle text-gray" :title="subtitle">{{ subtitle }}</div>
-        </template>
-        <template v-else>
+        <div class="tile-title" :title="title">{{ title }}</div>
+        <div class="tile-subtitle text-gray text-ellipsis" :title="subtitle">{{ subtitle }}</div>
+        <!-- <template v-else>
           <div class="tile-title">{{ file.Title.content }}</div>
           <div class="tile-subtitle text-gray text-ellipsis">{{ file.Content.content }}</div>
-        </template>
+        </template> -->
       </div>
       <div class="tile-action handle" v-if="draggable">
         <i class="mdi mdi-menu"></i>
