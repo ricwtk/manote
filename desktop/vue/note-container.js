@@ -18,6 +18,14 @@ module.exports = {
         return false;
       }
     },
+    filename: function () {
+      if (this.noteLocation.local && this.unsaved.id) return path.parse(this.unsaved.id).name;
+      else return "";
+    },
+    dirname: function () {
+      if (this.noteLocation.local && this.unsaved.id) return path.parse(this.unsaved.id).dir;
+      else return "";
+    }
   },
   components: {
     "field-single": field.single,
@@ -62,8 +70,9 @@ module.exports = {
     <div class="panel-nav v-box">
       <div class="h-box grow v-center">
         <div class="mdi mdi-chevron-left show-md nav-to-list c-hand text-center" @click="navToList"></div>
-        <div v-if="noteLocation.local" class="text-gray grow" :title="unsaved.id" style="overflow: auto; white-space: nowrap">
-          <i class="mdi mdi-pencil c-hand" @click="$refs.modalRename.toggle()"></i> {{ unsaved.id }}
+        <div v-if="noteLocation.local" class="grow" :title="unsaved.id" style="overflow: auto; white-space: nowrap">
+          <div>{{ filename }} <i class="mdi mdi-pencil c-hand" @click="$refs.modalRename.toggle()"></i></div>
+          <div class="text-gray" style="font-size:85%">{{ dirname }}</div>
         </div>
         <div class="text-right h-box v-center">
           <div class="mdi mdi-dots-horizontal c-hand" title="More actions" @click="toggleMore"></div>
@@ -78,9 +87,9 @@ module.exports = {
         </div>
       </div>
       <div class="h-box grow v-center wrap flex-right hide" ref="moreActions">
-        <button class="btn btn-primary mx-1 my-1" @click="setDefault">Set as default</button>
-        <button class="btn btn-primary mx-1 my-1" @click="setGlobalDefault">Set as global default</button>
-        <button class="btn btn-primary mx-1 my-1" @click="archive">Archive</button>
+        <button class="btn btn-primary btn-sm mx-1 my-1" @click="setDefault">Set as default</button>
+        <button class="btn btn-primary btn-sm mx-1 my-1" @click="setGlobalDefault">Set as global default</button>
+        <button class="btn btn-primary btn-sm mx-1 my-1" @click="archive">Archive</button>
       </div>
     </div>
 
