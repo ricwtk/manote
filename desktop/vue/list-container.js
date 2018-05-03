@@ -45,7 +45,20 @@ module.exports = {
         });
         indices = [...sortable, ...unsortable];
       }
-
+      // group
+      if (this.filter.group) {
+        let groupedIdx = [];
+        this.filter.show.forEach(it => {
+          groupedIdx = [...groupedIdx, it];
+          if (it == "-- No field or no group") {
+            groupedIdx = [...groupedIdx, ...indices.filter(i => !this.displayNoteList[i][this.filter.group] || this.displayNoteList[i][this.filter.group].content.length == 0)];
+          } else {
+            groupedIdx = [...groupedIdx, ...indices.filter(i => this.displayNoteList[i][this.filter.group] && this.displayNoteList[i][this.filter.group].content.includes(it))];
+          }
+        });
+        indices = groupedIdx;
+      }
+      console.log(indices);
       return indices;
     },
     sortableFields: function () { 
@@ -176,17 +189,21 @@ module.exports = {
           Click <i class="mdi mdi-plus"></i> to add note
         </div>
       </template>
-      <template v-else v-for="i in sortedNoteIdx">
-        <div class="divider"></div>
-        <file-item ref="fileItems"
-          :file="displayNoteList[i]"
-          :title="getFileItemTitle(displayNoteList[i].id)"
-          :subtitle="getFileItemSubtitle(displayNoteList[i].id)"
-          @click="openFile"
-          @tick="checkTick"
-        >
-        </file-item>
+      <template v-else v-for="v,i in sortedNoteIdx">
+        <div v-if="typeof(v) == 'string'" class="divider" :data-content="v"></div>
+        <template v-else>
+          <div class="divider" v-if="i == 0 || typeof(sortedNoteIdx[i-1]) !== 'string'"></div>
+          <file-item ref="fileItems"
+            :file="displayNoteList[v]"
+            :title="getFileItemTitle(displayNoteList[v].id)"
+            :subtitle="getFileItemSubtitle(displayNoteList[v].id)"
+            @click="openFile"
+            @tick="checkTick"
+          >
+          </file-item>
+        </template>
       </template>
+      <div class="divider"></div>
     </div>
 
     <div class="panel-footer navbar" v-if="hasTick">
