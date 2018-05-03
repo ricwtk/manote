@@ -240,7 +240,8 @@ new Vue({
     openedDir: openedDir,
     ddTitle: "",
     ddLocation: "",
-    ddFormat: {}
+    ddFormat: {},
+    splitInst: null
   },
   computed: {
     displayNoteList: function () {
@@ -333,8 +334,6 @@ new Vue({
       this.tickedFiles = this.tickedFiles.filter(item => item !== fileId);
     },
     openFile: function (file) {
-      let initSplit = false;
-      if (!this.openedFile.id) initSplit = true;
       if (file.id == this.openedFile.id) {
         return;
       }
@@ -347,13 +346,15 @@ new Vue({
       }
       this.openedFile = file;
       this.unsaved = file.copy();
-      if (initSplit) 
-        this.$nextTick(() => Split(["#list-container", "#note-container"], {
-          sizes: [35,65],
-          minSize: [230,230],
-          gutterSize: 7,
-          snapOffset: 0
-        }));
+      if (!this.splitInst) 
+        this.$nextTick(() => {
+          this.splitInst = Split(["#list-container", "#note-container"], {
+            sizes: [35,65],
+            minSize: [230,230],
+            gutterSize: 7,
+            snapOffset: 0
+          });
+        });
     },
     saveOrNot: function (toSave) {
       if (toSave) {
@@ -519,12 +520,20 @@ new Vue({
           this.noteList.local.splice(this.noteList.local.findIndex(el => el.id == filepath), 1);
           this.$set(this, "unsaved", {});
           this.$set(this, "openedFile", {});
+          this.splitInst.destroy();
+          this.splitInst = null;
         }).catch(err => {
           rs.destroy();
           ws.end();
           throw err;
         })
       });
+    },
+    closeNote: function () {
+      this.$set(this, "unsaved", {});
+      this.$set(this, "openedFile", {});
+      this.splitInst.destroy();
+      this.splitInst = null;
     },
     getFormat: function () {
       let defaultFormat = this.openedFile.copy();

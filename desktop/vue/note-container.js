@@ -72,6 +72,9 @@ module.exports = {
     },
     archive: function () {
       this.$emit("archive", this.unsaved.id);
+    },
+    closeNote: function () {
+      this.$emit("close-note");
     }
   },
   template: `
@@ -86,13 +89,17 @@ module.exports = {
         <div class="text-right h-box v-center">
           <div class="mdi mdi-dots-horizontal c-hand" title="More actions" @click="toggleMore"></div>
           <div class="mx-1"></div>
-          <div class="form-group v-center">
-            <label class="form-switch">
+          <div class="form-group v-center" style="margin-bottom: 0">
+            <i class="mdi mdi-eye" @click="viewEdit = false"></i>
+            <div class="mx-1"></div>
+            <label class="form-switch" style="padding-right: 0; margin-bottom: .4rem">
               <input type="checkbox" v-model="viewEdit">
               <i class="form-icon"></i>
-              <i class="mdi mdi-pencil"></i>
             </label>
+            <i class="mdi mdi-pencil" @click="viewEdit = true"></i>
           </div>
+          <div class="mx-1"></div>
+          <div class="mdi mdi-close c-hand" title="close note panel" @click="closeNote"></div>
         </div>
       </div>
       <div class="h-box grow v-center wrap flex-right hide" ref="moreActions">
