@@ -32,18 +32,30 @@ module.exports = {
       indices = indices.filter(i => this.searchQuery.split(" ").some(el => strForSearch[i].indexOf(el.toLowerCase()) > -1));
       // arrange sort
       if (this.filter.sort) {
-        let sortable = indices.filter(v => this.displayNoteList[v].hasOwnProperty(this.filter.sort));
-        let unsortable = indices.filter(v => !this.displayNoteList[v].hasOwnProperty(this.filter.sort));
-        sortable.sort((a,b) => {
-          let itemA = this.displayNoteList[a][this.filter.sort];
-          let itemB = this.displayNoteList[b][this.filter.sort];
-          itemA = itemA.type ? itemA.content : itemA;
-          itemB = itemB.type ? itemB.content : itemB;
-          if (itemA < itemB) return -1;
-          else if (itemA > itemB) return 1;
-          else return 0;
-        });
-        indices = [...sortable, ...unsortable];
+        if (["File name", "Directory name"].includes(this.filter.sort)) {
+          indices.sort((a,b) => {
+            let itemA = path.parse(this.displayNoteList[a].id);
+            let itemB = path.parse(this.displayNoteList[b].id);
+            itemA = this.filter.sort == "File name" ? itemA.name : itemA.dir;
+            itemB = this.filter.sort == "File name" ? itemB.name : itemB.dir;
+            if (itemA < itemB) return -1;
+            else if (itemA > itemB) return 1;
+            else return 0;
+          });
+        } else {
+          let sortable = indices.filter(v => this.displayNoteList[v].hasOwnProperty(this.filter.sort));
+          let unsortable = indices.filter(v => !this.displayNoteList[v].hasOwnProperty(this.filter.sort));
+          sortable.sort((a,b) => {
+            let itemA = this.displayNoteList[a][this.filter.sort];
+            let itemB = this.displayNoteList[b][this.filter.sort];
+            itemA = itemA.type ? itemA.content : itemA;
+            itemB = itemB.type ? itemB.content : itemB;
+            if (itemA < itemB) return -1;
+            else if (itemA > itemB) return 1;
+            else return 0;
+          });
+          indices = [...sortable, ...unsortable];
+        }
       }
       // group
       if (this.filter.group) {
@@ -52,6 +64,8 @@ module.exports = {
           groupedIdx = [...groupedIdx, it];
           if (it == "-- No field or no group") {
             groupedIdx = [...groupedIdx, ...indices.filter(i => !this.displayNoteList[i][this.filter.group] || this.displayNoteList[i][this.filter.group].content.length == 0)];
+          } else if (this.filter.group == "Directory") {
+            groupedIdx = [...groupedIdx, ...indices.filter(i => path.parse(this.displayNoteList[i].id).dir == it)];
           } else {
             groupedIdx = [...groupedIdx, ...indices.filter(i => this.displayNoteList[i][this.filter.group] && this.displayNoteList[i][this.filter.group].content.includes(it))];
           }
@@ -63,36 +77,52 @@ module.exports = {
     sortableFields: function () { 
       return Array.from( 
         new Set(
-          this.displayNoteList.map(el =>  
-            Object.keys(el).filter(k => 
-              ['created', 'modified'].includes(k) || 
-              ( el[k].type && ["single", "datetime"].includes(el[k].type) )
-            ) 
-          ).reduce((acc, el) => acc.concat(el), [])
+          [ 
+            ...this.noteLocation.local ? ["File name", "Directory name"] : [],
+            ...this.displayNoteList.map(el =>  
+              Object.keys(el).filter(k => 
+                ['created', 'modified'].includes(k) || 
+                ( el[k].type && ["single", "datetime"].includes(el[k].type) )
+              ) 
+            ).reduce((acc, el) => acc.concat(el), []) 
+          ]
         ) 
       ); 
     }, 
     groupableFields: function () { 
       return Array.from( 
         new Set( 
-          this.displayNoteList.map(el =>  
-            Object.keys(el).filter(k =>  
-              el[k].type && ["tags"].includes(el[k].type) 
-            ) 
-          ).reduce((acc, el) => acc.concat(el), []) 
+          [
+            ...this.noteLocation.local ? ["Directory"] : [],
+            ...this.displayNoteList.map(el =>  
+              Object.keys(el).filter(k =>  
+                el[k].type && ["tags"].includes(el[k].type) 
+              ) 
+            ).reduce((acc, el) => acc.concat(el), []) 
+          ]
         ) 
       ); 
     },
     availableGroups: function () {
-      return this.groupableFields.map(field => 
-        [...Array.from(
-          new Set (
-            this.displayNoteList.map(el => 
-              el[field] ? el[field].content : []
-            ).reduce((acc, el) => acc.concat(el), [])
-          )
-        ), "-- No field or no group"]
-      );
+      return this.groupableFields.map(field => {
+        if (field == "Directory") {
+          return Array.from(
+            new Set ( 
+              this.displayNoteList.map( el => 
+                path.parse(el.id).dir
+              ) 
+            )
+          );
+        } else {
+          return [...Array.from(
+            new Set (
+              this.displayNoteList.map(el => 
+                el[field] ? el[field].content : []
+              ).reduce((acc, el) => acc.concat(el), [])
+            )
+          ), "-- No field or no group"];
+        }
+      });
     },
   },
   components: {
@@ -164,20 +194,20 @@ module.exports = {
           <div :class="['mdi', 'mdi-24px', ...(filter.sort || filter.group) ? ['mdi-filter', 'text-primary'] : ['mdi-filter-outline']]" 
             @click="$refs.sortNoteUi.toggle()"
           ></div>
-          <div v-if="filter.sort || filter.group" class="mdi mdi-24px mdi-filter-remove-outline" @click="resetFilter"></div>
           <search-bar v-model="searchQuery"></search-bar>
         </div>
         <div class="my-button c-hand mdi mdi-24px mdi-plus" @click="addNewNote"></div>
       </div>
-      <div class="bg-primary my-1 sort-group-display" v-if="filter.sort || filter.group">
-        <span v-if="filter.sort" class="text-center">
+      <div class="bg-primary my-1 h-box" v-if="filter.sort || filter.group" @click="$refs.sortNoteUi.toggle()" style="font-size: 85%">
+        <span class="grow no-basis" :title="filter.sort ? 'sort by ' + filter.sort : null">
           <span class="mdi mdi-sort mx-1"></span>
-          {{ filter.sort }}
+          {{ filter.sort ? filter.sort : "--" }}
         </span>
-        <span v-if="filter.group" class="text-center">
+        <span class="grow no-basis" :title="filter.group ? 'group by ' + filter.group : null">
           <span class="mdi mdi-group mx-1"></span>
-          {{ filter.group }}
+          {{ filter.group ? filter.group : "--" }}
         </span>
+        <span class="mdi mdi-filter-remove-outline mx-1" @click.stop="resetFilter" title="remove filters"></span>
       </div>
     </div>
 

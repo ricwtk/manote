@@ -128,6 +128,10 @@ body, .body {
   flex-grow: 1;
 }
 
+.no-basis {
+  flex-basis: 0;
+}
+
 .v-center {
   display: flex;
   align-items: center;
@@ -348,14 +352,6 @@ textarea {
 }
 
 .search-bar.form-input input {
-  flex-grow: 1;
-}
-
-.sort-group-display {
-  display: flex;
-}
-
-.sort-group-display > * {
   flex-grow: 1;
 }
 
