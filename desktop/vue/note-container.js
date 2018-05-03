@@ -1,13 +1,20 @@
 const path = require("path");
 const {mdconverter} = require(path.join(__dirname, "..", "js", "md.js"));
 const field = require(path.join(__dirname, "field.js"));
+const newFieldsDefault = {
+  order: ["New Field"],
+  "New Field": {
+    type: "single"
+  }
+};
 
 module.exports = {
   props: ["openedFile", "unsaved", "id", "noteLocation"],
   data: function () {
     return {
       mdconverter: mdconverter,
-      viewEdit: false
+      viewEdit: false,
+      newFields: newFieldsDefault
     }
   },
   computed: {
@@ -34,7 +41,8 @@ module.exports = {
     "field-tags": field.tags,
     "modal-newfield": require(path.join(__dirname, "modal-newfield.js")),
     "modal-sortfields": require(path.join(__dirname, "modal-sortfields.js")),
-    "modal-rename": require(path.join(__dirname, "modal-rename.js"))
+    "modal-rename": require(path.join(__dirname, "modal-rename.js")),
+    "fields-display": require(path.join(__dirname, "fields-display.js"))
   },
   methods: {
     toggleMore: function () {
@@ -52,8 +60,9 @@ module.exports = {
     discardUnsaved: function () {
       this.$emit("discard-unsaved");
     },
-    addNewField: function (newName, fieldType) {
-      this.$emit("add-new-field", newName, fieldType);
+    addNewFields: function () {
+      this.$emit("add-new-fields", this.newFields);
+      this.newFields = newFieldsDefault;
     },
     setDefault: function () {
       this.$emit("set-default");
@@ -108,7 +117,7 @@ module.exports = {
       <div v-if="viewEdit" class="navbar">
         <div class="navbar-section tile tile-centered mt-2 tooltip tooltip-top" 
           data-tooltip="Add new field"
-          @click="$refs.modalNewField.toggle()" 
+          @click="$refs.newFieldUi.toggle()" 
           v-if="Object.keys(unsaved).length > 0">
           <div class="tile-content text-center">
             <div class="mdi mdi-24px mdi-plus"></div>
@@ -137,11 +146,12 @@ module.exports = {
       </div>
     </div>
 
-
-    <modal-newfield ref="modalNewField"
-      :existed-fields="Object.keys(unsaved)"
-      @new-field="addNewField"
-    ></modal-newfield>
+    <fields-display ref="newFieldUi"
+      v-model="newFields"
+      title="Add new field(s)"
+      :exceptions="unsaved.order"
+      @input="addNewFields"
+    ></fields-display>
     
     <modal-sortfields ref="modalSortFields" v-if="unsaved.order" v-model="unsaved.order"></modal-sortfields>
 

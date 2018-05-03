@@ -34,7 +34,7 @@ Vue.component("modal-loading", require("./vue/modal-loading.js"));
 Vue.component("modal-unsavedprompt", require("./vue/modal-unsavedprompt.js"));
 Vue.component("md-guide", require("./vue/md-guide.js"));
 Vue.component("directory-chooser", require("./vue/directory-chooser.js"));
-Vue.component("default-display", require("./vue/default-display.js"));
+Vue.component("fields-display", require("./vue/fields-display.js"));
 
 const separator = "\n" + "-".repeat(10) + "0qp4BCBHLoHfkIi6N1hgeXNaZg20BB0sNZ4k8tE6eWKmTa1CkE" + "-".repeat(10) + "\n\n";
 var currentUser = {
@@ -422,8 +422,10 @@ new Vue({
     changeDateTime(ev, name) {
       console.log(ev.target.value, name);
     },
-    addNewField: function (newName, fieldType) {
-      this.unsaved.addNewField(newName, fieldType);
+    addNewFields: function (newFields) {
+      newFields.order.forEach(el => {
+        this.unsaved.addNewField(el, newFields[el].type);
+      });
     },
     removeField: function (name) {
       this.unsaved.removeField(name);

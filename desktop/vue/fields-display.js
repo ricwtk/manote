@@ -1,7 +1,7 @@
 const {Note} = require("../js/note.js");
 
 module.exports = {
-  props: ["value", "title", "location"],
+  props: ["value", "title", "subtitle", "exceptions"],
   data: function () {
     return {
       fieldList: []
@@ -19,7 +19,12 @@ module.exports = {
       this.fieldList.splice(idx, 1);
     },
     isDuplicated: function (name) {
-      return this.fieldList.filter(el => el.name == name).length > 1;
+      let exc = ["id", "created", "modified"];
+      if (this.exceptions && Array.isArray(this.exceptions)) {
+        exc = Array.from(new Set([...exc, ...this.exceptions]));
+      }
+      exc = exc.map(el => { return { name: el }});
+      return [...exc, ...this.fieldList].filter(el => el.name == name).length > 1;
     },
     isEmpty: function (name) {
       return name == "";
@@ -58,9 +63,10 @@ module.exports = {
     <div class="modal-container">
       <div class="modal-header">
         <div class="modal-title">{{ title }}</div>
-        <div class="modal-subtitle text-gray">{{ location }}</div>
+        <div class="modal-subtitle text-gray">{{ subtitle }}</div>
       </div>
       <div class="modal-body">
+        <div class="modal-subtitle text-gray">"id", "created", and "modified" are also not allowed</div>
         <div class="h-box default-list my-2" v-for="f,i in fieldList" :data-index="i"
           draggable="true"
           @dragstart="dragstart"

@@ -47,7 +47,7 @@
           :opened-file="openedFile"
           :unsaved="unsaved"
           :note-location="noteLocation"
-          @add-new-field="addNewField"
+          @add-new-fields="addNewFields"
           @save-note="saveNote"
           @discard-unsaved="discardUnsaved"
           @rename="renameOpenedFile"
@@ -80,12 +80,12 @@
       ></list-selection>
           
 
-      <default-display ref="defaultDisplay"
+      <fields-display ref="defaultDisplay"
         v-model="ddFormat"
         :title="ddTitle"
-        :location="ddLocation"
+        :subtitle="ddLocation"
         @input="saveDefault"
-      ></default-display>
+      ></fields-display>
         
       <md-guide ref="markdownGuide"></md-guide>
       
