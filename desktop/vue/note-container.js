@@ -102,6 +102,7 @@ module.exports = {
         :editable="viewEdit"
         :displayValue="['single', 'multiple'].includes(unsaved[key].type) ? mdconverter.makeHtml(unsaved[key].content) : unsaved[key].content"
         :height="unsaved[key].height ? unsaved[key].height : 'auto'"
+        @remove="unsaved.removeField(key)"
       ></component>
 
       <div v-if="viewEdit" class="navbar">
