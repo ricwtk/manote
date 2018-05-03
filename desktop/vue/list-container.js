@@ -58,7 +58,6 @@ module.exports = {
         });
         indices = groupedIdx;
       }
-      console.log(indices);
       return indices;
     },
     sortableFields: function () { 

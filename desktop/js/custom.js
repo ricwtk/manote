@@ -484,11 +484,10 @@ new Vue({
     renameOpenedFile: function (newName) {
       fs.rename(this.openedFile.id, newName, (err) => {
         if (err) throw err;
-        this.noteList.local.splice(this.noteList.local.indexOf(this.openedFile.id), 1, newName);
+        this.noteList.local.find(el => el.id == this.openedFile.id).id = newName;
         this.$set(this.openedFile, "id", newName);
         this.$set(this.unsaved, "id", newName);
       });
-
     },
     archive: function (filepath) {
       let archiveFolder = path.join(path.dirname(filepath), ".manote.archive");
@@ -511,7 +510,7 @@ new Vue({
             });
           })
         }).then(() => {
-          this.noteList.local.splice(this.noteList.local.indexOf(filepath), 1);
+          this.noteList.local.splice(this.noteList.local.findIndex(el => el.id == filepath), 1);
           this.$set(this, "unsaved", {});
           this.$set(this, "openedFile", {});
         }).catch(err => {
