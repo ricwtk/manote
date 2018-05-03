@@ -3,6 +3,9 @@ module.exports = {
   methods: {
     toggleSidebar: function () {
       this.$emit("toggle-sidebar");
+    },
+    reload: function () {
+      this.$emit("reload");
     }
   },
   template: `
@@ -18,6 +21,7 @@ module.exports = {
 
     <div class="navbar-section mx-2">
       <span class="mdi mdi-24px mdi-spin mdi-loading text-warning" v-show="stat.running"></span>
+      <span class="mdi mdi-24px mdi-reload c-hand" @click="reload"></span>
     </div>
   </div>
   `
