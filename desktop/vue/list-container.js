@@ -20,7 +20,15 @@ module.exports = {
     },
     sortedNoteIdx: function () {
       let indices = [...this.displayNoteList.keys()];
-      return indices;
+      let strForSearch = indices.map(i => 
+        [
+          this.displayNoteList[i].id, 
+          ...Object.keys(this.displayNoteList[i])
+            .filter(k => this.displayNoteList[i][k].type)
+            .map(k => k + " " + this.displayNoteList[i][k].content)
+        ].join(" ").toLowerCase()
+      );
+      return indices.filter(i => this.searchQuery.split(" ").some(el => strForSearch[i].indexOf(el.toLowerCase()) > -1));
     },
   },
   components: {
@@ -71,7 +79,6 @@ module.exports = {
       });
     },
     getFileItemTitle: function (filepath) {
-      console.log(path.parse(filepath).name);
       return path.parse(filepath).name;
     },
     getFileItemSubtitle: function (filepath) {

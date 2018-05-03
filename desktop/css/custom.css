@@ -247,11 +247,17 @@ textarea {
 }
 
 .invisible-form-input {
-  appearance: none;
   -moz-appearance: none;
   -webkit-appearance: none;
   border: 0px;
   background: rgba(255,255,255,0);
+  font-family: inherit;
+  font-size: inherit;
+  color: inherit;
+}
+
+.invisible-form-input:focus {
+  outline: none;
 }
 
 .two-digits {
