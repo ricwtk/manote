@@ -73,7 +73,20 @@ function getDefault(folderPath) {
   } else if (fs.existsSync(globalDefault)) {
     return getGlobalDefault();
   } else {
-    return {};
+    return {
+      "Title": {
+        type: "single",
+        content: ""
+      },
+      "Content": {
+        type: "multiple",
+        content: ""
+      },
+      "Categories": {
+        type: "tags",
+        content: []
+      }
+    };
   }
 }
 

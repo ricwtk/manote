@@ -24,7 +24,7 @@ class Field {
 }
 
 class Note {
-  constructor(id, createdOn, modifiedOn, Title, Content, others) {
+  constructor(id, createdOn, modifiedOn, others) {
     this.id = id;
     this.created = createdOn ? new Date(createdOn) : new Date();
     this.modified = modifiedOn ? new Date(modifiedOn) : this.created;
@@ -32,9 +32,9 @@ class Note {
       this.order = others.order ? others.order.slice() : [];
     else
       this.order = [];
-    this.addNewField("Title", "single", Title ? Title : "Untitled");
-    this.addNewField("Content", "multiple", Content ? Content : "");
-    this.addNewField("Categories", "tags");
+    // this.addNewField("Title", "single", Title ? Title : "Untitled");
+    // this.addNewField("Content", "multiple", Content ? Content : "");
+    // this.addNewField("Categories", "tags");
     if (others) {
       Object.keys(others).forEach((el) => {
         if (others[el] && others[el].type) this.addNewField(el, others[el].type, others[el].content, others[el].height);
@@ -78,7 +78,7 @@ class Note {
   }
 
   copy() {
-    return new Note(this.id, this.created, this.modified, null, null, this);
+    return new Note(this.id, this.created, this.modified, this);
   }
 
   updateFrom(anotherNote) {
@@ -113,9 +113,6 @@ class Note {
     let note = new Note("default");
     ["id", "created", "modified"].forEach(key => {
       note[key] = "";
-    });
-    ["Title", "Content", "Categories"].forEach(key => {
-      note.removeField(key);
     });
     fields.forEach(f => {
       note.addNewField(f.name, f.type);

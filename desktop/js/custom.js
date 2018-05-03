@@ -123,7 +123,7 @@ var noteList = {
             .map(file => {
               try {
                 let noteData = JSON.parse(fs.readFileSync(file).toString());
-                return new Note(file, noteData.created, noteData.modified, null, null, noteData);
+                return new Note(file, noteData.created, noteData.modified, noteData);
               } catch (e) {
                 console.log(e);
                 return [];
@@ -381,7 +381,7 @@ new Vue({
         i += 1;
       }
       newFile = newFile + i + ".manote";
-      (new Note(newFile, null, null, null, null, localSetting.getDefault(dirOfNew))).saveToFile(newFile);
+      (new Note(newFile, null, null, localSetting.getDefault(dirOfNew))).saveToFile(newFile);
       noteList.updateLocal();
       this.$nextTick(() => {
         this.$nextTick(() => {
@@ -574,8 +574,8 @@ new Vue({
 
 function updateList(notes) {
   stored.noteList = 
-    notes.map(el => new Note(el.id, el.created, el.modified, null, null, el)).concat(
-      stored.noteList.filter(el => !notes.map(nt => nt.id).includes(el.id)).map(el => new Note(el.id, el.created, el.modified, null, null, el))
+    notes.map(el => new Note(el.id, el.created, el.modified, el)).concat(
+      stored.noteList.filter(el => !notes.map(nt => nt.id).includes(el.id)).map(el => new Note(el.id, el.created, el.modified, el))
     )
 }
 
