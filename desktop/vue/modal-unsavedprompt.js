@@ -1,15 +1,19 @@
 module.exports = {
-  props: ["show"],
   methods: {
+    toggle: function () {
+      this.$el.classList.toggle("active");
+    },
     save: function () {
       this.$emit("to-save", true);
+      this.toggle();
     },
     notsave: function () {
       this.$emit("to-save", false);
+      this.toggle();
     }
   },
   template: `
-  <div :class="['modal', 'modal-sm', show ? 'active' : '']">
+  <div class="modal modal-sm">
     <div class="modal-overlay"></div>
     <div class="modal-container">
       <div class="modal-body">

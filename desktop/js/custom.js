@@ -230,7 +230,6 @@ new Vue({
     fileToOpen: {},
     elToOpen: null,
     unsaved: {},
-    showUnsavedPrompt: false,
     viewEdit: false,
     fieldnameError: "",
     mdconverter: mdconverter,
@@ -324,9 +323,6 @@ new Vue({
     setRemote: function () {
       this.noteLocation.setRemote();
     },
-    // getGroups: function (field) {
-    //   this.availableGroups = this.stored.noteList.map(el => el[field] ? el[field].content: []).reduce((acc, el) => acc.concat(el), []);
-    // }, 
     addTick: function (fileId) {
       console.log("ticking", fileId);
       this.tickedFiles.push(fileId);
@@ -341,9 +337,8 @@ new Vue({
       }
       if (Object.keys(this.unsaved).length > 0) {
         if (this.hasUnsaved) {
-          this.showUnsavedPrompt = true;
+          this.$refs.modalUnsavedPrompt.toggle();
           this.fileToOpen = file;
-          this.elToOpen = el;
           return;
         }
       }
@@ -354,9 +349,8 @@ new Vue({
       if (toSave) {
         this.saveNote();
       }
-      this.showUnsavedPrompt = false;
-      this.openedFile = file;
-      this.unsaved = file.copy();
+      this.openedFile = this.fileToOpen;
+      this.unsaved = this.fileToOpen.copy();
     },
     navToList: function () {
       this.$refs.listContainer.classList.remove("hide-md");
