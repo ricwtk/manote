@@ -199,11 +199,11 @@ module.exports = {
         <div class="my-button c-hand mdi mdi-24px mdi-plus" @click="addNewNote"></div>
       </div>
       <div class="bg-primary my-1 h-box" v-if="filter.sort || filter.group" @click="$refs.sortNoteUi.toggle()" style="font-size: 85%">
-        <span class="grow no-basis" :title="filter.sort ? 'sort by ' + filter.sort : null">
+        <span class="grow no-basis no-break" :title="filter.sort ? 'sort by ' + filter.sort : null">
           <span class="mdi mdi-sort mx-1"></span>
           {{ filter.sort ? filter.sort : "--" }}
         </span>
-        <span class="grow no-basis" :title="filter.group ? 'group by ' + filter.group : null">
+        <span class="grow no-basis no-break" :title="filter.group ? 'group by ' + filter.group : null">
           <span class="mdi mdi-group mx-1"></span>
           {{ filter.group ? filter.group : "--" }}
         </span>

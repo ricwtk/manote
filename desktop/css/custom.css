@@ -132,6 +132,10 @@ body, .body {
   flex-basis: 0;
 }
 
+.no-break {
+  white-space: nowrap;
+}
+
 .v-center {
   display: flex;
   align-items: center;
