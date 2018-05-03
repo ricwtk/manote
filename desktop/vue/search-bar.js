@@ -25,7 +25,7 @@ module.exports = {
   <div :class="{ 'form-input': !hidden, 'search-bar': true }">
     <span :class="{ 'mdi': true, 'mdi-magnify': true, 'form-icon': !hidden, 'mdi-24px': true }" @click="show"></span>
     <input ref="searchBox" v-show="!hidden" type="text" class="invisible-form-input" @click.stop :value="value" @input="update">
-    <span v-show="!hidden" class="form-icon mdi mdi-close tooltip tooltip-bottom" data-tooltip="clear search entry" @click="hide"></span>
+    <span v-show="!hidden" class="form-icon mdi mdi-close" title="clear search entry" @click="hide"></span>
   </div>
   `
 }

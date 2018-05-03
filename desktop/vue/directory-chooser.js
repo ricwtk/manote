@@ -92,7 +92,7 @@ module.exports = {
     <div class="modal-overlay" @click="toggle"></div>
     <div class="modal-container bg-dark">
       <div class="modal-header" style="display: flex; border-bottom: 1px solid">
-        <span class="mdi mdi-24px mdi-arrow-up-bold c-hand" data-tooltip="Go up one directory" data-tooltip-position="bottom" @click="upDir"></span>
+        <span class="mdi mdi-24px mdi-arrow-up-bold c-hand" title="Go up one directory" @click="upDir"></span>
         <div class="modal-title grow" style="display: flex; align-items: center; margin-left: 1em">
           <span class="label c-hand" v-if="pathArray.length > 3" @click="removeAndSetPath(3)">
             ...
