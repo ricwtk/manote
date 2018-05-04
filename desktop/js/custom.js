@@ -450,9 +450,10 @@ new Vue({
       });
     },
     deleteLocalNotes: function (notes) {
+      this.stat.running = true;
       Promise.all(notes.map(note => {
         return new Promise((resolve, reject) => {
-          fs.unlink(note, err => { 
+          fs.unlink(note.id, err => { 
             if (err) reject(err); 
             resolve();
           });
@@ -460,6 +461,7 @@ new Vue({
       })).then(() => {
         noteList.updateLocal();
         this.$refs.listContainer.discardSelection();
+        this.stat.running = false;
       });
     },
     deleteNotes: function () {
