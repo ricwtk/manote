@@ -293,6 +293,7 @@ textarea {
 
 .display-input {
   min-height: 2em;
+  overflow: overlay;
 }
 
 .display-input:empty {
