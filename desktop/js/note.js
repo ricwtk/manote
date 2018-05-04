@@ -46,24 +46,17 @@ class Note {
     }
   }
 
-  updateField(name, content, height) {
+  updateField(name, type, content, height) {
     if (!this[name]) return null;
     if (content == undefined) {
-      console.error("content must be specified in Note.updateField(name, content, height)");
+      console.error("content must be specified in Note.updateField(name, type, content, height)");
     }
-    switch (this[name].type) {
-      default:
-        this[name].content = content;
-        break;
-      case "multiple":
-        this[name].content = content;
-        if (height) {
-          Vue.set(this[name], "height", height);
-        }
-        break;
-      case "tags":
-        this[name].content = [ ...Array.isArray(content) ? content : [ content ] ];
-        break;
+    this[name].type = type;
+    this[name].content = content;
+    if (this[name].type == "multiple") {
+      Vue.set(this[name], "height", height ? height : "auto");
+    } else {
+      Vue.delete(this[name], "height");
     }
   }
 
@@ -87,7 +80,7 @@ class Note {
         if (!this[aNkey]) {
           this.addNewField(aNkey, anotherNote[aNkey].type, anotherNote[aNkey].content, anotherNote[aNkey].height);
         } else if (JSON.stringify(this[aNkey]) != JSON.stringify(anotherNote[aNkey])) {
-          this.updateField(aNkey, anotherNote[aNkey].content, anotherNote[aNkey].height);
+          this.updateField(aNkey, anotherNote[aNkey].type, anotherNote[aNkey].content, anotherNote[aNkey].height);
         }
       }
     });
