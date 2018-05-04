@@ -151,6 +151,9 @@ module.exports = {
         this.$refs.dirOfNew.toggle();
       }
     },
+    unselectAllItems: function () {
+      this.$refs.fileItems.forEach(fi => { fi.clearSelect() });
+    },
     selectFileItem: function (el) {
       this.$refs.fileItems.forEach(fi => {
         if (fi.$el == el) fi.setSelect();
@@ -180,6 +183,7 @@ module.exports = {
     },
     discardSelection: function () {
       this.$refs.fileItems.forEach(fi => { fi.isTicked = false; });
+      this.checkTick();
     },
     archiveNotes: function () {
       if (this.noteLocation.local) {

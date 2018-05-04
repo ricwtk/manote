@@ -413,8 +413,15 @@ new Vue({
           });
         });
       })).then(() => {
-        noteList.updateLocal();
+        notes.forEach(note => {
+          this.noteList.local.splice(this.noteList.local.findIndex(el => el.id == note.id), 1);
+        });
         this.$refs.listContainer.discardSelection();
+        if (this.noteList.local.map(n => n.id).includes(this.openedFile.id)) {
+          this.$nextTick(() => { this.$refs.listContainer.selectFile(this.openedFile.id) });
+        } else {
+          this.closeNote();
+        }
         this.stat.running = false;
       });
     },
@@ -509,10 +516,17 @@ new Vue({
       this.stat.running = true;
       Promise.all(notes.map(note => 
         localSetting.archive(note.id)
-      )).then(() => {  
-        this.noteList.updateLocal();
+      )).then(() => {
+        notes.forEach(note => {
+          this.noteList.local.splice(this.noteList.local.findIndex(el => el.id == note.id), 1);
+        });
+        this.noteList.updateLocalArchive();
         this.$refs.listContainer.discardSelection();
-        this.closeNote();
+        if (this.noteList.local.map(n => n.id).includes(this.openedFile.id)) {
+          this.$nextTick(() => { this.$refs.listContainer.selectFile(this.openedFile.id) });
+        } else {
+          this.closeNote();
+        }
         this.stat.running = false;
       });
     },
@@ -525,7 +539,10 @@ new Vue({
     },
     closeNote: function () {
       if (this.$refs.noteContainer) this.$refs.noteContainer.hide();
-      if (this.$refs.listContainer) this.$refs.listContainer.show();
+      if (this.$refs.listContainer) {
+        this.$refs.listContainer.show();
+        this.$refs.listContainer.unselectAllItems();
+      }
       this.$set(this, "unsaved", {});
       this.$set(this, "openedFile", {});
       if (this.splitInst) {
