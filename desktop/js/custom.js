@@ -562,6 +562,20 @@ new Vue({
           this.splitInst = null;
         });
     },
+    archiveLocalNotes: function (notes) {
+      Promise.all(notes.map(note => 
+        localSetting.archive(note.id)
+      )).then(() => {  
+        this.noteList.updateLocal();
+        this.$refs.listContainer.discardSelection();
+        this.$set(this, "unsaved", {});
+        this.$set(this, "openedFile", {});
+        if (this.splitInst) {
+          this.splitInst.destroy();
+          this.splitInst = null;
+        }
+      });
+    },
     unarchive: function (f) {
       localSetting.unarchive(f)
         .then((newFile) => {

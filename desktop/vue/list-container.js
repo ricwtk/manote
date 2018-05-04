@@ -172,6 +172,11 @@ module.exports = {
     discardSelection: function () {
       this.$refs.fileItems.forEach(fi => { fi.isTicked = false; });
     },
+    archiveNotes: function () {
+      if (this.noteLocation.local) {
+        this.$emit("archive-local-notes", this.$refs.fileItems.filter(fi => fi.isTicked).map(fi => fi.file));
+      }
+    },
     deleteNotes: function () {
       if (this.noteLocation.local) {
         this.$emit("delete-local-notes", this.$refs.fileItems.filter(fi => fi.isTicked).map(fi => fi.file));
@@ -243,6 +248,7 @@ module.exports = {
       <div class="navbar-section">
         <button class="btn" @click="discardSelection">Discard selection</button>
       </div>
+      <button class="btn ml-1" @click="archiveNotes">Archive</button>
       <button class="btn ml-1" @click="deleteNotes">Delete</button>
     </div>
 
