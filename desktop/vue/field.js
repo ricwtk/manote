@@ -73,7 +73,7 @@ let _multiple = {
     },
     resize: function (ev) {
       this.$emit("resize", window.getComputedStyle(ev.target).height);
-    }
+    },
   },
   template: `
   <div>
@@ -94,7 +94,7 @@ let _multiple = {
         @input="updateValue"
       ></textarea>
       <div class="text-right">
-        <button class="btn btn-primary btn-sm" @click="height='auto'">
+        <button class="btn btn-primary btn-sm" @click="$emit('resize', 'auto')">
           <i class="mdi mdi-arrow-expand-vertical"></i>
           Reset height
         </button>
