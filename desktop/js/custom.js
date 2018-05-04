@@ -35,6 +35,7 @@ Vue.component("md-guide", require("./vue/md-guide.js"));
 Vue.component("directory-chooser", require("./vue/directory-chooser.js"));
 Vue.component("fields-display", require("./vue/fields-display.js"));
 Vue.component("list-display", require("./vue/list-display.js"));
+Vue.component("minimal-note-display", require("./vue/minimal-note-display.js"));
 
 const separator = "\n" + "-".repeat(10) + "0qp4BCBHLoHfkIi6N1hgeXNaZg20BB0sNZ4k8tE6eWKmTa1CkE" + "-".repeat(10) + "\n\n";
 var currentUser = {
@@ -264,7 +265,25 @@ new Vue({
     ddTitle: "",
     ddLocation: "",
     ddFormat: {},
-    splitInst: null
+    splitInst: null,
+    archiveListActions: [
+      {
+        action: "delete", 
+        icon: "mdi-delete-forever",
+        display: "Delete",
+        tooltip: "delete"
+      }, {
+        action: "unarchive", 
+        icon: "mdi-delete-restore",
+        display: "Unarchive",
+        tooltip: "unarchive"
+      }, {
+        action: "view",
+        icon: "mdi-eye",
+        tooltip: "view"
+      }
+    ],
+    noteInMinimal: {}
   },
   computed: {
     displayNoteList: function () {
@@ -616,6 +635,14 @@ new Vue({
     deleteArchive: function (f) {
       fs.unlinkSync(f);
       this.noteList.updateLocalArchive();
+    },
+    viewArchive: function (f) {
+      this.noteInMinimal = {
+        title: path.parse(f).name,
+        subtitle: path.parse(f).dir,
+        content: JSON.parse(fs.readFileSync(f))
+      }
+      this.$refs.minimalNote.toggle();
     }
   }
 })
