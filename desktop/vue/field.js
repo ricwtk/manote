@@ -84,15 +84,22 @@ let _multiple = {
       @remove="removeField"
     ></input-header>
 
-    <textarea v-if="editable"
-      class="form-input"
-      :id="'value-' + title" 
-      :placeholder="title" 
-      :style="{ height: height ? height : 'auto' }"
-      @mouseup="resize"
-      :value="value"
-      @input="updateValue"
-    ></textarea>
+    <template v-if="editable">
+      <textarea class="form-input"
+        :id="'value-' + title" 
+        :placeholder="title" 
+        :style="{ height: height ? height : 'auto' }"
+        @mouseup="resize"
+        :value="value"
+        @input="updateValue"
+      ></textarea>
+      <div class="text-right">
+        <button class="btn btn-primary btn-sm" @click="height='auto'">
+          <i class="mdi mdi-arrow-expand-vertical"></i>
+          Reset height
+        </button>
+      </div>
+    </template>
 
     <div v-else
       class="display-input md-default" 
