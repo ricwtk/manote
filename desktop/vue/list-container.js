@@ -246,10 +246,12 @@ module.exports = {
 
     <div class="panel-footer navbar" v-if="hasTick">
       <div class="navbar-section">
-        <button class="btn" @click="discardSelection">Discard selection</button>
       </div>
-      <button class="btn ml-1" @click="archiveNotes">Archive</button>
-      <button class="btn ml-1" @click="deleteNotes">Delete</button>
+      <div class="text-right">
+        <button class="btn btn-primary my-1" @click="discardSelection">Discard selection</button>
+        <button class="btn btn-primary ml-1 my-1" @click="archiveNotes">Archive</button>
+        <button class="btn btn-primary ml-1 my-1" @click="deleteNotes">Delete</button>
+      </div>
     </div>
 
     <list-selection ref="dirOfNew"

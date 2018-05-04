@@ -449,6 +449,20 @@ new Vue({
         })
       });
     },
+    deleteNote: function (fid) {
+      this.stat.running = true;
+      if (this.noteLocation.local) {
+        fs.unlink(fid, (err) => {
+          if (err) throw err;
+          this.noteList.updateLocal();
+          this.$set(this, "unsaved", {});
+          this.$set(this, "openedFile", {});
+          this.splitInst.destroy();
+          this.splitInst = null;
+          this.stat.running = false;
+        });
+      }
+    },
     deleteLocalNotes: function (notes) {
       this.stat.running = true;
       Promise.all(notes.map(note => {
