@@ -15,6 +15,12 @@ const splitConfig = {
   snapOffset: 0
 };
 
+const defaultDefault = [
+  { name: "Title", type: "single" },
+  { name: "Content", type: "multiple" },
+  { name: "Categories", type: "tags"}
+];
+
 Vue.component("list-container", require("./vue/list-container.js"));
 Vue.component("note-container", require("./vue/note-container.js"));
 Vue.component("navbar", require("./vue/navbar.js"));
@@ -575,9 +581,9 @@ new Vue({
     },
     showThisDirDefault: function (selectedDir) {
       if (!fs.existsSync(localSetting.getDirDefaultLocation(selectedDir))) {
-        localSetting.setDefault(selectedDir, new Note("discard"));
+        localSetting.setDefault(selectedDir, Note.createWithFields(defaultDefault));
         console.log("create directory default in " + selectedDir);
-        this.showThisDirDefault(selectedDir);
+        this.$nextTick(() => { this.showThisDirDefault(selectedDir); });
       } else {
         console.log(localSetting.getDirDefault(selectedDir));
         this.ddTitle = "Directory Default";
@@ -588,9 +594,9 @@ new Vue({
     },
     showGlobalDefault: function () {
       if (!fs.existsSync(localSetting.getGlobalDefaultLocation())) {
-        localSetting.setGlobalDefault(new Note("discard"));
+        localSetting.setGlobalDefault(Note.createWithFields(defaultDefault));
         console.log("create global default");
-        this.showGlobalDefault();
+        this.$nextTick(() => { this.showGlobalDefault(); });
       } else {
         console.log(localSetting.getGlobalDefault());
         this.ddTitle = "Global Default";

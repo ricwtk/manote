@@ -32,9 +32,6 @@ class Note {
       this.order = others.order ? others.order.slice() : [];
     else
       this.order = [];
-    // this.addNewField("Title", "single", Title ? Title : "Untitled");
-    // this.addNewField("Content", "multiple", Content ? Content : "");
-    // this.addNewField("Categories", "tags");
     if (others) {
       Object.keys(others).forEach((el) => {
         if (others[el] && others[el].type) this.addNewField(el, others[el].type, others[el].content, others[el].height);
