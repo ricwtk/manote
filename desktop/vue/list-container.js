@@ -132,6 +132,15 @@ module.exports = {
     "modal-sortnote": require(path.join(__dirname, "modal-sortnote.js"))
   },
   methods: {
+    toggle: function () {
+      this.$el.classList.toggle("hide-md")
+    },
+    show: function () {
+      this.$el.classList.remove("hide-md");
+    },
+    hide: function () {
+      this.$el.classList.add("hide-md");
+    },
     resetFilter: function () {
       this.filter.sort = "";
       this.filter.group = "";

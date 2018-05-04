@@ -8,27 +8,18 @@ const path = require("path");
 const localSetting = require("./js/get-local.js");
 const {shell} = require("electron");
 const Split = require("split.js");
-
-// const field = require("./vue/field.js");
-// Vue.component("field-single", field.single);
-// Vue.component("field-multiple", field.multiple);
-// Vue.component("field-datetime", field.datetime);
-// Vue.component("field-tags", field.tags);
+const splitConfig = {
+  sizes: [35,65],
+  minSize: [230,230],
+  gutterSize: 7,
+  snapOffset: 0
+};
 
 Vue.component("list-container", require("./vue/list-container.js"));
 Vue.component("note-container", require("./vue/note-container.js"));
-
 Vue.component("navbar", require("./vue/navbar.js"));
 Vue.component("sidebar", require("./vue/sidebar.js"));
-// Vue.component("file-item", require("./vue/file-item.js"));
 Vue.component("list-selection", require("./vue/list-selection.js"));
-// Vue.component("modal-sortnote", require("./vue/modal-sortnote.js"));
-// Vue.component("search-bar", require("./vue/search-bar.js"));
-// Vue.component("input-header", require("./vue/input-header.js"));
-// Vue.component("input-datetime", require("./vue/input-datetime.js"));
-// Vue.component("display-datetime", require("./vue/display-datetime.js"));
-// Vue.component("modal-newfield", require("./vue/modal-newfield.js"));
-// Vue.component("modal-sortfields", require("./vue/modal-sortfields.js"));
 Vue.component("modal-loading", require("./vue/modal-loading.js"));
 Vue.component("modal-unsavedprompt", require("./vue/modal-unsavedprompt.js"));
 Vue.component("md-guide", require("./vue/md-guide.js"));
@@ -293,59 +284,6 @@ new Vue({
     hasUnsaved: function () {
       return JSON.stringify(this.unsaved) != JSON.stringify(this.openedFile);
     },
-    // sortableFields: function () { 
-    //   return Array.from( 
-    //     new Set(
-    //       this.stored.noteList.map(el =>  
-    //         Object.keys(el).filter(k => 
-    //           ['created', 'modified'].includes(k) || 
-    //           ( el[k].type && ["single", "datetime"].includes(el[k].type) )
-    //         ) 
-    //       ).reduce((acc, el) => acc.concat(el), [])
-    //     ) 
-    //   ); 
-    // }, 
-    // groupableFields: function () { 
-    //   return Array.from( 
-    //     new Set( 
-    //       this.stored.noteList.map(el =>  
-    //         Object.keys(el).filter(k =>  
-    //           el[k].type && ["tags"].includes(el[k].type) 
-    //         ) 
-    //       ).reduce((acc, el) => acc.concat(el), []) 
-    //     ) 
-    //   ); 
-    // },
-    // availableGroups: function () {
-    //   return this.groupableFields.map(field => 
-    //     [...Array.from(
-    //       new Set (
-    //         this.stored.noteList.map(el => 
-    //           el[field] ? el[field].content : []
-    //         ).reduce((acc, el) => acc.concat(el), [])
-    //       )
-    //     ), "-- No field or no group"]
-    //   );
-    // },
-    sortedNoteIdx: function () {
-      let indices = [...this.stored.noteList.keys()];
-      if (this.filter.sort) {
-        let sortable = indices.filter((v) => this.stored.noteList[v].hasOwnProperty(this.filter.sort));
-        let unsortable = indices.filter((v) => !this.stored.noteList[v].hasOwnProperty(this.filter.sort));
-        sortable.sort((a,b) => {
-          let itemA = this.stored.noteList[a][this.filter.sort];
-          let itemB = this.stored.noteList[b][this.filter.sort];
-          itemA = itemA.type ? itemA.content : itemA;
-          itemB = itemB.type ? itemB.content : itemB;
-          if (itemA < itemB) return -1;
-          else if (itemA > itemB) return 1;
-          else return 0;
-        });
-        return [...sortable, ...unsortable];
-      } else {
-        return indices;
-      }
-    },
     archiveList: function () {
       if (this.noteLocation.local) {
         return this.noteList.archive.local.map(f => {
@@ -359,6 +297,20 @@ new Vue({
         return [];
       }
     }
+  },
+  mounted: function () {
+    window.addEventListener("resize", (ev) => {
+      if (ev.currentTarget.innerWidth < 840) {
+        if (this.splitInst) {
+          this.splitInst.destroy();
+          this.splitInst = null;
+        }
+      } else {
+        if (!this.splitInst && this.unsaved.id) {
+          this.splitInst = Split(["#list-container", "#note-container"], splitConfig);
+        }
+      }
+    })
   },
   methods: {
     addDirectory: function (newDir) {
@@ -380,14 +332,6 @@ new Vue({
     setRemote: function () {
       this.noteLocation.setRemote();
     },
-    addTick: function (fileId) {
-      console.log("ticking", fileId);
-      this.tickedFiles.push(fileId);
-    },
-    removeTick: function (fileId) {
-      console.log("remove tick", fileId);
-      this.tickedFiles = this.tickedFiles.filter(item => item !== fileId);
-    },
     openFile: function (file) {
       if (file.id == this.openedFile.id) {
         return;
@@ -401,14 +345,13 @@ new Vue({
       }
       this.openedFile = file;
       this.unsaved = file.copy();
-      if (!this.splitInst) 
+      this.$nextTick(() => {
+        this.$refs.noteContainer.show();
+        this.$refs.listContainer.hide();
+      });
+      if (!this.splitInst && window.innerWidth > 840) 
         this.$nextTick(() => {
-          this.splitInst = Split(["#list-container", "#note-container"], {
-            sizes: [35,65],
-            minSize: [230,230],
-            gutterSize: 7,
-            snapOffset: 0
-          });
+          this.splitInst = Split(["#list-container", "#note-container"], splitConfig);
         });
     },
     saveOrNot: function (toSave) {
@@ -455,10 +398,7 @@ new Vue({
         fs.unlink(fid, (err) => {
           if (err) throw err;
           this.noteList.updateLocal();
-          this.$set(this, "unsaved", {});
-          this.$set(this, "openedFile", {});
-          this.splitInst.destroy();
-          this.splitInst = null;
+          this.closeNote();
           this.stat.running = false;
         });
       }
@@ -512,16 +452,6 @@ new Vue({
     removeField: function (name) {
       this.unsaved.removeField(name);
     },
-    switchView: function (ev) {
-      for (let child of this.$refs.viewSwitcher.children) {
-        if (child == ev.target || child.firstElementChild == ev.target) {
-          child.classList.add("active");
-          this.viewEdit = child == this.$refs.editView;
-        } else {
-          child.classList.remove("active");
-        }
-      }
-    },
     saveNote: function () {
       this.unsaved.modifiedOn(new Date());
       // console.log("unsaved", JSON.stringify(this.unsaved, null, 2));
@@ -572,10 +502,7 @@ new Vue({
         .then(() => {
           this.noteList.local.splice(this.noteList.local.findIndex(el => el.id == filepath), 1);
           this.noteList.updateLocalArchive();
-          this.$set(this, "unsaved", {});
-          this.$set(this, "openedFile", {});
-          this.splitInst.destroy();
-          this.splitInst = null;
+          this.closeNote();
         });
     },
     archiveLocalNotes: function (notes) {
@@ -585,12 +512,7 @@ new Vue({
       )).then(() => {  
         this.noteList.updateLocal();
         this.$refs.listContainer.discardSelection();
-        this.$set(this, "unsaved", {});
-        this.$set(this, "openedFile", {});
-        if (this.splitInst) {
-          this.splitInst.destroy();
-          this.splitInst = null;
-        }
+        this.closeNote();
         this.stat.running = false;
       });
     },
@@ -598,19 +520,18 @@ new Vue({
       localSetting.unarchive(f)
         .then((newFile) => {
           this.noteList.updateLocal();
-          this.$set(this, "unsaved", {});
-          this.$set(this, "openedFile", {});
-          if (this.splitInst) {
-            this.splitInst.destroy();
-            this.splitInst = null;
-          }
+          this.closeNote();
         })
     },
     closeNote: function () {
+      if (this.$refs.noteContainer) this.$refs.noteContainer.hide();
+      if (this.$refs.listContainer) this.$refs.listContainer.show();
       this.$set(this, "unsaved", {});
       this.$set(this, "openedFile", {});
-      this.splitInst.destroy();
-      this.splitInst = null;
+      if (this.splitInst) {
+        this.splitInst.destroy();
+        this.splitInst = null;
+      }
     },
     showArchive: function () {
       this.$refs.archive.toggle();

@@ -44,14 +44,17 @@ module.exports = {
     "fields-display": require(path.join(__dirname, "fields-display.js"))
   },
   methods: {
+    toggle: function () {
+      this.$el.classList.toggle("hide-md");
+    },
+    show: function () {
+      this.$el.classList.remove("hide-md");
+    },
+    hide: function () {
+      this.$el.classList.add("hide-md");
+    },
     toggleMore: function () {
       this.$refs.moreActions.classList.toggle("hide");
-    },
-    navToList: function () {
-
-    },
-    startRename: function () {
-
     },
     saveNote: function () {
       this.$emit("save-note");
@@ -83,7 +86,6 @@ module.exports = {
   <div class="note-container column col-8 col-md-12 panel hide-md" :id="id" v-show="unsaved.id">
     <div class="panel-nav v-box">
       <div class="h-box grow v-center">
-        <div class="mdi mdi-chevron-left show-md nav-to-list c-hand text-center" @click="navToList"></div>
         <div v-if="noteLocation.local" class="grow" :title="unsaved.id" style="overflow: auto; white-space: nowrap">
           <div>{{ filename }} <i class="mdi mdi-pencil c-hand" @click="$refs.modalRename.toggle()"></i></div>
           <div class="text-gray" style="font-size:85%">{{ dirname }}</div>
