@@ -563,6 +563,7 @@ new Vue({
         });
     },
     archiveLocalNotes: function (notes) {
+      this.stat.running = true;
       Promise.all(notes.map(note => 
         localSetting.archive(note.id)
       )).then(() => {  
@@ -574,6 +575,7 @@ new Vue({
           this.splitInst.destroy();
           this.splitInst = null;
         }
+        this.stat.running = false;
       });
     },
     unarchive: function (f) {
