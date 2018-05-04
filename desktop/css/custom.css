@@ -363,6 +363,7 @@ textarea {
   cursor: move;
 }
 
+.list-display .tile-subtitle,
 .file-item .tile-subtitle {
   font-size: 85%;
 }
@@ -376,7 +377,8 @@ textarea {
 }
 
 .dir-chooser .modal-body,
-.list-selection .modal-body {
+.list-selection .modal-body,
+.list-display .modal-body {
   color: #454d5d;
   background-color: #fff;
   height: 20em;

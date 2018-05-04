@@ -149,11 +149,15 @@ module.exports = {
       });
     },
     selectFile: function (f) {
+      console.log(f, this.$refs.fileItems);
       this.$refs.fileItems.forEach(fi => {
-        if (fi.file == f) fi.setSelect();
+        console.log(fi.file.id, f);
+        if (fi.file.id == f) {
+          fi.setSelect();
+          this.$emit("open-file", fi.file);
+        }
         else fi.clearSelect();
       });
-      this.$emit("open-local-file", f);
     },
     openFile: function (el, f) {
       this.selectFileItem(el);

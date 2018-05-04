@@ -90,6 +90,68 @@ function getDefault(folderPath) {
   }
 }
 
+function getArchiveLocation(dirpath) {
+  return path.join(dirpath, ".manote.archive");
+} 
+
+function hasArchive(dirpath) {
+  let al = getArchiveLocation(dirpath);
+  return fs.existsSync(al) && fs.statSync(al).isDirectory();
+}
+
+function getArchive(dirpath) {
+  let al = getArchiveLocation(dirpath);
+  return fs.readdirSync(al).filter(f => f.endsWith(".manote")).map(f => path.join(al, f));
+}
+
+function copyFile(src, dest) {
+  let rs = fs.createReadStream(src);
+  let ws = fs.createWriteStream(dest);
+  return new Promise((resolve, reject) => {
+    rs.on("error", reject);
+    ws.on("error", reject);
+    ws.on("finish", resolve);
+    rs.pipe(ws);
+  }).catch(err => {
+    rs.destroy();
+    ws.end();
+    throw err;
+  });
+}
+
+function moveFile(src, dest) {
+  return copyFile(src, dest)
+    .then(() => {
+      return new Promise((resolve, reject) => {
+        fs.unlink(src, (err) => {
+          if (err) reject(err);
+          resolve(dest);
+        });
+      })
+    });
+}
+
+function createDirIfNotExist(dirpath) {
+  return new Promise((resolve, reject) => {
+    fs.mkdir(dirpath, (err) => {
+      if (err && err.code != "EEXIST") reject(err);
+      resolve();
+    })
+  })
+}
+
+function archive(filepath) {
+  let al = getArchiveLocation(path.parse(filepath).dir);
+  let newFile = path.join(al, path.parse(filepath).base);
+  return createDirIfNotExist(al)
+    .then(() => moveFile(filepath, newFile));
+}
+
+function unarchive(filepath) {
+  let newFolder = path.parse(path.parse(filepath).dir).dir;
+  let newFile = path.join(newFolder, path.parse(filepath).base);
+  return moveFile(filepath, newFile);
+}
 
 module.exports = {
   getAppFolder: getAppFolder,
@@ -101,5 +163,10 @@ module.exports = {
   getGlobalDefault: getGlobalDefault,
   getDirDefaultLocation: getDirDefaultLocation,
   getDirDefault: getDirDefault,
-  getDefault: getDefault
+  getDefault: getDefault,
+  getArchiveLocation: getArchiveLocation,
+  hasArchive: hasArchive,
+  getArchive: getArchive,
+  archive: archive,
+  unarchive: unarchive
 }

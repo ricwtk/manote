@@ -39,7 +39,6 @@ module.exports = {
     "field-multiple": field.multiple,
     "field-datetime": field.datetime,
     "field-tags": field.tags,
-    "modal-newfield": require(path.join(__dirname, "modal-newfield.js")),
     "modal-sortfields": require(path.join(__dirname, "modal-sortfields.js")),
     "modal-rename": require(path.join(__dirname, "modal-rename.js")),
     "fields-display": require(path.join(__dirname, "fields-display.js"))

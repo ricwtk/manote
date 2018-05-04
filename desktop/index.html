@@ -70,6 +70,7 @@
         @remove-dir="removeDirectory"
         @set-local="setLocal"
         @set-remote="setRemote"
+        @show-archive="showArchive"
         @show-global-default="showGlobalDefault"
         @show-dir-default="showDirDefault"
       ></sidebar>
@@ -89,6 +90,14 @@
         :subtitle="ddLocation"
         @input="saveDefault"
       ></fields-display>
+
+      <list-display ref="archive"
+        header-text="Archive"
+        :list="archiveList"
+        :actions="[{action: 'delete', display: 'Delete'}, {action: 'unarchive', display: 'Unarchive'}]"
+        @delete="deleteArchive"
+        @unarchive="unarchive"
+      ></list-display>
         
       <md-guide ref="markdownGuide"></md-guide>
       

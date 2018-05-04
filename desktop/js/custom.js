@@ -1,5 +1,3 @@
-const tt = require("electron-tooltip");
-tt({});
 const {mdconverter, mdguides} = require("./js/md.js");
 const Vue = require("./js/vue.js");
 const GDrive = require("./js/google-drive-access.js");
@@ -36,6 +34,7 @@ Vue.component("modal-unsavedprompt", require("./vue/modal-unsavedprompt.js"));
 Vue.component("md-guide", require("./vue/md-guide.js"));
 Vue.component("directory-chooser", require("./vue/directory-chooser.js"));
 Vue.component("fields-display", require("./vue/fields-display.js"));
+Vue.component("list-display", require("./vue/list-display.js"));
 
 const separator = "\n" + "-".repeat(10) + "0qp4BCBHLoHfkIi6N1hgeXNaZg20BB0sNZ4k8tE6eWKmTa1CkE" + "-".repeat(10) + "\n\n";
 var currentUser = {
@@ -57,7 +56,7 @@ var openedDir = {
   list: [],
   shortened: [],
   addToList: function(x) {
-    if (!this.list.includes(x)) {
+    if (!this.list.includes(x) && x != "") {
       this.list.push(x);
       this._genShortened();
     }
@@ -108,8 +107,13 @@ var noteLocation = {
 var noteList = {
   local: [],
   remote: [],
+  archive: {
+    local: [],
+    remote: []
+  },
   updateLocal: function () {
     this.local = [];
+    this.archive.local = [];
     openedDir.list.forEach(d => {
       fs.readdir(d, (err, files) => {
         if (err) {
@@ -131,6 +135,25 @@ var noteList = {
               }
             });
         this.local = [...this.local, ...notes.filter(note => note !== [])];
+
+        // list archive
+        if (localSetting.hasArchive(d)) {
+          this.archive.local = [...this.archive.local, ...localSetting.getArchive(d)];
+        }
+      })
+    });
+  },
+  updateLocalArchive: function () {
+    this.archive.local = [];
+    openedDir.list.forEach(d => {
+      fs.readdir(d, (err, files) => {
+        if (err) {
+          console.log(err);
+          return;
+        }
+        if (localSetting.hasArchive(d)) {
+          this.archive.local = [...this.archive.local, ...localSetting.getArchive(d)];
+        }
       })
     });
   }
@@ -302,6 +325,19 @@ new Vue({
         return [...sortable, ...unsortable];
       } else {
         return indices;
+      }
+    },
+    archiveList: function () {
+      if (this.noteLocation.local) {
+        return this.noteList.archive.local.map(f => {
+          return {
+            title: path.parse(f).name,
+            subtitle: path.parse(f).dir,
+            value: f
+          }
+        });
+      } else {
+        return [];
       }
     }
   },
@@ -497,43 +533,36 @@ new Vue({
       });
     },
     archive: function (filepath) {
-      let archiveFolder = path.join(path.dirname(filepath), ".manote.archive");
-      fs.mkdir(archiveFolder, (err) => {
-        if (err && err.code != "EEXIST") {
-          throw err;
-        }
-        let rs = fs.createReadStream(filepath);
-        let ws = fs.createWriteStream(path.join(archiveFolder, path.basename(filepath)));
-        new Promise((resolve, reject) => {
-          rs.on("error", reject);
-          ws.on("error", reject);
-          ws.on("finish", resolve);
-          rs.pipe(ws);
-        }).then(() => {
-          return new Promise((resolve, reject) => {
-            fs.unlink(filepath, (err) => { 
-              if (err) reject(err);
-              resolve();
-            });
-          })
-        }).then(() => {
+      localSetting.archive(filepath)
+        .then(() => {
           this.noteList.local.splice(this.noteList.local.findIndex(el => el.id == filepath), 1);
+          this.noteList.updateLocalArchive();
           this.$set(this, "unsaved", {});
           this.$set(this, "openedFile", {});
           this.splitInst.destroy();
           this.splitInst = null;
-        }).catch(err => {
-          rs.destroy();
-          ws.end();
-          throw err;
+        });
+    },
+    unarchive: function (f) {
+      localSetting.unarchive(f)
+        .then((newFile) => {
+          this.noteList.updateLocal();
+          this.$set(this, "unsaved", {});
+          this.$set(this, "openedFile", {});
+          if (this.splitInst) {
+            this.splitInst.destroy();
+            this.splitInst = null;
+          }
         })
-      });
     },
     closeNote: function () {
       this.$set(this, "unsaved", {});
       this.$set(this, "openedFile", {});
       this.splitInst.destroy();
       this.splitInst = null;
+    },
+    showArchive: function () {
+      this.$refs.archive.toggle();
     },
     getFormat: function () {
       let defaultFormat = this.openedFile.copy();
@@ -583,6 +612,10 @@ new Vue({
     },
     saveDefault: function(x) {
       localSetting.setDefault(path.dirname(this.ddLocation), this.ddFormat);
+    },
+    deleteArchive: function (f) {
+      fs.unlinkSync(f);
+      this.noteList.updateLocalArchive();
     }
   }
 })
