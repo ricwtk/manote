@@ -143,6 +143,10 @@ function createDirIfNotExist(dirpath) {
 function archive(filepath) {
   let al = getArchiveLocation(path.parse(filepath).dir);
   let newFile = path.join(al, path.parse(filepath).base);
+  while (fs.existsSync(newFile)) {
+    let nf = path.parse(newFile);
+    newFile = path.join(nf.dir, nf.name + "_2" + nf.ext);
+  }
   return createDirIfNotExist(al)
     .then(() => moveFile(filepath, newFile));
 }
@@ -150,6 +154,10 @@ function archive(filepath) {
 function unarchive(filepath) {
   let newFolder = path.parse(path.parse(filepath).dir).dir;
   let newFile = path.join(newFolder, path.parse(filepath).base);
+  while (fs.existsSync(newFile)) {
+    let nf = path.parse(newFile);
+    newFile = path.join(nf.dir, nf.name + "_2" + nf.ext);
+  }
   return moveFile(filepath, newFile);
 }
 

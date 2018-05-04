@@ -132,6 +132,10 @@ body, .body {
   flex-basis: 0;
 }
 
+.no-shrink {
+  flex-shrink: 0;
+}
+
 .no-break {
   white-space: nowrap;
 }
@@ -161,6 +165,10 @@ body, .body {
 
 .hide {
   display: none;
+}
+
+.text-sm {
+  font-size: 85%;
 }
 
 #modal-markdownguide {
