@@ -313,12 +313,12 @@ let _tags = {
     ></input-header>
 
     <div v-if="editable">
-      <input class="form-input" type="text" :id="'value-' + title" :placeholder="title" @keydown="updateTags">
-      <div class="my-2"></div>
       <span class="chip" v-for="tag in value">
         {{ tag }}&nbsp;
         <span class="mdi mdi-close" @click="removeTag(tag)"></span>
       </span>
+      <div class="my-2"></div>
+      <input class="form-input" type="text" :id="'value-' + title" :placeholder="title" @keydown="updateTags">
     </div>
       
     <div v-else class="display-input">

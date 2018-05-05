@@ -263,6 +263,7 @@ textarea {
 }
 
 .invisible-form-input {
+  appearance: none;
   -moz-appearance: none;
   -webkit-appearance: none;
   border: 0px;
@@ -466,4 +467,8 @@ textarea {
 
 .default-display .modal-body {
   user-select: none;
+}
+
+.divider {
+  position: static;
 }
