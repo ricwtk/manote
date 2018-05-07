@@ -57,3 +57,17 @@ code {
   margin: 10px;
   overflow: auto;
 }
+
+.md-default .task-list-item input {
+  margin: 0 0.35em 0 -.5em!important;
+}
+
+.md-default ul {
+  margin-top: 0em;
+  margin-bottom: 0em;
+}
+
+.md-default p {
+  margin: 0;
+  margin-bottom: .5em;
+}
