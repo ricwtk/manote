@@ -472,3 +472,7 @@ textarea {
 .divider {
   position: static;
 }
+
+.display-input {
+  overflow: auto;
+}
