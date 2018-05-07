@@ -6,6 +6,12 @@ module.exports = {
     },
     reload: function () {
       this.$emit("reload");
+    },
+    hide: function () {
+      this.$el.classList.add("hide-md");
+    },
+    show: function () {
+      this.$el.classList.remove("hide-md");
     }
   },
   template: `

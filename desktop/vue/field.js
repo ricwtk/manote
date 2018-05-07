@@ -253,7 +253,7 @@ let _datetime = {
     </div>
 
     <div v-else class="input-datetime">
-      <div class="input-group col-6 col-md-12">
+      <div class="input-group col-6 col-xs-12">
         <div :class="['mdi', 'mdi-calendar', dateDisabled ? 'text-error' : 'text-success']"></div>
         <div class="text-center four-digits">{{ displayValue.substr(0,4) }}</div>
         <div>-</div>
@@ -261,7 +261,7 @@ let _datetime = {
         <div>-</div>
         <div class="text-center two-digits">{{ displayValue.substr(8,2) }}</div>
       </div>
-      <div class="input-group col-6 col-md-12">
+      <div class="input-group col-6 col-xs-12">
         <div :class="['mdi', 'mdi-clock', timeDisabled ? 'text-error' : 'text-success']"></div>
         <div class="text-center two-digits">{{ displayValue.substr(-5,2) }}</div>
         <div>:</div>

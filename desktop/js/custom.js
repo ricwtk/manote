@@ -352,6 +352,7 @@ new Vue({
       this.openedFile = file;
       this.unsaved = file.copy();
       this.$nextTick(() => {
+        this.$refs.navbar.hide();
         this.$refs.noteContainer.show();
         this.$refs.listContainer.hide();
       });
@@ -545,6 +546,7 @@ new Vue({
     },
     closeNote: function () {
       if (this.$refs.noteContainer) this.$refs.noteContainer.hide();
+      this.$refs.navbar.show();
       if (this.$refs.listContainer) {
         this.$refs.listContainer.show();
         this.$refs.listContainer.unselectAllItems();
