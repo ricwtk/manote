@@ -75,6 +75,8 @@
         @show-archive="showArchive"
         @show-global-default="showGlobalDefault"
         @show-dir-default="showDirDefault"
+        @sign-in-google="signInGoogle"
+        @sign-out-google="signOutGoogle"
       ></sidebar>
 
     
@@ -116,18 +118,21 @@
         @to-save="saveOrNot"
       ></modal-unsavedprompt>
       
-      <!-- <div :class="['modal', 'text-primary', stat.running && stat.atInit ? 'active' : '']" id="modal-loading">
-        <div class="modal-overlay mdi mdi-spin mdi-loading"></div>
-      </div> -->
+      <sign-in-ui ref="signInUi"
+        :auth-url="misc.authUrl"
+        :auth-error="misc.authError"
+        @authenticate="authenticate"
+      ></sign-in-ui>
+
       <modal-loading :show="stat.running && stat.atInit"></modal-loading>
 
     </div>
     <!-- <script src="js/emoji.js"></script> -->
     <!-- <script src="js/md.js"></script> -->
     <script src="js/custom.js"></script>
-    <script async defer src="https://apis.google.com/js/api.js"
+    <!-- <script async defer src="https://apis.google.com/js/api.js"
       onload="initApis()"
       onreadystatechange="if (this.readyState === 'complete') this.onload()">
-    </script>
+    </script> -->
   </body>
 </html>

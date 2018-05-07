@@ -10,10 +10,10 @@ module.exports = {
       this.$el.classList.toggle("active");
     },
     signOutGoogle: function () {
-      this.$emit("signOutGoogle");
+      this.$emit("sign-out-google");
     },
     signInGoogle: function () {
-      this.$emit("signInGoogle");
+      this.$emit("sign-in-google");
     },
     addLocal: function (ev) {
       console.log(ev.target.value)
@@ -81,6 +81,7 @@ module.exports = {
           </div>
         </template>
         <div class="divider" data-content="Local notes"></div>
+        <div class="menu-item c-hand"><a @click="switchToLocal">Notes on <i class="mdi mdi-laptop"></i> this machine</a></div>
         <div class="menu-item">
           <div class="menu-item dir-name" v-for="od in openedDir.list">
             <i class="mdi mdi-folder"></i>
@@ -92,7 +93,6 @@ module.exports = {
             <a class="text-center" @click="toggleDirChooser"><i class="mdi mdi-plus"></i> Add directory</a>
           </div>
         </div>
-        <div class="menu-item c-hand"><a @click="switchToLocal">Show local notes</a></div>
         <div class="menu-item c-hand"><a @click="showArchive">Show archive</a></div>
         <div class="menu-item c-hand"><a @click="showDirDefault">Directory default</a></div>
         <div class="menu-item c-hand"><a @click="showGlobalDefault">Global default</a></div>

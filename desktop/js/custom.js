@@ -1,6 +1,5 @@
 const {mdconverter, mdguides} = require("./js/md.js");
 const Vue = require("./js/vue.js");
-const GDrive = require("./js/google-drive-access.js");
 const {Note} = require("./js/note.js");
 const {generateRandomId,showErr} = require("./js/misc.js");
 const fs = require("fs");
@@ -33,6 +32,7 @@ Vue.component("directory-chooser", require("./vue/directory-chooser.js"));
 Vue.component("fields-display", require("./vue/fields-display.js"));
 Vue.component("list-display", require("./vue/list-display.js"));
 Vue.component("minimal-note-display", require("./vue/minimal-note-display.js"));
+Vue.component("sign-in-ui", require("./vue/sign-in-ui.js"));
 
 const separator = "\n" + "-".repeat(10) + "0qp4BCBHLoHfkIi6N1hgeXNaZg20BB0sNZ4k8tE6eWKmTa1CkE" + "-".repeat(10) + "\n\n";
 var currentUser = {
@@ -43,6 +43,11 @@ var currentUser = {
 
 var stored = {
   noteList: []  
+}
+
+var misc = {
+  authUrl: "",
+  authError: ""
 }
 
 var stat = {
@@ -154,6 +159,19 @@ var noteList = {
         }
       })
     });
+  },
+  updateRemote: function () {
+    return gd.getData().then((resp) => {
+      return resp.data;
+    }).then(notes => {
+      console.log(notes);
+      if (notes) {
+        noteList.remote = 
+          notes.map(el => new Note(el.id, el.created, el.modified, el)).concat(
+            noteList.remote.filter(el => !notes.map(nt => nt.id).includes(el.id)).map(el => new Note(el.id, el.created, el.modified, el))
+          );
+      }
+    }).catch(showErr)
   }
 }
 
@@ -280,7 +298,8 @@ new Vue({
         tooltip: "view"
       }
     ],
-    noteInMinimal: {}
+    noteInMinimal: {},
+    misc: misc
   },
   computed: {
     displayNoteList: function () {
@@ -621,35 +640,64 @@ new Vue({
         content: JSON.parse(fs.readFileSync(f))
       }
       this.$refs.minimalNote.toggle();
+    },
+    signInGoogle: function () {
+      this.$refs.signInUi.toggle();
+    },
+    authenticate: function (code) {
+      gd.authenticateWith(code)
+        .then(afterSignIn)
+        .then(() => {
+          this.$refs.signInUi.toggle();
+          this.misc.authError = "";
+        })
+        .catch(err => {
+          console.error(err);
+          this.misc.authError = "Error in token. Please re-authenticate to get new token."
+        });
+    },
+    signOutGoogle: function () {
+      gd.signOut()
+        .then(() => {
+          currentUser.name = null;
+          currentUser.email = null;
+          currentUser.profilePic = null;
+          this.noteList.remote = [];
+        })
+        .then(() => gd.getAuthUrl())
+        .then(authUrl => {
+          misc.authUrl = authUrl;
+        });
     }
   }
 })
 
-function updateList(notes) {
-  stored.noteList = 
-    notes.map(el => new Note(el.id, el.created, el.modified, el)).concat(
-      stored.noteList.filter(el => !notes.map(nt => nt.id).includes(el.id)).map(el => new Note(el.id, el.created, el.modified, el))
-    )
-}
+// function updateList(notes) {
+//   noteList.remote = 
+//     notes.map(el => new Note(el.id, el.created, el.modified, el)).concat(
+//       noteList.remote.filter(el => !notes.map(nt => nt.id).includes(el.id)).map(el => new Note(el.id, el.created, el.modified, el))
+//     )
+// }
 
-function refreshList() {
-  stat.running = true;
-  return gd.getData().then((res) => {
-    if (res.status == 200) {
-      return res.result;
-    } else {
-      throw res.status;
-    }
-  }).then((res) => {
-    console.log(res);
-    if (res) {
-      updateList(res);
-    }
-  }, showErr).then(res => { 
-    stat.running = false;
-    stat.atInit = false;
-  });
-}
+// function refreshList() {
+//   stat.running = true;
+//   return gd.getData().then((resp) => {
+//     if (resp.status == 200) {
+//       return resp.data;
+//     } else {
+//       throw resp.statusText;
+//     }
+//   }).then((res) => {
+//     console.log(res);
+//     if (res) {
+//       updateList(res);
+//     }
+//   }).catch(showErr)
+//   .then(res => { 
+//     stat.running = false;
+//     stat.atInit = false;
+//   });
+// }
 
 function initApis() {
   gd = new GDrive();
@@ -680,3 +728,24 @@ localSetting.getRecent().forEach(d => {
   openedDir.addToList(d);
 });
 noteList.updateLocal();
+
+
+// google drive
+function afterSignIn(cUser) {
+  currentUser.name = cUser.displayName;
+  currentUser.email = cUser.emailAddress;
+  currentUser.profilePic = cUser.photoLink;
+  return noteList.updateRemote();
+}
+
+const GDrive = require("./js/google-drive-access.js");
+gd = new GDrive();
+gd.signInInit()
+.then(afterSignIn)
+.catch((err) => {
+  console.error(err);
+  return gd.getAuthUrl()
+    .then(authUrl => {
+      misc.authUrl = authUrl;
+    });
+})
