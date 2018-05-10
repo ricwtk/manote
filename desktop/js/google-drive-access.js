@@ -124,7 +124,7 @@ class GDrive {
     });
   }
 
-  updateFileContent(fileId, newContent) { //untested
+  updateFileContent(fileId, newContent) {
     return new Promise((resolve, reject) => {
       this.drive.files.update({
         fileId: fileId,
@@ -134,6 +134,9 @@ class GDrive {
           body: newContent
         },
         fields: 'id'
+      }, (err, resp) => {
+        if (err) reject(err);
+        resolve(resp.data.id);
       });
     });
   }
@@ -148,7 +151,7 @@ class GDrive {
         }
       }, (err, resp) => {
         if (err) reject(err);
-        resolve(resp);
+        resolve(resp.data.id);
       });
     })
   }
@@ -170,7 +173,7 @@ class GDrive {
       if (files.length > 0) {
         return files[0].id;
       } else {
-        return this.createDataFile().then(resp => resp.data.id);
+        return this.createDataFile();
       }
     }).then((fid) => this.getFileContent(fid));
   }
@@ -179,29 +182,60 @@ class GDrive {
     return this.getDataFile()
       .then(files => {
         if (files.length > 0) {
-          return this.updateFileContent(files[0].id, newContent);
+          return files[0].id;
         } else {
-          return this.createDataFile().then(() => this.updateData(newContent));
+          return this.createDataFile();
         }
       })
-    // if (this.signedIn) {
-    //   return this.getDataFile().then((res) => {
-    //     if (res.result.files.length > 0) {
-    //       return gapi.client.request({
-    //         path: "/upload/drive/v3/files/" + res.result.files[0].id,
-    //         method: "PATCH",
-    //         params: {
-    //           uploadType: "media"
-    //         },
-    //         body: newContent
-    //       })
-    //     } else {
-    //       return this.createDataFile().then(() => this.updateData(newContent));
-    //     }
-    //   })
-    // } else {
-    //   return this.notSignedIn();
-    // }
+      .then(fid => {
+        return this.updateFileContent(fid, newContent);
+      });
+  }
+
+  updateNote(newNote) {
+    return this.getDataFile()
+      .then(files => {
+        if (files.length > 0) {
+          return files[0].id;
+        } else {
+          return this.createDataFile();
+        }
+      }).then(fid => {
+        return this.getFileContent(fid).then(resp => {  
+          let content = resp.data ? resp.data : [];
+          let idx = content.findIndex(el => el.id == newNote.id);
+          if (idx > -1) {
+            content[idx] = JSON.parse(JSON.stringify(newNote));
+          } else {
+            content.push(JSON.parse(JSON.stringify(newNote)));
+          }
+          return this.updateFileContent(fid, content);
+        });
+      })
+  }
+
+  sortNote(noteId, toId) {
+    return this.getDataFile().then(files => {
+      if (files.length > 0) {
+        return files[0].id;
+      } else {
+        return this.createDataFile();
+      }
+    }).then(fid => {
+      return this.getFileContent(fid).then(resp => {
+        let content = resp.data ? resp.data : [];
+        let idx = content.findIndex(el => el.id == noteId);
+        if (idx > -1) {
+          content.splice(toId, 0, content[idx]);
+          if (toId < idx) idx += 1;
+          content.splice(idx, 1);
+        }
+        return this.updateFileContent(fid, content)
+          .then(() => {
+            return content;
+          });
+      });
+    })
   }
 
 }

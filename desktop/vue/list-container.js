@@ -149,6 +149,8 @@ module.exports = {
     addNewNote: function () {
       if (this.noteLocation.local) {
         this.$refs.dirOfNew.toggle();
+      } else {
+        this.$emit("create-note");
       }
     },
     unselectAllItems: function () {
@@ -176,7 +178,7 @@ module.exports = {
       this.$emit("open-file", f);
     },
     selectDirOfNew: function (dirOfNew) {
-      this.$emit("create-local-note", dirOfNew);
+      this.$emit("create-note", dirOfNew);
     },
     addOpenedDir: function () {
       this.$emit("add-opened-dir");
@@ -213,6 +215,9 @@ module.exports = {
       } else {
         return "";
       }
+    },
+    sortNotes: function (shiftFrom, shiftTo) {
+      this.$emit("sort-notes", shiftFrom, shiftTo);
     }
   },
   template: `
@@ -253,11 +258,15 @@ module.exports = {
         <template v-else>
           <div class="divider" v-if="i == 0 || typeof(sortedNoteIdx[i-1]) !== 'string'"></div>
           <file-item ref="fileItems"
+            :draggable="!noteLocation.local && !filter.sort && !filter.group"
+            :droppable="!noteLocation.local && !filter.sort && !filter.group"
+            :index="i"
             :file="displayNoteList[v]"
             :title="getFileItemTitle(displayNoteList[v])"
             :subtitle="getFileItemSubtitle(displayNoteList[v])"
             @click="openFile"
             @tick="checkTick"
+            @drag-and-drop="sortNotes"
           >
           </file-item>
         </template>

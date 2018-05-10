@@ -39,9 +39,10 @@
           :opened-dir="openedDir"
           @open-file="openFile"
           @add-opened-dir="$refs.dirChooser.toggle()"
-          @create-local-note="createLocalNote"
+          @create-note="createNote"
           @delete-local-notes="deleteLocalNotes"
           @archive-local-notes="archiveLocalNotes"
+          @sort-notes="sortNotes"
         ></list-container>
         
         <note-container ref="noteContainer"

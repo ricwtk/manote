@@ -160,19 +160,36 @@ var noteList = {
       })
     });
   },
+  setRemote: function (notes) {
+    return new Promise(resolve => {
+      this.remote = 
+        notes.map(el => new Note(el.id, el.created, el.modified, el)).concat(
+          this.remote.filter(el => !notes.map(nt => nt.id).includes(el.id)).map(el => new Note(el.id, el.created, el.modified, el))
+        );
+      resolve();
+    })
+  },
   updateRemote: function () {
     return gd.getData().then((resp) => {
       return resp.data;
     }).then(notes => {
       console.log(notes);
       if (notes) {
-        noteList.remote = 
-          notes.map(el => new Note(el.id, el.created, el.modified, el)).concat(
-            noteList.remote.filter(el => !notes.map(nt => nt.id).includes(el.id)).map(el => new Note(el.id, el.created, el.modified, el))
-          );
+        this.setRemote(notes);
       }
     }).catch(showErr)
-  }
+  },
+  createRemoteNote: function () {
+    return new Promise(function (resolve, reject) {
+      let newNote = new Note(generateRandomId(10,this.noteList.remote.map(el => el.id)), null, null, {
+        Title: { type: "single", content: "Untitled" },
+        Content: { type: "multiple", content: "", height: "auto" },
+        Categories: { type: "tags", content: "" },
+      });
+      this.noteList.remote.push(newNote);
+      resolve(newNote);
+    })
+  },
 }
 
 
@@ -397,26 +414,25 @@ new Vue({
       });
       this.tickedFiles = [];
     },
-    addNewNote: function () {
-      // this.stored.noteList.push(new Note(generateRandomId(10, this.stored.noteList.map(el => el.id))));
+    createNote: function (dirOfNew) {
       if (this.noteLocation.local) {
-        this.$refs.dirOfNew.toggle();
-      }
-    },
-    createLocalNote: function (dirOfNew) {
-      let newFile = path.join(dirOfNew, "Untitled_");
-      let i = 0;
-      while (fs.existsSync(newFile + i + ".manote")) {
-        i += 1;
-      }
-      newFile = newFile + i + ".manote";
-      (new Note(newFile, null, null, localSetting.getDefault(dirOfNew))).saveToFile(newFile);
-      noteList.updateLocal();
-      this.$nextTick(() => {
+        let newFile = path.join(dirOfNew, "Untitled_");
+        let i = 0;
+        while (fs.existsSync(newFile + i + ".manote")) {
+          i += 1;
+        }
+        newFile = newFile + i + ".manote";
+        (new Note(newFile, null, null, localSetting.getDefault(dirOfNew))).saveToFile(newFile);
+        noteList.updateLocal();
         this.$nextTick(() => {
-          this.$refs.listContainer.selectFile(newFile);
-        })
-      });
+          this.$nextTick(() => {
+            this.$refs.listContainer.selectFile(newFile);
+          })
+        });
+      } else {
+        this.noteList.createRemoteNote()
+          .then((newNote) => gd.updateNote(newNote))
+      }
     },
     deleteNote: function (fid) {
       this.stat.running = true;
@@ -506,15 +522,17 @@ new Vue({
       }
     },
     discardUnsaved: function () {
-      // console.log(JSON.stringify(this.unsaved), JSON.stringify(this.openedFile));
       this.unsaved.updateFrom(this.openedFile);
     },
     sortNotes: function (shiftFrom, shiftTo) {
       this.stat.running = true;
-      gd.sortNote(stored.noteList[shiftFrom].id, shiftTo).then(updateList).then(res => { this.stat.running = false });
-      stored.noteList.splice(shiftTo, 0, stored.noteList[shiftFrom]);
-      if (shiftTo < shiftFrom) shiftFrom += 1;
-      stored.noteList.splice(shiftFrom, 1);
+      gd.sortNote(this.noteList.remote[shiftFrom].id, shiftTo).then((content) => this.noteList.setRemote(content)).then(res => { this.stat.running = false });
+      if (this.noteLocation.local) {}
+      else {
+        this.noteList.remote.splice(shiftTo, 0, this.noteList.remote[shiftFrom]);
+        if (shiftTo < shiftFrom) shiftFrom += 1;
+        this.noteList.remote.splice(shiftFrom, 1);
+      }
     },
     matchSearch: function (note) {
       return this.searchQuery.split().some(el => Object.keys(note).filter(k => note[k].type).map(k => k + " " + note[k].content).join(" ").toLowerCase().indexOf(el.toLowerCase()) > -1);
