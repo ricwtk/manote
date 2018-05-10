@@ -200,11 +200,19 @@ module.exports = {
         this.hasTick = this.$refs.fileItems ? this.$refs.fileItems.some(fi => fi.isTicked) : false;
       });
     },
-    getFileItemTitle: function (filepath) {
-      return path.parse(filepath).name;
+    getFileItemTitle: function (file) {
+      if (this.noteLocation.local) {
+        return path.parse(file.id).name;
+      } else {
+        return file.Title ? file.Title.content : "Untitled -- edit or add 'Title' field";
+      }
     },
-    getFileItemSubtitle: function (filepath) {
-      return this.openedDir.getShortened(path.dirname(filepath));
+    getFileItemSubtitle: function (file) {
+      if (this.noteLocation.local) {
+        return this.openedDir.getShortened(path.parse(file.id).dir);
+      } else {
+        return "";
+      }
     }
   },
   template: `
@@ -246,8 +254,8 @@ module.exports = {
           <div class="divider" v-if="i == 0 || typeof(sortedNoteIdx[i-1]) !== 'string'"></div>
           <file-item ref="fileItems"
             :file="displayNoteList[v]"
-            :title="getFileItemTitle(displayNoteList[v].id)"
-            :subtitle="getFileItemSubtitle(displayNoteList[v].id)"
+            :title="getFileItemTitle(displayNoteList[v])"
+            :subtitle="getFileItemSubtitle(displayNoteList[v])"
             @click="openFile"
             @tick="checkTick"
           >

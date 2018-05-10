@@ -175,6 +175,35 @@ class GDrive {
     }).then((fid) => this.getFileContent(fid));
   }
 
+  updateData(newContent) { // untested
+    return this.getDataFile()
+      .then(files => {
+        if (files.length > 0) {
+          return this.updateFileContent(files[0].id, newContent);
+        } else {
+          return this.createDataFile().then(() => this.updateData(newContent));
+        }
+      })
+    // if (this.signedIn) {
+    //   return this.getDataFile().then((res) => {
+    //     if (res.result.files.length > 0) {
+    //       return gapi.client.request({
+    //         path: "/upload/drive/v3/files/" + res.result.files[0].id,
+    //         method: "PATCH",
+    //         params: {
+    //           uploadType: "media"
+    //         },
+    //         body: newContent
+    //       })
+    //     } else {
+    //       return this.createDataFile().then(() => this.updateData(newContent));
+    //     }
+    //   })
+    // } else {
+    //   return this.notSignedIn();
+    // }
+  }
+
 }
 
 module.exports = GDrive;

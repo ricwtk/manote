@@ -90,6 +90,7 @@ module.exports = {
           <div>{{ filename }} <i class="mdi mdi-pencil c-hand" @click="$refs.modalRename.toggle()"></i></div>
           <div class="text-gray" style="font-size:85%">{{ dirname }}</div>
         </div>
+        <div v-else class="grow"></div>
         <div class="text-right h-box v-center">
           <div class="mdi mdi-dots-horizontal c-hand" title="More actions" @click="toggleMore"></div>
           <div class="mx-1"></div>
