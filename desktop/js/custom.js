@@ -485,30 +485,10 @@ new Vue({
         this.stat.running = false;
       });
     },
-    updateTags(ev, name) {
-      if (ev.key == "," || ev.key == "Enter") {
-        ev.preventDefault();
-        if (ev.target.value != "") {
-          if (!this.unsaved[name].content.includes(ev.target.value)) {
-            this.unsaved[name].content.push(ev.target.value);
-          }
-          ev.target.value = "";
-        }
-      }
-    },
-    removeTag(name, tag) {
-      this.unsaved[name].content.splice(this.unsaved[name].content.findIndex(el => el == tag), 1);
-    },
-    changeDateTime(ev, name) {
-      console.log(ev.target.value, name);
-    },
     addNewFields: function (newFields) {
       newFields.order.forEach(el => {
         this.unsaved.addNewField(el, newFields[el].type);
       });
-    },
-    removeField: function (name) {
-      this.unsaved.removeField(name);
     },
     saveNote: function () {
       this.unsaved.modifiedOn(new Date());
@@ -542,12 +522,6 @@ new Vue({
         if (shiftTo < shiftFrom) shiftFrom += 1;
         this.noteList.remote.splice(shiftFrom, 1);
       }
-    },
-    matchSearch: function (note) {
-      return this.searchQuery.split().some(el => Object.keys(note).filter(k => note[k].type).map(k => k + " " + note[k].content).join(" ").toLowerCase().indexOf(el.toLowerCase()) > -1);
-    },
-    resizeTA: function (ev, name) {
-      this.$set(this.unsaved[name], "height", window.getComputedStyle(ev.target).height);
     },
     renameOpenedFile: function (newName) {
       fs.rename(this.openedFile.id, newName, (err) => {
