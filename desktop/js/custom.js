@@ -434,20 +434,27 @@ new Vue({
           .then((newNote) => gd.updateNote(newNote))
       }
     },
-    deleteNote: function (fid) {
+    deleteNote: function (nid) {
       this.stat.running = true;
+      let deletePromise;
       if (this.noteLocation.local) {
-        fs.unlink(fid, (err) => {
-          if (err) throw err;
-          this.noteList.updateLocal();
-          this.closeNote();
-          this.stat.running = false;
+        deletePromise = new Promise((resolve, reject) => {
+          fs.unlink(nid, (err) => {
+            if (err) reject(err);
+            resolve(nid);
+          });
         });
+      } else {
+        deletePromise = gd.removeNotes([nid]);
       }
-    },
-    deleteLocalNotes: function (notes) {
-      this.stat.running = true;
-      
+      deletePromise.then(() => {
+        let loc = this.noteLocation.local ? "local" : "remote";
+        this.noteList[loc].splice(this.noteList[loc].findIndex(el => el.id == nid), 1);
+        this.closeNote();
+        this.stat.running = false;
+      }).catch(err => {
+        console.log(err);
+      })
     },
     deleteNotes: function (notes) {
       this.stat.running = true;
