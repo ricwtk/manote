@@ -119,7 +119,7 @@ class GDrive {
         alt: "media"
       }, (err, resp) => {
         if (err) reject(err);
-        resolve(resp);
+        resolve({ id: fileId, data: resp.data });
       })
     });
   }
@@ -136,7 +136,7 @@ class GDrive {
         fields: 'id'
       }, (err, resp) => {
         if (err) reject(err);
-        resolve(resp.data.id);
+        resolve({ id: resp.data.id, data: newContent });
       });
     });
   }
@@ -165,76 +165,62 @@ class GDrive {
         if (err) reject(err);
         resolve(resp.data.files);
       });
-    });
-  }
-
-  getData() {
-    return this.getDataFile().then(files => {
+    }).then(files => {
       if (files.length > 0) {
         return files[0].id;
       } else {
         return this.createDataFile();
       }
-    }).then((fid) => this.getFileContent(fid));
+    });
+  }
+
+  getData() {
+    return this.getDataFile().then((fid) => this.getFileContent(fid));
   }
 
   updateData(newContent) { // untested
     return this.getDataFile()
-      .then(files => {
-        if (files.length > 0) {
-          return files[0].id;
-        } else {
-          return this.createDataFile();
-        }
-      })
       .then(fid => {
         return this.updateFileContent(fid, newContent);
       });
   }
 
   updateNote(newNote) {
-    return this.getDataFile()
-      .then(files => {
-        if (files.length > 0) {
-          return files[0].id;
-        } else {
-          return this.createDataFile();
+    return this.getData().then(resp => {
+      let content = resp.data ? resp.data : [];
+      let idx = content.findIndex(el => el.id == newNote.id);
+      if (idx > -1) {
+        content[idx] = JSON.parse(JSON.stringify(newNote));
+      } else {
+        content.push(JSON.parse(JSON.stringify(newNote)));
+      }
+      return this.updateFileContent(resp.id, content);
+    })
+  }
+
+  removeNotes(noteIds) {
+    return this.getData().then(resp => {
+      let content = resp.data ? resp.data : [];
+      noteIds.forEach(noteid => {
+        let idx = content.findIndex(el => el.id == noteid);
+        if (idx > -1) {
+          content.splice(idx, 1);
         }
-      }).then(fid => {
-        return this.getFileContent(fid).then(resp => {  
-          let content = resp.data ? resp.data : [];
-          let idx = content.findIndex(el => el.id == newNote.id);
-          if (idx > -1) {
-            content[idx] = JSON.parse(JSON.stringify(newNote));
-          } else {
-            content.push(JSON.parse(JSON.stringify(newNote)));
-          }
-          return this.updateFileContent(fid, content);
-        });
-      })
+        return this.updateFileContent(resp.id, content);
+      });
+    });
   }
 
   sortNote(noteId, toId) {
-    return this.getDataFile().then(files => {
-      if (files.length > 0) {
-        return files[0].id;
-      } else {
-        return this.createDataFile();
+    return this.getData().then(resp => {
+      let content = resp.data ? resp.data : [];
+      let idx = content.findIndex(el => el.id == noteId);
+      if (idx > -1) {
+        content.splice(toId, 0, content[idx]);
+        if (toId < idx) idx += 1;
+        content.splice(idx, 1);
       }
-    }).then(fid => {
-      return this.getFileContent(fid).then(resp => {
-        let content = resp.data ? resp.data : [];
-        let idx = content.findIndex(el => el.id == noteId);
-        if (idx > -1) {
-          content.splice(toId, 0, content[idx]);
-          if (toId < idx) idx += 1;
-          content.splice(idx, 1);
-        }
-        return this.updateFileContent(fid, content)
-          .then(() => {
-            return content;
-          });
-      });
+      return this.updateFileContent(resp.id, content);
     })
   }
 

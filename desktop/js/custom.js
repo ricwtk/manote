@@ -447,34 +447,36 @@ new Vue({
     },
     deleteLocalNotes: function (notes) {
       this.stat.running = true;
-      Promise.all(notes.map(note => {
-        return new Promise((resolve, reject) => {
-          fs.unlink(note.id, err => { 
-            if (err) reject(err); 
-            resolve();
+      
+    },
+    deleteNotes: function (notes) {
+      this.stat.running = true;
+      let deletePromise;
+      if (this.noteLocation.local) {
+        deletePromise = Promise.all(notes.map(note => {
+          return new Promise((resolve, reject) => {
+            fs.unlink(note.id, err => { 
+              if (err) reject(err); 
+              resolve();
+            });
           });
-        });
-      })).then(() => {
+        }));
+      } else {
+        deletePromise = gd.removeNotes(notes.map(note => note.id));
+      }
+      deletePromise.then(() => {
+        let loc = this.noteLocation.local ? "local" : "remote";
         notes.forEach(note => {
-          this.noteList.local.splice(this.noteList.local.findIndex(el => el.id == note.id), 1);
+          this.noteList[loc].splice(this.noteList[loc].findIndex(el => el.id == note.id), 1);
         });
         this.$refs.listContainer.discardSelection();
-        if (this.noteList.local.map(n => n.id).includes(this.openedFile.id)) {
+        if (this.noteList[loc].map(n => n.id).includes(this.openedFile.id)) {
           this.$nextTick(() => { this.$refs.listContainer.selectFile(this.openedFile.id) });
         } else {
           this.closeNote();
         }
         this.stat.running = false;
       });
-    },
-    deleteNotes: function () {
-      this.stored.noteList = this.stored.noteList.filter(el => !this.tickedFiles.includes(el.id));
-      this.stat.running = true;
-      gd.removeNotes(this.tickedFiles).then(res => {
-        console.log(res);
-        updateList(res);
-      }, showErr).then(res => { this.stat.running = false });
-      this.discardSelection();
     },
     updateTags(ev, name) {
       if (ev.key == "," || ev.key == "Enter") {
@@ -526,7 +528,7 @@ new Vue({
     },
     sortNotes: function (shiftFrom, shiftTo) {
       this.stat.running = true;
-      gd.sortNote(this.noteList.remote[shiftFrom].id, shiftTo).then((content) => this.noteList.setRemote(content)).then(res => { this.stat.running = false });
+      gd.sortNote(this.noteList.remote[shiftFrom].id, shiftTo).then((resp) => this.noteList.setRemote(resp.data)).then(res => { this.stat.running = false });
       if (this.noteLocation.local) {}
       else {
         this.noteList.remote.splice(shiftTo, 0, this.noteList.remote[shiftFrom]);

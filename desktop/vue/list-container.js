@@ -193,9 +193,7 @@ module.exports = {
       }
     },
     deleteNotes: function () {
-      if (this.noteLocation.local) {
-        this.$emit("delete-local-notes", this.$refs.fileItems.filter(fi => fi.isTicked).map(fi => fi.file));
-      }
+      this.$emit("delete-notes", this.$refs.fileItems.filter(fi => fi.isTicked).map(fi => fi.file));
     },
     checkTick: function () {
       this.$nextTick(() => {
