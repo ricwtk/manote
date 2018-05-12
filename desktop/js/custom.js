@@ -459,30 +459,30 @@ new Vue({
     },
     deleteNotes: function (notes) {
       this.stat.running = true;
-      let deletePromise;
+      let loc = this.noteLocation.local ? "local" : "remote";
+      notes.forEach(note => {
+        this.noteList[loc].splice(this.noteList[loc].findIndex(el => el.id == note.id), 1);
+      });
+      this.$refs.listContainer.discardSelection();
+      if (this.noteList[loc].map(n => n.id).includes(this.openedFile.id)) {
+        this.$nextTick(() => { this.$refs.listContainer.selectFile(this.openedFile.id) });
+      } else {
+        this.closeNote();
+      }
+      let p;
       if (this.noteLocation.local) {
-        deletePromise = Promise.all(notes.map(note => {
+        p = Promise.all(notes.map(note => {
           return new Promise((resolve, reject) => {
             fs.unlink(note.id, err => { 
               if (err) reject(err); 
               resolve();
             });
           });
-        }));
+        })).then(() => this.noteList.updateLocal());
       } else {
-        deletePromise = gd.removeNotes(notes.map(note => note.id));
+        p = gd.removeNotes(notes.map(note => note.id)).then(resp => this.noteList.setRemote(resp.data));
       }
-      deletePromise.then(() => {
-        let loc = this.noteLocation.local ? "local" : "remote";
-        notes.forEach(note => {
-          this.noteList[loc].splice(this.noteList[loc].findIndex(el => el.id == note.id), 1);
-        });
-        this.$refs.listContainer.discardSelection();
-        if (this.noteList[loc].map(n => n.id).includes(this.openedFile.id)) {
-          this.$nextTick(() => { this.$refs.listContainer.selectFile(this.openedFile.id) });
-        } else {
-          this.closeNote();
-        }
+      p.then(() => { 
         this.stat.running = false;
       });
     },
