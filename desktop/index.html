@@ -73,7 +73,8 @@
         @remove-dir="removeDirectory"
         @set-local="setLocal"
         @set-remote="setRemote"
-        @show-archive="showArchive"
+        @show-local-archive="showLocalArchive"
+        @show-remote-archive="showRemoteArchive"
         @show-global-default="showGlobalDefault"
         @show-dir-default="showDirDefault"
         @sign-in-google="signInGoogle"
@@ -98,7 +99,7 @@
 
       <list-display ref="archive"
         header-text="Archive"
-        :list="archiveList"
+        :list="archiveLocal ? archiveLocalList : archiveRemoteList"
         :actions="archiveListActions"
         @delete="deleteArchive"
         @unarchive="unarchive"

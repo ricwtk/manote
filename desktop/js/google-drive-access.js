@@ -139,6 +139,17 @@ class GDrive {
     });
   }
 
+  deleteFile(fid) {
+    return new Promise((resolve, reject) => {
+      this.drive.files.delete({
+        fileId: fid
+      }, err => {
+        if (err) reject (err);
+        resolve({ id: fid });
+      });
+    })
+  }
+
   createDataFile() {
     return new Promise((resolve, reject) => {
       this.drive.files.create({
@@ -277,7 +288,7 @@ class GDrive {
       return Promise.all(noteIds.filter(nid => resp[0].data.map(n => n.id).includes(nid)).map(nid => {
         return new Promise((resolve, reject) => {
           let noteToArchive = resp[0].data.splice(resp[0].data.findIndex(el => el.id == nid), 1);
-          resp[1].data.push(JSON.parse(JSON.stringify(noteToArchive)));
+          resp[1].data.push(JSON.parse(JSON.stringify(noteToArchive[0])));
           resolve();
         })
       })).then(() => {
@@ -294,12 +305,14 @@ class GDrive {
       return Promise.all(noteIds.filter(nid => resp.data.map(n => n.id).includes(nid)).map(nid => {
         return new Promise((resolve, reject) => {
           resp.data.splice(resp.data.findIndex(el => el.id == nid), 1);
+          resolve();
         })
       })).then(() => {
         return this.updateFileContent(resp.id, resp.data);
       });
     })
   }
+
 }
 
 module.exports = GDrive;

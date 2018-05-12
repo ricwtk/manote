@@ -36,8 +36,11 @@ module.exports = {
     switchToRemote: function () {
       this.$emit("set-remote");
     },
-    showArchive: function () {
-      this.$emit("show-archive");
+    showLocalArchive: function () {
+      this.$emit("show-local-archive");
+    },
+    showRemoteArchive: function () {
+      this.$emit("show-remote-archive");
     },
     showDirDefault: function () {
       this.$emit("show-dir-default");
@@ -79,6 +82,7 @@ module.exports = {
           <div class="menu-item c-hand">
             <a @click="switchToRemote">Notes on <i class="mdi mdi-google-drive"></i> Google Drive</a>
           </div>
+          <div class="menu-item c-hand"><a @click="showRemoteArchive">Show archive</a></div>
         </template>
         <div class="divider" data-content="Local notes"></div>
         <div class="menu-item c-hand"><a @click="switchToLocal">Notes on <i class="mdi mdi-laptop"></i> this machine</a></div>
@@ -93,7 +97,7 @@ module.exports = {
             <a class="text-center" @click="toggleDirChooser"><i class="mdi mdi-plus"></i> Add directory</a>
           </div>
         </div>
-        <div class="menu-item c-hand"><a @click="showArchive">Show archive</a></div>
+        <div class="menu-item c-hand"><a @click="showLocalArchive">Show archive</a></div>
         <div class="menu-item c-hand"><a @click="showDirDefault">Directory default</a></div>
         <div class="menu-item c-hand"><a @click="showGlobalDefault">Global default</a></div>
         <div class="divider"></div>

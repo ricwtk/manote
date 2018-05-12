@@ -184,6 +184,12 @@ var noteList = {
       resolve();
     })
   },
+  setRemoteArchive: function (notes) {
+    return new Promise(resolve => {
+      this.archive.remote = notes.map(el => new Note(el.id, el.created, el.modified, el))
+      resolve();
+    })
+  },
   updateRemote: function () {
     return gd.getData().then((resp) => {
       return resp.data;
@@ -205,6 +211,19 @@ var noteList = {
       resolve(newNote);
     })
   },
+  updateRemoteArchive: function () {
+    return gd.getArchive().then(resp => {
+      this.setRemoteArchive(resp.data);
+      return resp;
+    })
+  },
+  deleteFromRemoteArchive: function (nid) {
+    this.archive.remote.splice(this.archive.remote.findIndex(el => el.id == nid), 1);
+    return gd.deleteFromArchive([nid]).then(resp => {
+      this.setRemoteArchive(resp.data);
+      return resp;
+    });
+  }
 }
 
 
@@ -313,6 +332,7 @@ new Vue({
     ddLocation: "",
     ddFormat: {},
     splitInst: null,
+    archiveLocal: true,
     archiveListActions: [
       {
         action: "delete", 
@@ -341,18 +361,23 @@ new Vue({
     hasUnsaved: function () {
       return JSON.stringify(this.unsaved) != JSON.stringify(this.openedFile);
     },
-    archiveList: function () {
-      if (this.noteLocation.local) {
-        return this.noteList.archive.local.map(f => {
-          return {
-            title: path.parse(f).name,
-            subtitle: path.parse(f).dir,
-            value: f
-          }
-        });
-      } else {
-        return [];
-      }
+    archiveLocalList: function () {
+      return this.noteList.archive.local.map(f => {
+        return {
+          title: path.parse(f).name,
+          subtitle: path.parse(f).dir,
+          value: f
+        }
+      });
+    },
+    archiveRemoteList: function () {
+      return this.noteList.archive.remote.map(n => {
+        return {
+          title: n.Title ? n.Title.content : "",
+          subtitle: "",
+          value: n
+        }
+      })
     }
   },
   mounted: function () {
@@ -543,7 +568,9 @@ new Vue({
       } else {
         gd.moveToArchive([nid])
           .then(() => {
-            // this.noteList.updateRemoteArchive();
+            this.$nextTick(() => {
+              this.noteList.updateRemoteArchive();
+            });
             this.stat.running = false;
           });
       }
@@ -569,6 +596,9 @@ new Vue({
         });
       } else {
         gd.moveToArchive(notes.map(note => note.id)).then(() => {
+          this.$nextTick(() => {
+            this.noteList.updateRemoteArchive();
+          });
           this.stat.running = false;
         })
       }
@@ -594,8 +624,13 @@ new Vue({
         this.splitInst = null;
       }
     },
-    showArchive: function () {
-      this.$refs.archive.toggle();
+    showLocalArchive: function () {
+      this.archiveLocal = true;
+      this.$nextTick(() => { this.$refs.archive.toggle() });
+    },
+    showRemoteArchive: function () {
+      this.archiveLocal = false;
+      this.$nextTick(() => { this.$refs.archive.toggle() });
     },
     getFormat: function () {
       let defaultFormat = this.openedFile.copy();
@@ -647,16 +682,33 @@ new Vue({
       localSetting.setDefault(path.dirname(this.ddLocation), this.ddFormat);
     },
     deleteArchive: function (f) {
-      fs.unlinkSync(f);
-      this.noteList.updateLocalArchive();
+      this.stat.running = true;
+      if (typeof(f) == "string") {
+        fs.unlinkSync(f);
+        this.noteList.updateLocalArchive();
+        this.stat.running = false;
+      } else {
+        this.noteList.deleteFromRemoteArchive(f.id).then(() => {
+          this.stat.running = false;
+        });
+      }
     },
     viewArchive: function (f) {
-      this.noteInMinimal = {
-        title: path.parse(f).name,
-        subtitle: path.parse(f).dir,
-        content: JSON.parse(fs.readFileSync(f))
+      if (typeof(f) == "string") {
+        this.noteInMinimal = {
+          title: path.parse(f).name,
+          subtitle: path.parse(f).dir,
+          content: JSON.parse(fs.readFileSync(f))
+        }
+        this.$refs.minimalNote.toggle();
+      } else {
+        this.noteInMinimal = {
+          title: f.Title ? f.Title.content : "",
+          subtitle: "",
+          content: f
+        }
+        this.$refs.minimalNote.toggle();
       }
-      this.$refs.minimalNote.toggle();
     },
     signInGoogle: function () {
       this.$refs.signInUi.toggle();
@@ -729,7 +781,7 @@ function afterSignIn(cUser) {
   currentUser.name = cUser.displayName;
   currentUser.email = cUser.emailAddress;
   currentUser.profilePic = cUser.photoLink;
-  return noteList.updateRemote();
+  return Promise.all([ noteList.updateRemote(), noteList.updateRemoteArchive() ]);
 }
 
 gd = new GDrive();
