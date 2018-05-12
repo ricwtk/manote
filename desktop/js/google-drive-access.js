@@ -1,5 +1,4 @@
 const fs = require("fs");
-const readline = require("readline");
 const path = require("path");
 const {google} = require("googleapis");
 const OAuth2Client = google.auth.OAuth2;

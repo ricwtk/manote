@@ -163,7 +163,6 @@ module.exports = {
       });
     },
     selectFile: function (f) {
-      console.log(f, this.$refs.fileItems);
       this.$refs.fileItems.forEach(fi => {
         console.log(fi.file.id, f);
         if (fi.file.id == f) {

@@ -6,6 +6,8 @@ const fs = require("fs");
 const path = require("path");
 const localSetting = require("./js/get-local.js");
 const {shell} = require("electron");
+const GDrive = require("./js/google-drive-access.js");
+const LAccess = require("./js/local-access.js");
 const Split = require("split.js");
 const splitConfig = {
   sizes: [35,65],
@@ -158,6 +160,19 @@ var noteList = {
           this.archive.local = [...this.archive.local, ...localSetting.getArchive(d)];
         }
       })
+    });
+  },
+  createLocalNote: function (dirOfNew) {
+    return new Promise((resolve, reject) => {
+      let newFile = path.join(dirOfNew, "Untitled_");
+      let i = 0;
+      while (fs.existsSync(newFile + i + ".manote")) {
+        i += 1;
+      }
+      newFile = newFile + i + ".manote";
+      let newNote = new Note(newFile, null, null, localSetting.getDefault(dirOfNew));
+      this.local.push(newNote);
+      resolve(newNote);
     });
   },
   setRemote: function (notes) {
@@ -416,19 +431,16 @@ new Vue({
     },
     createNote: function (dirOfNew) {
       if (this.noteLocation.local) {
-        let newFile = path.join(dirOfNew, "Untitled_");
-        let i = 0;
-        while (fs.existsSync(newFile + i + ".manote")) {
-          i += 1;
-        }
-        newFile = newFile + i + ".manote";
-        (new Note(newFile, null, null, localSetting.getDefault(dirOfNew))).saveToFile(newFile);
-        noteList.updateLocal();
-        this.$nextTick(() => {
-          this.$nextTick(() => {
-            this.$refs.listContainer.selectFile(newFile);
-          })
-        });
+        this.noteList.createLocalNote(dirOfNew)
+          .then(newNote => la.updateNote(newNote))
+          .then((nid) => {
+            this.noteList.updateLocal();
+            this.$nextTick(() => {
+              this.$nextTick(() => {
+                this.$refs.listContainer.selectFile(nid);
+              })
+            });
+          });
       } else {
         this.noteList.createRemoteNote()
           .then(newNote => gd.updateNote(newNote))
@@ -442,12 +454,7 @@ new Vue({
       this.closeNote();
       let p;
       if (this.noteLocation.local) {
-        p = new Promise((resolve, reject) => {
-          fs.unlink(nid, err => {
-            if (err) reject(err);
-            resolve(nid);
-          })
-        }).then(() => this.noteList.updateLocal());
+        p = la.removeNotes([nid]).then(() => this.noteList.updateLocal());
       } else {
         p = gd.removeNotes([nid]).then(resp => this.noteList.setRemote(resp.data));
       }
@@ -471,14 +478,7 @@ new Vue({
       }
       let p;
       if (this.noteLocation.local) {
-        p = Promise.all(notes.map(note => {
-          return new Promise((resolve, reject) => {
-            fs.unlink(note.id, err => { 
-              if (err) reject(err); 
-              resolve();
-            });
-          });
-        })).then(() => this.noteList.updateLocal());
+        p = la.removeNotes(notes.map(note => note.id)).then(() => this.noteList.updateLocal());
       } else {
         p = gd.removeNotes(notes.map(note => note.id)).then(resp => this.noteList.setRemote(resp.data));
       }
@@ -701,30 +701,7 @@ new Vue({
 //   });
 // }
 
-function initApis() {
-  gd = new GDrive();
-  gd.signedInFunction = () => {
-    let gUser = gd.getUserProfile();
-    currentUser.name = gUser.getName();
-    currentUser.email = gUser.getEmail();
-    currentUser.profilePic = gUser.getImageUrl();
-    refreshList();
-  }
-
-  gd.signedOutFunction = () => {
-    currentUser.name = null;
-    currentUser.email = null;
-    currentUser.profilePic = null;
-  }
-
-  gd.signedInAtInit = () => {
-    document.querySelectorAll(".sidebar")[0].classList.remove("active");
-  }
-
-  gd.signedOutAtInit = () => {
-    document.querySelectorAll(".sidebar")[0].classList.add("active");
-  }
-}
+la = new LAccess();
 
 localSetting.getRecent().forEach(d => {
   openedDir.addToList(d);
@@ -740,7 +717,6 @@ function afterSignIn(cUser) {
   return noteList.updateRemote();
 }
 
-const GDrive = require("./js/google-drive-access.js");
 gd = new GDrive();
 gd.signInInit()
 .then(afterSignIn)
