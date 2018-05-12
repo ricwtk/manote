@@ -173,7 +173,12 @@ class GDrive {
   }
 
   getData() {
-    return this.getDataFile().then((fid) => this.getFileContent(fid));
+    return this.getDataFile().then((fid) => this.getFileContent(fid)).then(resp => {
+      return {
+        id: resp.id,
+        data: resp.data ? resp.data : []
+      }
+    });
   }
 
   updateData(newContent) { // untested
@@ -222,7 +227,7 @@ class GDrive {
     })
   }
 
-  createArchiveFile() { //untested
+  createArchiveFile() {
     return new Promise((resolve, reject) => {
       this.drive.files.create({
         resource: {
@@ -237,7 +242,7 @@ class GDrive {
     })
   }
 
-  getArchiveFile() { //untested
+  getArchiveFile() {
     return new Promise((resolve, reject) => {
       this.drive.files.list({
         spaces: "appDataFolder",
@@ -255,7 +260,7 @@ class GDrive {
     });
   }
 
-  getArchive() { //untested
+  getArchive() {
     return this.getArchiveFile().then((fid) => this.getFileContent(fid)).then(resp => {
       return {
         id: resp.id,
@@ -264,7 +269,7 @@ class GDrive {
     });
   }
 
-  moveToArchive(noteIds) { //untested
+  moveToArchive(noteIds) {
     return Promise.all([
       this.getData(), 
       this.getArchive()
@@ -284,7 +289,7 @@ class GDrive {
     })
   }
 
-  deleteFromArchive(noteIds) { //untested
+  deleteFromArchive(noteIds) {
     return this.getArchive().then(resp => {
       return Promise.all(noteIds.filter(nid => resp.data.map(n => n.id).includes(nid)).map(nid => {
         return new Promise((resolve, reject) => {
