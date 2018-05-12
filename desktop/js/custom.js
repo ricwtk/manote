@@ -493,21 +493,18 @@ new Vue({
     },
     saveNote: function () {
       this.unsaved.modifiedOn(new Date());
-      // console.log("unsaved", JSON.stringify(this.unsaved, null, 2));
       this.openedFile.updateFrom(this.unsaved);
-      // console.log("openedFile", JSON.stringify(this.openedFile, null, 2));
       console.log("saving note");
       this.stat.running = true;
       if (this.noteLocation.local) {
-        fs.writeFile(this.openedFile.id, JSON.stringify(this.openedFile, null, 2), (err) => {
-          if (err) throw err;
+        ls.updateNote(this.openFile).then(() => {
           console.log("note saved");
-          this.stat.running = false;
-        });
+          this.noteList.updateLocal();
+        }, showErr).then(() => { this.stat.running = false });
       } else {
         gd.updateNote(this.openedFile).then(res => {
           console.log(res);
-          updateList(res);
+          this.noteList.setRemote(res.data);
         }, showErr).then(res => { this.stat.running = false });
       }
     },

@@ -17,14 +17,10 @@ class LAccess {
 
   updateNote(note) {
     return new Promise((resolve, reject) => {
-      if (fs.existsSync(note.id)) {
-        // update note
-      } else {
-        fs.writeFile(note.id, JSON.stringify(note, null, 2), (err) => {
-          if (err) reject(err);
-          resolve(note.id);
-        })
-      }
+      fs.writeFile(note.id, JSON.stringify(note, null, 2), err => {
+        if (err) reject(err);
+        resolve(note.id);
+      });
     });
   }
 }
