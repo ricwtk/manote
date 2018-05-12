@@ -206,8 +206,8 @@ class GDrive {
         if (idx > -1) {
           content.splice(idx, 1);
         }
-        return this.updateFileContent(resp.id, content);
       });
+      return this.updateFileContent(resp.id, content);
     });
   }
 
