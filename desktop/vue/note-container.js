@@ -109,7 +109,7 @@ module.exports = {
       </div>
       <div class="h-box grow v-center wrap flex-right hide" ref="moreActions">
         <button class="btn btn-primary btn-sm my-1" @click="setDefault">Set as default</button>
-        <button class="btn btn-primary btn-sm ml-1 my-1" @click="setGlobalDefault">Set as global default</button>
+        <button class="btn btn-primary btn-sm ml-1 my-1" v-if="noteLocation.local" @click="setGlobalDefault">Set as global default</button>
         <button class="btn btn-primary btn-sm ml-1 my-1" @click="archive">Archive</button>
         <button class="btn btn-primary btn-sm ml-1 my-1" @click="deleteNote">Delete</button>
       </div>

@@ -187,9 +187,7 @@ module.exports = {
       this.checkTick();
     },
     archiveNotes: function () {
-      if (this.noteLocation.local) {
-        this.$emit("archive-local-notes", this.$refs.fileItems.filter(fi => fi.isTicked).map(fi => fi.file));
-      }
+      this.$emit("archive-notes", this.$refs.fileItems.filter(fi => fi.isTicked).map(fi => fi.file));
     },
     deleteNotes: function () {
       this.$emit("delete-notes", this.$refs.fileItems.filter(fi => fi.isTicked).map(fi => fi.file));

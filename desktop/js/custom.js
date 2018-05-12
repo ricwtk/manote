@@ -529,31 +529,49 @@ new Vue({
         this.$set(this.unsaved, "id", newName);
       });
     },
-    archive: function (filepath) {
-      localSetting.archive(filepath)
-        .then(() => {
-          this.noteList.local.splice(this.noteList.local.findIndex(el => el.id == filepath), 1);
-          this.noteList.updateLocalArchive();
-          this.closeNote();
-        });
-    },
-    archiveLocalNotes: function (notes) {
+    archive: function (nid) {
       this.stat.running = true;
-      Promise.all(notes.map(note => 
-        localSetting.archive(note.id)
-      )).then(() => {
-        notes.forEach(note => {
-          this.noteList.local.splice(this.noteList.local.findIndex(el => el.id == note.id), 1);
-        });
-        this.noteList.updateLocalArchive();
-        this.$refs.listContainer.discardSelection();
-        if (this.noteList.local.map(n => n.id).includes(this.openedFile.id)) {
-          this.$nextTick(() => { this.$refs.listContainer.selectFile(this.openedFile.id) });
-        } else {
-          this.closeNote();
-        }
-        this.stat.running = false;
+      let loc = this.noteLocation.local ? "local" : "remote";
+      this.noteList[loc].splice(this.noteList[loc].findIndex(el => el.id == nid), 1);
+      this.closeNote();
+      if (this.noteLocation.local) {
+        localSetting.archive(nid)
+          .then(() => {
+            this.noteList.updateLocalArchive();
+            this.stat.running = false;
+          });
+      } else {
+        gd.moveToArchive([nid])
+          .then(() => {
+            // this.noteList.updateRemoteArchive();
+            this.stat.running = false;
+          });
+      }
+    },
+    archiveNotes: function (notes) {
+      this.stat.running = true;
+      let loc = this.noteLocation.local ? "local" : "remote";
+      notes.forEach(note => {
+        this.noteList[loc].splice(this.noteList[loc].findIndex(el => el.id == note.id), 1);
       });
+      this.$refs.listContainer.discardSelection();
+      if (this.noteList[loc].map(n => n.id).includes(this.openedFile.id)) {
+        this.$nextTick(() => { this.$refs.listContainer.selectFile(this.openedFile.id) });
+      } else {
+        this.closeNote();
+      }
+      if (this.noteLocation.local) {
+        Promise.all(notes.map(note => 
+          localSetting.archive(note.id)
+        )).then(() => {
+          this.noteList.updateLocalArchive();
+          this.stat.running = false;
+        });
+      } else {
+        gd.moveToArchive(notes.map(note => note.id)).then(() => {
+          this.stat.running = false;
+        })
+      }
     },
     unarchive: function (f) {
       localSetting.unarchive(f)
