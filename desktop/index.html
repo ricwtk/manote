@@ -28,7 +28,7 @@
         :note-location="noteLocation"
         :stat="stat"
         @toggle-sidebar="$refs.sidebar.toggle()"
-        @reload="noteList.updateLocal()"
+        @reload="reload"
       ></navbar>
 
       <div class="content" id="note-list-and-display">

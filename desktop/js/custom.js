@@ -408,6 +408,20 @@ new Vue({
     })
   },
   methods: {
+    reload: function () {
+      this.stat.running = true;
+      if (this.noteLocation.local) {
+        this.noteList.updateLocal();
+        this.stat.running = false;
+      } else {
+        Promise.all([
+          this.noteList.updateRemote(),
+          this.noteList.updateRemoteArchive()
+        ]).then(() => {
+          this.stat.running = false;
+        })
+      }
+    },
     addDirectory: function (newDir) {
       this.openedDir.addToList(newDir);
       noteList.updateLocal();
