@@ -433,9 +433,11 @@ new Vue({
     },
     setLocal: function () {
       this.noteLocation.setLocal();
+      this.$refs.sidebar.toggle();
     },
     setRemote: function () {
       this.noteLocation.setRemote();
+      this.$refs.sidebar.toggle();
     },
     openFile: function (file) {
       if (file.id == this.openedFile.id) {
