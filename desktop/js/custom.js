@@ -207,7 +207,7 @@ var noteList = {
         Content: { type: "multiple", content: "", height: "auto" },
         Categories: { type: "tags", content: "" },
       });
-      this.noteList.remote.push(newNote);
+      this.remote.push(newNote);
       resolve(newNote);
     })
   },
@@ -223,6 +223,19 @@ var noteList = {
       this.setRemoteArchive(resp.data);
       return resp;
     });
+  },
+  unarchiveRemote: function (nids) {
+    nids.filter(nid => this.archive.remote.map(n => n.id).includes(nid)).map(nid => {
+      let noteToRestore = this.archive.remote.splice(this.archive.remote.findIndex(el => el.id == nid), 1);
+      this.remote.push(noteToRestore[0]);
+    });
+    return gd.unarchive(nids).then(resp => {
+      console.log(resp);
+      return Promise.all([
+        this.setRemoteArchive(resp[0].data),
+        this.setRemote(resp[1].data)
+      ])
+    }).then(() => { console.log(this.remote, this.archive.remote); });
   }
 }
 
@@ -568,9 +581,7 @@ new Vue({
       } else {
         gd.moveToArchive([nid])
           .then(() => {
-            this.$nextTick(() => {
-              this.noteList.updateRemoteArchive();
-            });
+            this.noteList.updateRemoteArchive();
             this.stat.running = false;
           });
       }
@@ -604,11 +615,21 @@ new Vue({
       }
     },
     unarchive: function (f) {
-      localSetting.unarchive(f)
-        .then((newFile) => {
-          this.noteList.updateLocal();
-          this.closeNote();
-        })
+      this.stat.running = true;
+      if (typeof(f) == "string") {
+        localSetting.unarchive(f)
+          .then((newFile) => {
+            this.noteList.updateLocal();
+            this.closeNote();
+            this.stat.running = false;
+          })
+      } else {
+        this.noteList.unarchiveRemote([f.id])
+          .then(() => {
+            this.closeNote();
+            this.stat.running = false;
+          });
+      }
     },
     closeNote: function () {
       if (this.$refs.noteContainer) this.$refs.noteContainer.hide();

@@ -17,6 +17,8 @@ function createWindow () {
     slashes: true
   }))
 
+  win.maximize();
+
   // Open the DevTools.
   win.webContents.openDevTools()
 

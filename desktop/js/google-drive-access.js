@@ -302,14 +302,26 @@ class GDrive {
 
   deleteFromArchive(noteIds) {
     return this.getArchive().then(resp => {
-      return Promise.all(noteIds.filter(nid => resp.data.map(n => n.id).includes(nid)).map(nid => {
-        return new Promise((resolve, reject) => {
-          resp.data.splice(resp.data.findIndex(el => el.id == nid), 1);
-          resolve();
-        })
-      })).then(() => {
-        return this.updateFileContent(resp.id, resp.data);
+      noteIds.filter(nid => resp.data.map(n => n.id).includes(nid)).map(nid => {
+        resp.data.splice(resp.data.findIndex(el => el.id == nid), 1);
+      })
+      return this.updateFileContent(resp.id, resp.data);
+    });
+  }
+
+  unarchive(noteIds) {
+    return Promise.all([
+      this.getArchive(),
+      this.getData()
+    ]).then(resp => {
+      noteIds.filter(nid => resp[0].data.map(n => n.id).includes(nid)).map(nid => {
+        let noteToRestore = resp[0].data.splice(resp[0].data.findIndex(el => el.id == nid), 1);
+        resp[1].data.push(JSON.parse(JSON.stringify(noteToRestore[0])));
       });
+      return Promise.all([
+        this.updateFileContent(resp[0].id, resp[0].data),
+        this.updateFileContent(resp[1].id, resp[1].data)
+      ])
     })
   }
 
