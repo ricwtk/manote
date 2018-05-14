@@ -110,6 +110,21 @@ class GDrive {
     return this.removeCred();
   }
 
+  createFile(name) {
+    return new Promise((resolve, reject) => {
+      this.drive.files.create({
+        resource: {
+          name: name,
+          mimeType: "text/plain",
+          parents: ["appDataFolder"]
+        }
+      }, (err, resp) => {
+        if (err) reject(err);
+        resolve(resp.data.id);
+      });
+    });
+  }
+
   getFileContent(fileId) {
     return new Promise((resolve, reject) => {
       this.drive.files.get({
@@ -151,18 +166,7 @@ class GDrive {
   }
 
   createDataFile() {
-    return new Promise((resolve, reject) => {
-      this.drive.files.create({
-        resource: {
-          name: "notes",
-          mimeType: "text/plain",
-          parents: ["appDataFolder"]
-        }
-      }, (err, resp) => {
-        if (err) reject(err);
-        resolve(resp.data.id);
-      });
-    })
+    return this.createFile("notes");
   }
 
   getDataFile() {
@@ -239,18 +243,7 @@ class GDrive {
   }
 
   createArchiveFile() {
-    return new Promise((resolve, reject) => {
-      this.drive.files.create({
-        resource: {
-          name: "archive",
-          mimeType: "text/plain",
-          parents: ["appDataFolder"]
-        }
-      }, (err, resp) => {
-        if (err) reject(err);
-        resolve(resp.data.id);
-      });
-    })
+    return this.createFile("archive");
   }
 
   getArchiveFile() {
@@ -325,6 +318,49 @@ class GDrive {
     })
   }
 
+  createDefaultFile() {
+    return this.createFile("default");
+  }
+
+  getDefaultFile() {
+    return new Promise((resolve, reject) => {
+      this.drive.files.list({
+        spaces: "appDataFolder",
+        q: "name='default'"
+      }, (err, resp) => {
+        if (err) reject(err);
+        resolve(resp.data.files);
+      });
+    }).then(files => {
+      if (files.length > 0) {
+        return files[0].id;
+      } else {
+        return this.createDefaultFile();
+      }
+    });
+  }
+
+  getDefault() {
+    return this.getDefaultFile().then(fid => this.getFileContent(fid)).then(resp => {
+      let defaultFormat = {
+        Title: { type: "single", content: "Untitled" },
+        Content: { type: "multiple", content: "", height: "auto" },
+        Categories: { type: "tags", content: "" },
+        order: ["Title", "Content", "Categories"]
+      };
+      if (!resp.data) {
+        this.setDefault(defaultFormat);
+      }
+      return {
+        id: resp.id,
+        data: resp.data ? resp.data : defaultFormat
+      }
+    });
+  }
+
+  setDefault(format) {
+    return this.getDefaultFile().then((fid) => this.updateFileContent(fid, format));
+  }
 }
 
 module.exports = GDrive;

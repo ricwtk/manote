@@ -201,14 +201,10 @@ var noteList = {
     }).catch(showErr)
   },
   createRemoteNote: function () {
-    return new Promise(function (resolve, reject) {
-      let newNote = new Note(generateRandomId(10,this.noteList.remote.map(el => el.id)), null, null, {
-        Title: { type: "single", content: "Untitled" },
-        Content: { type: "multiple", content: "", height: "auto" },
-        Categories: { type: "tags", content: "" },
-      });
+    return gd.getDefault().then(df => {
+      let newNote = new Note(generateRandomId(10,this.remote.map(el => el.id)), null, null, df.data);
       this.remote.push(newNote);
-      resolve(newNote);
+      return newNote;
     })
   },
   updateRemoteArchive: function () {
@@ -482,6 +478,7 @@ new Vue({
       this.tickedFiles = [];
     },
     createNote: function (dirOfNew) {
+      this.stat.running = true;
       if (this.noteLocation.local) {
         this.noteList.createLocalNote(dirOfNew)
           .then(newNote => la.updateNote(newNote))
@@ -490,13 +487,17 @@ new Vue({
             this.$nextTick(() => {
               this.$nextTick(() => {
                 this.$refs.listContainer.selectFile(nid);
+                this.stat.running = false;
               })
             });
           });
       } else {
         this.noteList.createRemoteNote()
           .then(newNote => gd.updateNote(newNote))
-          .then(resp => this.noteList.setRemote(resp.data));
+          .then(resp => this.noteList.setRemote(resp.data))
+          .then(() => {
+            this.stat.running = false
+          });
       }
     },
     deleteNote: function (nid) {
@@ -679,7 +680,15 @@ new Vue({
       return defaultFormat;
     },
     setDefault: function () {
-      localSetting.setDefault(path.dirname(this.openedFile.id), this.getFormat());
+      this.stat.running = true;
+      if (this.noteLocation.local) {
+        localSetting.setDefault(path.dirname(this.openedFile.id), this.getFormat());
+        this.stat.running = false;
+      } else {
+        gd.setDefault(this.getFormat()).then(() => {
+          this.stat.running = false;
+        });
+      }
     },
     setGlobalDefault: function () {
       localSetting.setGlobalDefault(this.getFormat());
@@ -713,8 +722,28 @@ new Vue({
         this.$nextTick(() => this.$refs.defaultDisplay.toggle());
       }
     },
+    showRemoteDefault: function () {
+      this.stat.running = true;
+      gd.getDefault().then(resp => {
+        this.ddTitle = "Drive Default";
+        this.ddLocation = "Google Drive";
+        this.ddFormat = resp.data;
+        this.$nextTick(() => {
+          this.$refs.defaultDisplay.toggle();
+          this.stat.running = false;
+        });
+      })
+    },
     saveDefault: function(x) {
-      localSetting.setDefault(path.dirname(this.ddLocation), this.ddFormat);
+      this.stat.running = true;
+      if (this.ddLocation == "Google Drive") {
+        gd.setDefault(this.ddFormat).then(() => {
+          this.stat.running = false;
+        });
+      } else {
+        localSetting.setDefault(path.dirname(this.ddLocation), this.ddFormat);
+        this.stat.running = false;
+      }
     },
     deleteArchive: function (f) {
       this.stat.running = true;

@@ -47,6 +47,9 @@ module.exports = {
     },
     showGlobalDefault: function () {
       this.$emit("show-global-default");
+    },
+    showRemoteDefault: function () {
+      this.$emit("show-remote-default");
     }
   },
   template: `
@@ -83,6 +86,7 @@ module.exports = {
             <a @click="switchToRemote">Notes on <i class="mdi mdi-google-drive"></i> Google Drive</a>
           </div>
           <div class="menu-item c-hand"><a @click="showRemoteArchive">Show archive</a></div>
+          <div class="menu-item c-hand"><a @click="showRemoteDefault">Default</a></div>
         </template>
         <div class="divider" data-content="Local notes"></div>
         <div class="menu-item c-hand"><a @click="switchToLocal">Notes on <i class="mdi mdi-laptop"></i> this machine</a></div>
