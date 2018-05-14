@@ -53,7 +53,7 @@ var misc = {
 }
 
 var stat = {
-  atInit: true,
+  block: false,
   running: false
 }
 
@@ -481,6 +481,7 @@ new Vue({
     },
     createNote: function (dirOfNew) {
       this.stat.running = true;
+      this.stat.block = true;
       if (this.noteLocation.local) {
         this.noteList.createLocalNote(dirOfNew)
           .then(newNote => la.updateNote(newNote))
@@ -489,6 +490,7 @@ new Vue({
             this.$nextTick(() => {
               this.$nextTick(() => {
                 this.$refs.listContainer.selectFile(nid);
+                this.stat.block = false;
                 this.stat.running = false;
               })
             });
@@ -498,7 +500,8 @@ new Vue({
           .then(newNote => gd.updateNote(newNote))
           .then(resp => this.noteList.setRemote(resp.data))
           .then(() => {
-            this.stat.running = false
+            this.stat.block = false;
+            this.stat.running = false;
           });
       }
     },
@@ -550,17 +553,24 @@ new Vue({
       this.unsaved.modifiedOn(new Date());
       this.openedFile.updateFrom(this.unsaved);
       console.log("saving note");
+      this.stat.block = true;
       this.stat.running = true;
       if (this.noteLocation.local) {
         ls.updateNote(this.openFile).then(() => {
           console.log("note saved");
           this.noteList.updateLocal();
-        }, showErr).then(() => { this.stat.running = false });
+        }, showErr).then(() => { 
+          this.stat.block = false;
+          this.stat.running = false; 
+        });
       } else {
         gd.updateNote(this.openedFile).then(res => {
           console.log(res);
           this.noteList.setRemote(res.data);
-        }, showErr).then(res => { this.stat.running = false });
+        }, showErr).then(res => { 
+          this.stat.block = false;
+          this.stat.running = false;
+        });
       }
     },
     discardUnsaved: function () {
@@ -725,6 +735,7 @@ new Vue({
       }
     },
     showRemoteDefault: function () {
+      this.stat.block = true;
       this.stat.running = true;
       gd.getDefault().then(resp => {
         this.ddTitle = "Drive Default";
@@ -732,6 +743,7 @@ new Vue({
         this.ddFormat = resp.data;
         this.$nextTick(() => {
           this.$refs.defaultDisplay.toggle();
+          this.stat.block = false;
           this.stat.running = false;
         });
       })
@@ -798,6 +810,7 @@ new Vue({
           currentUser.email = null;
           currentUser.profilePic = null;
           this.noteList.remote = [];
+          this.noteLocation.setLocal();
         })
         .then(() => gd.getAuthUrl())
         .then(authUrl => {
@@ -834,6 +847,8 @@ new Vue({
 //   });
 // }
 
+stat.block = true;
+stat.running = true;
 la = new LAccess();
 
 localSetting.getRecent().forEach(d => {
@@ -852,11 +867,14 @@ function afterSignIn(cUser) {
 
 gd = new GDrive();
 gd.signInInit()
-.then(afterSignIn)
-.catch((err) => {
+.then(afterSignIn, (err) => {
   console.error(err);
   return gd.getAuthUrl()
     .then(authUrl => {
       misc.authUrl = authUrl;
     });
+})
+.then(() => {
+  stat.block = false;
+  stat.running = false;
 })
