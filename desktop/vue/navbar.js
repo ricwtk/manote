@@ -7,6 +7,9 @@ module.exports = {
     reload: function () {
       this.$emit("reload");
     },
+    closeWin: function () {
+      this.$emit("close-win");
+    },
     hide: function () {
       this.$el.classList.add("hide-md");
     },
@@ -15,9 +18,9 @@ module.exports = {
     }
   },
   template: `
-  <div class="navbar p-1 bg-dark" :id="id">
+  <div class="navbar p-1 bg-dark" :id="id" style="-webkit-app-region: drag">
     <div class="navbar-section">
-      <div class="c-hand mdi mdi-24px mdi-menu px-2" @click="toggleSidebar"></div>
+      <div class="c-hand mdi mdi-24px mdi-menu px-2" @click="toggleSidebar" style="-webkit-app-region: no-drag"></div>
     </div>
 
     <div class="navbar-center">
@@ -27,7 +30,8 @@ module.exports = {
 
     <div class="navbar-section mx-2">
       <span class="mdi mdi-24px mdi-spin mdi-loading text-warning" v-show="stat.running"></span>
-      <span class="mdi mdi-24px mdi-reload c-hand" @click="reload"></span>
+      <span class="mdi mdi-24px mdi-reload c-hand" @click="reload" style="-webkit-app-region: no-drag"></span>
+      <span class="mdi mdi-24px mdi-close c-hand text-error" @click="closeWin" style="-webkit-app-region: no-drag"></span>
     </div>
   </div>
   `

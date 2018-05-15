@@ -1,5 +1,5 @@
 const path = require("path");
-const {shell} = require("electron");
+const {shell, ipcRenderer} = require("electron");
 const fs = require("fs");
 const {mdconverter, mdguides} = require(path.join(__dirname, "js", "md.js"));
 const Vue = require(path.join(__dirname, "js", "vue.min.js"));
@@ -376,7 +376,7 @@ new Vue({
       this.openedFile = file;
       this.unsaved = file.copy();
       this.$nextTick(() => {
-        this.$refs.navbar.hide();
+        // this.$refs.navbar.hide();
         this.$refs.noteContainer.show();
         this.$refs.listContainer.hide();
       });
@@ -581,7 +581,7 @@ new Vue({
     },
     closeNote: function () {
       if (this.$refs.noteContainer) this.$refs.noteContainer.hide();
-      this.$refs.navbar.show();
+      // this.$refs.navbar.show();
       if (this.$refs.listContainer) {
         this.$refs.listContainer.show();
         this.$refs.listContainer.unselectAllItems();
@@ -737,6 +737,9 @@ new Vue({
         .then(authUrl => {
           misc.authUrl = authUrl;
         });
+    },
+    closeWin: function () {
+      ipcRenderer.send("close-window");
     }
   }
 })
