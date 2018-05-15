@@ -1,13 +1,13 @@
-const {mdconverter, mdguides} = require("./js/md.js");
-const Vue = require("./js/vue.min.js");
-const {Note} = require("./js/note.js");
-const {generateRandomId,showErr} = require("./js/misc.js");
-const fs = require("fs");
 const path = require("path");
-const localSetting = require("./js/get-local.js");
 const {shell} = require("electron");
-const GDrive = require("./js/google-drive-access.js");
-const LAccess = require("./js/local-access.js");
+const fs = require("fs");
+const {mdconverter, mdguides} = require(path.join(__dirname, "js", "md.js"));
+const Vue = require(path.join(__dirname, "js", "vue.min.js"));
+const {Note} = require(path.join(__dirname, "js", "note.js"));
+const {generateRandomId,showErr} = require(path.join(__dirname, "js", "misc.js"));
+const localSetting = require(path.join(__dirname, "js", "get-local.js"));
+const GDrive = require(path.join(__dirname, "js", "google-drive-access.js"));
+const LAccess = require(path.join(__dirname, "js", "local-access.js"));
 const Split = require("split.js");
 const splitConfig = {
   sizes: [35,65],
@@ -22,19 +22,19 @@ const defaultDefault = [
   { name: "Categories", type: "tags"}
 ];
 
-Vue.component("list-container", require("./vue/list-container.js"));
-Vue.component("note-container", require("./vue/note-container.js"));
-Vue.component("navbar", require("./vue/navbar.js"));
-Vue.component("sidebar", require("./vue/sidebar.js"));
-Vue.component("list-selection", require("./vue/list-selection.js"));
-Vue.component("modal-loading", require("./vue/modal-loading.js"));
-Vue.component("modal-unsavedprompt", require("./vue/modal-unsavedprompt.js"));
-Vue.component("md-guide", require("./vue/md-guide.js"));
-Vue.component("directory-chooser", require("./vue/directory-chooser.js"));
-Vue.component("fields-display", require("./vue/fields-display.js"));
-Vue.component("list-display", require("./vue/list-display.js"));
-Vue.component("minimal-note-display", require("./vue/minimal-note-display.js"));
-Vue.component("sign-in-ui", require("./vue/sign-in-ui.js"));
+Vue.component("list-container", require(path.join(__dirname, "vue", "list-container.js")));
+Vue.component("note-container", require(path.join(__dirname, "vue", "note-container.js")));
+Vue.component("navbar", require(path.join(__dirname, "vue", "navbar.js")));
+Vue.component("sidebar", require(path.join(__dirname, "vue", "sidebar.js")));
+Vue.component("list-selection", require(path.join(__dirname, "vue", "list-selection.js")));
+Vue.component("modal-loading", require(path.join(__dirname, "vue", "modal-loading.js")));
+Vue.component("modal-unsavedprompt", require(path.join(__dirname, "vue", "modal-unsavedprompt.js")));
+Vue.component("md-guide", require(path.join(__dirname, "vue", "md-guide.js")));
+Vue.component("directory-chooser", require(path.join(__dirname, "vue", "directory-chooser.js")));
+Vue.component("fields-display", require(path.join(__dirname, "vue", "fields-display.js")));
+Vue.component("list-display", require(path.join(__dirname, "vue", "list-display.js")));
+Vue.component("minimal-note-display", require(path.join(__dirname, "vue", "minimal-note-display.js")));
+Vue.component("sign-in-ui", require(path.join(__dirname, "vue", "sign-in-ui.js")));
 
 const separator = "\n" + "-".repeat(10) + "0qp4BCBHLoHfkIi6N1hgeXNaZg20BB0sNZ4k8tE6eWKmTa1CkE" + "-".repeat(10) + "\n\n";
 var currentUser = {

@@ -1,4 +1,4 @@
-const {Note} = require("../js/note.js");
+const {Note} = require(path.join(__dirname, "..", "js", "note.js"));
 
 module.exports = {
   props: ["value", "title", "subtitle", "exceptions"],
