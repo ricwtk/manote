@@ -1,9 +1,22 @@
 const path = require("path");
+const Avatar = require("avatar-initials");
 
 module.exports = {
   props: ["currentUser", "openedDir", "noteLocation"],
   data: function () {
     return { }
+  },
+  watch: {
+    "currentUser.profilePic": function () {
+      if (!this.currentUser.profilePic && this.currentUser.name) {
+        this.$nextTick(() => {
+          new Avatar(this.$refs.avatar, {
+            "useGravatar": false,
+            "initials": this.currentUser.name.split(" ").map(el => el[0]).join("")
+          });
+        })
+      }
+    }
   },
   methods: {
     toggle: function () {
@@ -64,7 +77,7 @@ module.exports = {
           <div class="tile tile-centered bg-dark p-2">
             <div class="tile-icon">
               <figure v-if="currentUser.name" class="avatar avatar-lg">
-                <img :src="currentUser.profilePic" alt="PP">
+                <img :src="currentUser.profilePic" ref="avatar">
               </figure>
               <span v-else class="mdi mdi-48px mdi-account-circle"></span>
             </div>
