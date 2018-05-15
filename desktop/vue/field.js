@@ -318,7 +318,7 @@ let _tags = {
         <span class="mdi mdi-close" @click="removeTag(tag)"></span>
       </span>
       <div class="my-2"></div>
-      <input class="form-input" type="text" :id="'value-' + title" :placeholder="title" @keydown="updateTags">
+      <input class="form-input" type="text" :id="'value-' + title" :placeholder="title + ' (tags)'" @keydown="updateTags">
     </div>
       
     <div v-else class="display-input">
