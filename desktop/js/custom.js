@@ -43,10 +43,6 @@ var currentUser = {
   profilePic: null
 }
 
-var stored = {
-  noteList: []  
-}
-
 var misc = {
   authUrl: "",
   authError: ""
@@ -119,33 +115,33 @@ var noteList = {
   updateLocal: function () {
     this.local = [];
     this.archive.local = [];
-    openedDir.list.forEach(d => {
-      fs.readdir(d, (err, files) => {
-        if (err) {
-          console.log(err);
-          return;
-        }
-        let notes = 
-          files
-            .filter(f => f.endsWith(".manote"))
-            .map(f => path.join(d, f))
-            .filter(f => !this.local.map(el => el.id).includes(f))
-            .map(file => {
-              try {
-                let noteData = JSON.parse(fs.readFileSync(file).toString());
-                return new Note(file, noteData.created, noteData.modified, noteData);
-              } catch (e) {
-                console.log(e);
-                return [];
-              }
-            });
-        this.local = [...this.local, ...notes.filter(note => note !== [])];
-
-        // list archive
-        if (localSetting.hasArchive(d)) {
-          this.archive.local = [...this.archive.local, ...localSetting.getArchive(d)];
-        }
-      })
+    return new Promise((resolve, reject) => {
+      openedDir.list.forEach(d => {
+        fs.readdir(d, (err, files) => {
+          if (err) reject(err);
+          let notes = 
+            files
+              .filter(f => f.endsWith(".manote"))
+              .map(f => path.join(d, f))
+              .filter(f => !this.local.map(el => el.id).includes(f))
+              .map(file => {
+                try {
+                  let noteData = JSON.parse(fs.readFileSync(file).toString());
+                  return new Note(file, noteData.created, noteData.modified, noteData);
+                } catch (e) {
+                  console.log(e);
+                  return [];
+                }
+              });
+          this.local = [...this.local, ...notes.filter(note => note !== [])];
+  
+          // list archive
+          if (localSetting.hasArchive(d)) {
+            this.archive.local = [...this.archive.local, ...localSetting.getArchive(d)];
+          }
+          resolve();
+        })
+      });
     });
   },
   updateLocalArchive: function () {
@@ -238,88 +234,12 @@ var noteList = {
 
 
 
-
-// new Vue({
-//   el: "#body",
-//   data: {
-//     currentUser: currentUser,
-//     stat: stat,
-//     openedDir: openedDir,
-//     noteLocation: noteLocation
-//   },
-//   methods: {
-//     addDirectory: function (newDir) {
-//       this.openedDir.addToList(newDir);
-//       noteList.updateLocal();
-//     },
-//     removeDirectory: function (oldDir) {
-//       this.openedDir.removeFromList(oldDir);
-//       noteList.updateLocal();
-//     },
-//     setLocal: function () {
-//       this.noteLocation.setLocal();
-//     },
-//     setRemote: function () {
-//       this.noteLocation.setRemote();
-//     }
-//   }
-// })
-
-// new Vue({
-//   el: "#navbar",
-//   data: {
-//     currentUser: currentUser,
-//     stat: stat,
-//     openedDir: openedDir,
-//     noteLocation: noteLocation
-//   },
-//   methods: {
-//     toggleSidebar: function () {
-//       this.$refs.sidebar.toggle();
-//     },
-//     signInGoogle: function () {
-//       gd.handleSignInClick();
-//     },
-//     signOutGoogle: function () {
-//       gd.handleSignOutClick();
-//     },
-//     toggleMarkdownGuide: function () {
-//       this.$refs.markdownguide.toggle();
-//     },
-//     addDirectory: function (newDir) {
-//       this.openedDir.addToList(newDir);
-//       noteList.updateLocal();
-//     },
-//     removeDirectory: function (oldDir) {
-//       this.openedDir.removeFromList(oldDir);
-//       noteList.updateLocal();
-//     },
-//     setLocal: function () {
-//       this.noteLocation.setLocal();
-//     },
-//     setRemote: function () {
-//       this.noteLocation.setRemote();
-//     }
-//   }
-// })
-
-
-
-
-
-
-
-
-
-
-
 new Vue({
   el: "#body",
   data: {
     currentUser: currentUser,
     stat: stat,
     tickedFiles: [],
-    stored: stored,
     showFilter: false,
     filter: {
       sort: "",
@@ -406,30 +326,33 @@ new Vue({
   methods: {
     reload: function () {
       this.stat.running = true;
+      let p;
       if (this.noteLocation.local) {
-        this.noteList.updateLocal();
-        this.stat.running = false;
+        p = this.noteList.updateLocal();
       } else {
-        Promise.all([
+        p = Promise.all([
           this.noteList.updateRemote(),
           this.noteList.updateRemoteArchive()
-        ]).then(() => {
-          this.stat.running = false;
-        })
+        ])
       }
+      p.then(() => {
+        this.stat.running = false;
+      });
     },
     addDirectory: function (newDir) {
       this.openedDir.addToList(newDir);
-      noteList.updateLocal();
-      localSetting.updateRecent(this.openedDir.list);
+      this.noteList.updateLocal().then(() => {
+        localSetting.updateRecent(this.openedDir.list);
+      });
     },
     openDirectory: function (dir) {
       shell.openItem(dir);
     },
     removeDirectory: function (oldDir) {
       this.openedDir.removeFromList(oldDir);
-      noteList.updateLocal();
-      localSetting.updateRecent(this.openedDir.list);
+      this.noteList.updateLocal().then(() => {
+        localSetting.updateRecent(this.openedDir.list);
+      });
     },
     setLocal: function () {
       this.noteLocation.setLocal();
@@ -486,14 +409,15 @@ new Vue({
         this.noteList.createLocalNote(dirOfNew)
           .then(newNote => la.updateNote(newNote))
           .then((nid) => {
-            this.noteList.updateLocal();
-            this.$nextTick(() => {
+            this.noteList.updateLocal().then(() => {
               this.$nextTick(() => {
-                this.$refs.listContainer.selectFile(nid);
-                this.stat.block = false;
-                this.stat.running = false;
-              })
-            });
+                this.$nextTick(() => {
+                  this.$refs.listContainer.selectFile(nid);
+                  this.stat.block = false;
+                  this.stat.running = false;
+                })
+              });
+            })
           });
       } else {
         this.noteList.createRemoteNote()
@@ -643,20 +567,17 @@ new Vue({
     },
     unarchive: function (f) {
       this.stat.running = true;
+      let p;
       if (typeof(f) == "string") {
-        localSetting.unarchive(f)
-          .then((newFile) => {
-            this.noteList.updateLocal();
-            this.closeNote();
-            this.stat.running = false;
-          })
+        p = localSetting.unarchive(f)
+          .then((newFile) => this.noteList.updateLocal());
       } else {
-        this.noteList.unarchiveRemote([f.id])
-          .then(() => {
-            this.closeNote();
-            this.stat.running = false;
-          });
+        p = this.noteList.unarchiveRemote([f.id])
       }
+      p.then(() => {
+        this.closeNote();
+        this.stat.running = false;
+      });
     },
     closeNote: function () {
       if (this.$refs.noteContainer) this.$refs.noteContainer.hide();
@@ -847,16 +768,6 @@ new Vue({
 //   });
 // }
 
-stat.block = true;
-stat.running = true;
-la = new LAccess();
-
-localSetting.getRecent().forEach(d => {
-  openedDir.addToList(d);
-});
-noteList.updateLocal();
-
-
 // google drive
 function afterSignIn(cUser) {
   currentUser.name = cUser.displayName;
@@ -865,16 +776,26 @@ function afterSignIn(cUser) {
   return Promise.all([ noteList.updateRemote(), noteList.updateRemoteArchive() ]);
 }
 
+stat.block = true;
+stat.running = true;
+la = new LAccess();
 gd = new GDrive();
-gd.signInInit()
+
+localSetting.getRecent().forEach(d => {
+  openedDir.addToList(d);
+});
+
+let localInit = noteList.updateLocal();
+let gdInit = gd.signInInit()
 .then(afterSignIn, (err) => {
   console.error(err);
   return gd.getAuthUrl()
     .then(authUrl => {
       misc.authUrl = authUrl;
     });
-})
-.then(() => {
+});
+
+Promise.all([localInit, gdInit]).then(() => {
   stat.block = false;
   stat.running = false;
 })

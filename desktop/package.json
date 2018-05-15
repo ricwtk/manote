@@ -4,12 +4,21 @@
   "description": "Desktop app for MaNote",
   "main": "index.js",
   "scripts": {
-    "start": "electron ."
+    "start": "electron .",
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder"
   },
   "author": "Richard Wong",
   "license": "ISC",
+  "build": {
+    "appId": "com.ricwtk.manote",
+    "linux": {
+      "icon": "icons/icon.png"
+    }
+  },
   "devDependencies": {
-    "electron": "^1.8.6"
+    "electron": "^1.8.6",
+    "electron-builder": "^20.13.3"
   },
   "dependencies": {
     "clipboardy": "^1.2.3",
