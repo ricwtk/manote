@@ -1,4 +1,4 @@
-const {app, BrowserWindow} = require('electron');
+const {app, BrowserWindow, shell} = require('electron');
 const path = require('path');
 const url = require('url');
   
@@ -21,6 +21,15 @@ function createWindow () {
 
   // Open the DevTools.
   // win.webContents.openDevTools()
+  var handleRedirect = (e, urlStr) => {
+    if(url != win.webContents.getURL()) {
+      e.preventDefault();
+      shell.openExternal(urlStr);
+    }
+  };
+  
+  win.webContents.on('will-navigate', handleRedirect)
+  win.webContents.on('new-window', handleRedirect)
 
   // Emitted when the window is closed.
   win.on('closed', () => {
