@@ -77,6 +77,6 @@ code {
 }
 
 .md-default li p {
-  display: inline-block;
+  display: inline;
   margin-bottom: 0;
 }
