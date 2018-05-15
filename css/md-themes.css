@@ -2,6 +2,7 @@
 
 .md-default {
   font-family: Roboto;
+  line-height: 1.5;
 }
 
 .md-default a {
@@ -63,11 +64,19 @@ code {
 }
 
 .md-default ul {
-  margin-top: 0em;
-  margin-bottom: 0em;
+  margin: .8rem 0 .8rem .8rem
 }
 
 .md-default p {
   margin: 0;
   margin-bottom: .5em;
+}
+
+.md-default li {
+  margin-top: 0;
+}
+
+.md-default li p {
+  display: inline-block;
+  margin-bottom: 0;
 }
