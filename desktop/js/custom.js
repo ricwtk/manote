@@ -480,7 +480,7 @@ new Vue({
       this.stat.block = true;
       this.stat.running = true;
       if (this.noteLocation.local) {
-        ls.updateNote(this.openFile).then(() => {
+        la.updateNote(this.openedFile).then(() => {
           console.log("note saved");
           this.noteList.updateLocal();
         }, showErr).then(() => { 
