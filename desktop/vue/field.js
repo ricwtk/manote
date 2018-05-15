@@ -236,7 +236,7 @@ let _datetime = {
     ></input-header>
 
     <div v-if="editable" class="input-datetime form-input">
-      <div class="input-group col-6 col-md-12">
+      <div class="input-group col-6 col-xs-12">
         <div :class="['mdi', 'mdi-calendar', dateDisabled ? 'text-error' : 'text-success']" @click="toggleDate"></div>
         <input type="text" ref="year" :disabled="dateDisabled" class="invisible-form-input text-center four-digits" :value="value.substr(0,4)" @keydown="updateValue($event,'year')" @click="selectThis">
         <div>-</div>
@@ -244,7 +244,7 @@ let _datetime = {
         <div>-</div>
         <input type="text" ref="day" :disabled="dateDisabled" class="invisible-form-input text-center two-digits" :value="value.substr(8,2)" @keydown="updateValue($event,'day')" @click="selectThis">
       </div>
-      <div class="input-group col-6 col-md-12">
+      <div class="input-group col-6 col-xs-12">
         <div :class="['mdi', 'mdi-clock', timeDisabled ? 'text-error' : 'text-success']" @click="toggleTime"></div>
         <input type="text" ref="hour" :disabled="timeDisabled" class="invisible-form-input text-center two-digits" :value="value.substr(-5,2)" @keydown="updateValue($event,'hour')" @click="selectThis">
         <div>:</div>
