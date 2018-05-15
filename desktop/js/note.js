@@ -1,4 +1,4 @@
-const Vue = require("./vue.js");
+const Vue = require("./vue.min.js");
 const fs = require("fs");
 
 class Field {

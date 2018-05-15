@@ -1,5 +1,5 @@
 const path = require("path");
-const showdown = require(path.join(__dirname, "showdown.js"));
+const showdown = require(path.join(__dirname, "showdown.min.js"));
 const emojiList = require(path.join(__dirname, "emoji.js"));
 const mdconverter = new showdown.Converter({
   tasklists: true,

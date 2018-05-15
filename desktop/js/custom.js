@@ -1,5 +1,5 @@
 const {mdconverter, mdguides} = require("./js/md.js");
-const Vue = require("./js/vue.js");
+const Vue = require("./js/vue.min.js");
 const {Note} = require("./js/note.js");
 const {generateRandomId,showErr} = require("./js/misc.js");
 const fs = require("fs");

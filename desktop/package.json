@@ -1,5 +1,6 @@
 {
   "name": "manote-desktop",
+  "productName": "MaNote",
   "version": "1.0.0",
   "description": "Desktop app for MaNote",
   "main": "index.js",
@@ -13,7 +14,22 @@
   "build": {
     "appId": "com.ricwtk.manote",
     "linux": {
-      "icon": "icons/icon.png"
+      "files": [
+        "build/icons",
+        "css/custom.css",
+        "css/materialdesignicons.min.css",
+        "css/md-themes.css",
+        "css/spectre.min.css",
+        "fonts",
+        "icons/icon.png",
+        "js",
+        "!js/showdown.js",
+        "!js/vue.js",
+        "vue",
+        "index.html",
+        "index.js"
+      ],
+      "asar": true
     }
   },
   "devDependencies": {

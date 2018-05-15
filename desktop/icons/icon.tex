@@ -1,0 +1,33 @@
+\documentclass{article}
+\usepackage[
+  paperheight=10in,
+  paperwidth=10in,
+  margin=0px]{geometry}
+\usepackage{tikz}
+
+\begin{document}
+  \definecolor{darkcolor}{RGB}{0,150,136}%#009688
+  \definecolor{lightcolor}{RGB}{255,255,255}%{237,231,246}%{209,196,233}
+  \centering
+
+  \resizebox{\paperwidth}{!}{
+    \begin{tikzpicture}[line width=20mm,darkcolor]
+    \coordinate (a) at (.5,.5);
+    \coordinate (b) at ([shift={(+9.5,0)}]a);
+    \coordinate (c) at ([shift={(+9.5,+9.5)}]b);
+    \coordinate (d) at ([shift={(0,+9.5)}]c);
+    \coordinate (e) at ([shift={(-19,0)}]d);
+    % y range for cloud: 0 -- 8.2
+    \draw[opacity=0] (0,0) rectangle (20,20);
+    
+    \draw[fill] (a) -- (b) arc (-90:0:9.5) -- (c) -- (d) -- (e) -- cycle;
+    
+    \draw[fill,white,line width=1mm] (11,4) -- ++(7,6) -- ++(-4,0) -- ++(0,6) -- ++(-6,0) -- ++(0,-6) -- ++(-4,0) -- cycle;
+    
+    \draw[fill,white,line width=1mm] (2.5,3) -- ++(-2,-2) -- ++(0,4) -- cycle;
+    \draw[fill,white,line width=1mm] (2.5,10) -- ++(-2,-2) -- ++(0,4) -- cycle;
+    \draw[fill,white,line width=1mm] (2.5,17) -- ++(-2,-2) -- ++(0,4) -- cycle;
+
+    \end{tikzpicture}
+  }
+\end{document}

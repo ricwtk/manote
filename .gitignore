@@ -1,3 +1,4 @@
 node_modules
 desktop/js/client-secret\.json
 desktop/dist
+desktop/yarn-error.log
