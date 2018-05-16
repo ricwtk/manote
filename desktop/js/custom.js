@@ -355,11 +355,17 @@ new Vue({
       });
     },
     setLocal: function () {
-      this.noteLocation.setLocal();
+      if (!this.noteLocation.local) {
+        this.noteLocation.setLocal();
+        this.closeNote();
+      }
       this.$refs.sidebar.toggle();
     },
     setRemote: function () {
-      this.noteLocation.setRemote();
+      if (this.noteLocation.local) {
+        this.noteLocation.setRemote();
+        this.closeNote();
+      }
       this.$refs.sidebar.toggle();
     },
     openFile: function (file) {
