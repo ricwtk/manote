@@ -27,7 +27,8 @@
         "!js/vue.js",
         "vue",
         "index.html",
-        "index.js"
+        "index.js",
+        "splash.html"
       ],
       "asar": true
     }

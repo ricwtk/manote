@@ -5,14 +5,34 @@ const url = require('url');
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let win
+let splash
 
 function createWindow () {
   // Create the browser window.
+  splash = new BrowserWindow({
+    icon: path.join(__dirname, "icons", "icon.png"), 
+    frame: false,
+    width: 250,
+    height: 250,
+    show: false
+  })
+
+  splash.loadURL(url.format({
+    pathname: path.join(__dirname, 'splash.html'),
+    protocol: 'file:',
+    slashes: true
+  }))
+
+  // splash.webContents.openDevTools();
+
+  splash.once("ready-to-show", () => { splash.show(); });
+
   win = new BrowserWindow({
     icon: path.join(__dirname, "icons", "icon.png"), 
     frame: false,
     width: 800, 
-    height: 600
+    height: 600,
+    show: false
   })
 
   // and load the index.html of the app.
@@ -22,7 +42,10 @@ function createWindow () {
     slashes: true
   }))
 
-  win.maximize();
+  win.once("ready-to-show", () => {
+    splash.destroy();
+    win.show();
+  })
 
   // Open the DevTools.
   // win.webContents.openDevTools()
