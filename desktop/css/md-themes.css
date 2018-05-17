@@ -95,6 +95,10 @@ code {
 }
 
 .md-default .timeline .entry .title {
+  flex-shrink: 0;
+}
+
+.md-default .timeline .entry .title {
   width: 25%;
   border-right: 2px solid #ddd;
 }
