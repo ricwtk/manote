@@ -796,7 +796,11 @@ localSetting.getRecent().forEach(d => {
 
 let localInit = noteList.updateLocal();
 let gdInit = gd.signInInit()
-.then(afterSignIn, (err) => {
+.then((cu) => {
+  afterSignIn(cu);
+  stat.block = false;
+  stat.running = false;
+}, (err) => {
   console.error(err);
   return gd.getAuthUrl()
     .then(authUrl => {
