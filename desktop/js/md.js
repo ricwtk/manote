@@ -1,5 +1,5 @@
 const path = require("path");
-const showdown = require("showdown");
+const showdown = require(path.join(__dirname, "showdown.min.js")); 
 const emojiList = require(path.join(__dirname, "emoji.js"));
 
 function generateRandomId(n, except) {
