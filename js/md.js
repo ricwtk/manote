@@ -1,3 +1,44 @@
+var ids = [];
+
+var timelineExt = {
+  type: 'lang',
+  filter: (text, converter, opt) => {
+    let tlstr = [];
+    let regexG = /(?:^|\r\n\r\n|\r\r|\n\n)\^\^\^timeline(?: |\r\n|\r|\n)+([\s\S]*?)\^\^\^(?:$|\r\n|\r|\n)/g;
+    let regexS = /(?:^|\r\n|\r|\n)\[([\s\S]*?)\](?:\r\n|\r|\n)+\[([\s\S]*?)\](?:\r\n|\r|\n)+\[([\s\S]*?)\](?:\r\n|\r|\n)+\[([\s\S]*?)\](?:\r\n|\r|\n)/g;
+    while ((match = regexG.exec(text)) !== null) {
+      tlstr.push(match);
+    }
+    if (tlstr.length > 0) {
+      tlstr.forEach(tl => {
+        let replacement = "<div class='timeline'>";
+        while ((match = regexS.exec(tl[1])) !== null) {
+          let [y0,y1,y2,y3,y4] = match;
+          replacement += "<div class='entry'>";
+          replacement += "<div class='title'>";
+          ids.push(generateRandomId(10, ids));
+          replacement += "<label for='" + ids[ids.length-1] + "' class='head'>" + converter.makeHtml(y1) + "</label>";
+          replacement += "<input type='checkbox' id='" + ids[ids.length-1] + "'>"
+          replacement += "<div class='content'>" + converter.makeHtml(y2) + "</div>";
+          replacement += "</div>";
+          replacement += "<div class='body'>";
+          ids.push(generateRandomId(10, ids));
+          replacement += "<label for='" + ids[ids.length-1] + "' class='head'>" + converter.makeHtml(y3) + "</label>";
+          replacement += "<input type='checkbox' id='" + ids[ids.length-1] + "'>"
+          replacement += "<div class='content'>" + converter.makeHtml(y4) + "</div>";
+          replacement += "</div>";
+          replacement += "</div>";
+        }
+        replacement += "</div>";
+        text = text.replace(tl[0], replacement);
+      })
+    }
+    return text;
+  }
+}
+
+showdown.extension("timeline", timelineExt);
+
 const mdconverter = new showdown.Converter({
   tasklists: true,
   noHeaderId: true,
@@ -7,7 +48,8 @@ const mdconverter = new showdown.Converter({
   strikethrough: true,
   underline: true,
   tables: true,
-  ghMentions: true
+  ghMentions: true,
+  extensions: ["timeline"]
 });
 
 var showdownOpt = "| **Key** | **Value** |" + "\n" +
@@ -236,4 +278,9 @@ const mdguides = [{
     "|\-      |`\\-`         |minus sign (hyphen)|\n" +
     "|\.      |`\\.`         |dot                |\n" +
     "|\!      |`\\!`         |exclamation mark   |\n"
+}, {
+  icon: "mdi-chart-gantt",
+  tooltip: "Timeline",
+  guide: "**Result:** \n\n^^^timeline \n[date (click for detail)]\n[date detail]\n[title (click for desc)]\n[desc]\n^^^\n\n" +
+    "**Code:** \n\n```\n^^^timeline \n[date (click for detail)]\n[date detail]\n[title (click for desc)]\n[desc]\n^^^\n```"
 }]
